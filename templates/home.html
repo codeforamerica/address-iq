@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Long Beach Utilization Dashboard</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+        <!-- bootstrap widget theme -->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.1/css/theme.bootstrap.css">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.1/jquery.tablesorter.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.1/jquery.tablesorter.widgets.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() { 
+                $.extend($.tablesorter.themes.bootstrap, {
+                    // these classes are added to the table. To see other table classes available,
+                    // look here: http://twitter.github.com/bootstrap/base-css.html#tables
+                    table      : 'table table-bordered',
+                    caption    : 'caption',
+                    header     : 'bootstrap-header', // give the header a gradient background
+                    footerRow  : '',
+                    footerCells: '',
+                    icons      : '', // add "icon-white" to make them white; this icon class is added to the <i> in the header
+                    sortNone   : 'bootstrap-icon-unsorted',
+                    sortAsc    : 'icon-chevron-up glyphicon glyphicon-chevron-up',     // includes classes for Bootstrap v2 & v3
+                    sortDesc   : 'icon-chevron-down glyphicon glyphicon-chevron-down', // includes classes for Bootstrap v2 & v3
+                    active     : '', // applied when column is sorted
+                    hover      : '', // use custom css here - bootstrap class may not override it
+                    filterRow  : '', // filter row class
+                    even       : '', // odd row zebra striping
+                    odd        : ''  // even row zebra striping
+                });
+                $('table').tablesorter({theme: "bootstrap", headerTemplate : '{content} {icon}', widgets: ['uitheme']}); 
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>12-08-2013 Dashboard</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Place Name
+                        <th>Calls in last 7 days</th>
+                        <th>Last 30</th>
+                        <th>CY 2013</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td><a href="/address/{{row[0]}}">{{row[0]}}</a></td>
+                        <td>{{row[1]}}</td>
+                        <td>{{row[3]}}</td>
+                        <td>{{row[4]}}</td>
+                        <td>{{row[2]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
