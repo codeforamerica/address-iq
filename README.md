@@ -16,12 +16,20 @@ Installation
 
 This is a Python Flask application. To install Python in your local development environment, follow the directions for [Python & Virtualenv](https://github.com/codeforamerica/howto/blob/master/Python-Virtualenv.md). The file `Procfile` contains the command for running the app; you can run it directly:
 
-    $ python main.py
+    $ python app.py
 
 ...or ask [Honcho](http://honcho.readthedocs.org/) to run it for you:
 
     $ pip install honcho
     $ honcho start
+
+Note that you'll need the following environment variables set:
+
+APP_SETTINGS: you probably want this to equal `Config.DevelopmentConfig`
+SECRET_KEY: Follow the instructions [here](http://flask.pocoo.org/docs/quickstart/) under "How to generate good secret keys"
+DATABASE_URI: This is a string representing your database's URI. 
+
+To keep these set regularly, you might want to either create a shell script or use virtualenvwrapper and a postactivate script, as described (here)[http://www.realpython.com/blog/python/flask-by-example-part-1-project-setup/].
 
 Testing
 ------
