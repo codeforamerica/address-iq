@@ -42,3 +42,7 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+# virtualenvwrapper includes
+bin/
+include/
