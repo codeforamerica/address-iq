@@ -9,19 +9,17 @@ db = SQLAlchemy(app)
 meta = db.MetaData()
 meta.bind = db.engine
 
+import models
+
 def fetch_incidents_at_address(address):
-    fire_incidents = db.Table('fire_incidents', meta, autoload=True)
-    police_incidents = db.Table('police_incidents', meta, autoload=True)
-    business_licenses = db.Table('all_business_licenses', meta, autoload=True)
-    
-    fire_select = db.select([fire_incidents], fire_incidents.c.incident_address==address.upper())
-    police_select = db.select([police_incidents], police_incidents.c.incident_address==address.upper())
-    business_licenses_select = db.select([business_licenses], business_licenses.c.business_address==address.upper())
+    fire_query = db.session.query(models.FireIncident).filter(models.FireIncident.incident_address==address.upper())
+    police_query = db.session.query(models.PoliceIncident).filter(models.PoliceIncident.incident_address==address.upper())
+    business_query = db.session.query(models.BusinessLicense).filter(models.BusinessLicense.business_address==address.upper())
 
     return {
-        'fire': fire_select.execute().fetchall(),
-        'police': police_select.execute().fetchall(),
-        'businesses': business_licenses_select.execute().fetchall()
+        'fire': fire_query.all(),
+        'police': police_query.all(),
+        'businesses': business_query.all()
     }
 
 @app.route("/")
