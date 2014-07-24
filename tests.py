@@ -39,24 +39,28 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert len(incidents['businesses']) == 0
 
     def test_fetch_incident_at_address_returns_correct_number_of_items(self):
-        x = [FireIncidentFactory(incident_address="123 MAIN ST") for i in range(0, 5)]
+        [FireIncidentFactory(incident_address="123 MAIN ST") for i in range(0, 5)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST") for i in range(0, 3)]
+        [BusinessLicenseFactory(business_address="123 MAIN ST") for i in range(0, 1)]
         db.session.flush()
 
         incidents = fetch_incidents_at_address("123 MAIN ST")
         assert len(incidents['fire']) == 5
-        assert len(incidents['police']) == 0
-        assert len(incidents['businesses']) == 0
+        assert len(incidents['police']) == 3
+        assert len(incidents['businesses']) == 1
 
     def test_fetch_incident_at_address_works_if_lowercase_supplied(self):
-        x = [FireIncidentFactory(incident_address="123 MAIN ST") for i in range(0, 5)]
+        [FireIncidentFactory(incident_address="123 MAIN ST") for i in range(0, 5)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST") for i in range(0, 3)]
+        [BusinessLicenseFactory(business_address="123 MAIN ST") for i in range(0, 1)]
         db.session.flush()
 
         incidents = fetch_incidents_at_address("123 main st")
         assert len(incidents['fire']) == 5
-        assert len(incidents['police']) == 0
-        assert len(incidents['businesses']) == 0
+        assert len(incidents['police']) == 3
+        assert len(incidents['businesses']) == 1
 
-import factory, factory.alchemy
+import factory, factory.alchemy, factory.fuzzy
 import models
 
 class FireIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -66,7 +70,19 @@ class FireIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     cad_call_number = factory.Sequence(lambda n: n)
 
+class PoliceIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = models.PoliceIncident
+        sqlalchemy_session = db.session
 
+    cad_call_number = factory.Sequence(lambda n: "L%d" % n)
+
+class BusinessLicenseFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = models.BusinessLicense
+        sqlalchemy_session = db.session
+
+    name = factory.fuzzy.FuzzyText()
 
 if __name__ == '__main__':
     unittest.main()

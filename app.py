@@ -29,7 +29,7 @@ def home():
 @app.route("/address/<address>")
 def address(address):
     incidents = fetch_incidents_at_address(address)
-    return "%d fire incidents" % len(incidents['fire'])
+    return render_template("address.html", incidents=incidents)
 
 if __name__ == "__main__":
     app.run(debug=True)

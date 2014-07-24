@@ -4,6 +4,19 @@
     <title>Hotspotter</title>
   </head>
   <body>
+      {% set navigation_bar = [
+          ('/watchlist', 'watchlist', 'My Watchlist'),
+          ('/active', 'active', 'Active Cases'),
+          ('/browse', 'browse', 'Browse All')
+      ] -%}
+      {% set active_page = active_page|default('') -%}
+      <ul id="navigation">
+        {% for href, id, caption in navigation_bar %}
+        <li{% if id == active_page %} class="active"{% endif %}>
+            <a href="{{ href|e }}>">{{ caption|e }}</a>
+        </li>
+        {% endfor %}
+      </ul>
   {% block body %}
 
   {% endblock %}
