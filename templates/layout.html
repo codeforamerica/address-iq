@@ -2,23 +2,38 @@
 <html>
   <head>
     <title>Hotspotter</title>
+    <link href='/static/main.css' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
   </head>
   <body>
-      {% set navigation_bar = [
-          ('/watchlist', 'watchlist', 'My Watchlist'),
-          ('/active', 'active', 'Active Cases'),
-          ('/browse', 'browse', 'Browse All')
-      ] -%}
-      {% set active_page = active_page|default('') -%}
-      <ul id="navigation">
-        {% for href, id, caption in navigation_bar %}
-        <li{% if id == active_page %} class="active"{% endif %}>
-            <a href="{{ href|e }}>">{{ caption|e }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-  {% block body %}
+      <header>
+        <div class="container"> 
+          {% set navigation_bar = [
+              ('/watchlist', 'watchlist', 'My Watchlist'),
+              ('/active', 'active', 'Active Cases'),
+              ('/browse', 'browse', 'Browse All')
+          ] -%}
+          {% set active_page = active_page|default('') -%}
+          <a href="/" id="logo">Hotspotter</a>
+          <ul id="navigation">
+            {% for href, id, caption in navigation_bar %}
+            <li{% if id == active_page %} class="active"{% endif %}>
+                <a href="{{ href|e }}">{{ caption|e }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </header>
+      <div class="container">
+        <div class="search-area">
+          <input type="text" id="address-search-box" placeholder="Search for address..."></input>
+        </div>
+        <div class="page-content">
+          {% block body %}
 
-  {% endblock %}
+          {% endblock %}
+        </div>
+      </div>
   </body>
 </html>
