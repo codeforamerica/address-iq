@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 import os
 
@@ -69,6 +69,10 @@ def home():
 @app.route("/address/<address>")
 def address(address):
     incidents = fetch_incidents_at_address(address)
+
+    if len(incidents['fire']) == 0 and len(incidents['police']) == 0:
+        abort(404)
+
     counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
     return render_template("address.html", incidents=incidents, counts=counts)
 

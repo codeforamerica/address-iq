@@ -1,5 +1,6 @@
 import unittest
 import os
+import datetime
 
 os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 
@@ -70,8 +71,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         pass
 
     def test_count_incidents_returns_proper_counts_for_default_days(self):
-        import datetime
-
         def get_date_days_ago(days):
             return datetime.datetime.now() - datetime.timedelta(days=days)
 
@@ -135,9 +134,23 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert counts['police'][90] == 0
         assert counts['police'][365] == 0
 
+    def test_address_page_with_incidents_returns_200(self):
+        [FireIncidentFactory(incident_address="123 MAIN ST")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        rv = self.app.get('/address/123 main st')
+        assert rv.status_code == 200
+
+    def test_address_page_with_no_incidents_returns_404(self):
+        rv = self.app.get('/address/123 main st')
+        assert rv.status_code == 404
+
 import factory
 import factory.alchemy
 import factory.fuzzy
+import pytz
 import models
 
 
@@ -147,6 +160,8 @@ class FireIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
 
     cad_call_number = factory.Sequence(lambda n: n)
+    alarm_datetime = factory.fuzzy.FuzzyDateTime(
+        datetime.datetime(2013, 1, 1, tzinfo=pytz.utc))
 
 
 class PoliceIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
