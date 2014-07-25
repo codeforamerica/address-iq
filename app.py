@@ -11,10 +11,16 @@ meta.bind = db.engine
 
 import models
 
+
 def fetch_incidents_at_address(address):
-    fire_query = db.session.query(models.FireIncident).filter(models.FireIncident.incident_address==address.upper())
-    police_query = db.session.query(models.PoliceIncident).filter(models.PoliceIncident.incident_address==address.upper())
-    business_query = db.session.query(models.BusinessLicense).filter(models.BusinessLicense.business_address==address.upper())
+    fire_query = db.session.query(models.FireIncident)
+    fire_query.filter(models.FireIncident.incident_address == address.upper())
+
+    police_query = db.session.query(models.PoliceIncident)
+    police_query.filter(models.PoliceIncident.incident_address == address.upper())
+
+    business_query = db.session.query(models.BusinessLicense)
+    business_query.filter(models.BusinessLicense.business_address == address.upper())
 
     return {
         'fire': fire_query.all(),
@@ -22,12 +28,17 @@ def fetch_incidents_at_address(address):
         'businesses': business_query.all()
     }
 
+
 def count_incidents_by_timeframes(incidents, timeframes):
     import datetime
+
+    def cutoff_date_for_days(days):
+        return datetime.date.today() - datetime.timedelta(days=days)
+
     # dates to look for events after for each timeframe
     timeframes_info = [{"days": days,
-                        "cutoff_date": datetime.date.today() - datetime.timedelta(days=days)
-                    } for days in timeframes]
+                        "cutoff_date": cutoff_date_for_days(days)
+                        } for days in timeframes]
 
     counts = {'fire': {}, 'police': {}}
 
@@ -44,14 +55,16 @@ def count_incidents_by_timeframes(incidents, timeframes):
             incident_date = getattr(incident, date_field).date()
             for timeframe_info in timeframes_info:
                 if incident_date > timeframe_info['cutoff_date']:
-                    counts[incident_type][timeframe_info['days']] = counts[incident_type][timeframe_info['days']] + 1
+                    counts[incident_type][timeframe_info['days']] = \
+                        counts[incident_type][timeframe_info['days']] + 1
 
     return counts
-    
+
 
 @app.route("/")
 def home():
     return render_template("home.html")
+
 
 @app.route("/address/<address>")
 def address(address):
