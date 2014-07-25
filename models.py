@@ -1,5 +1,6 @@
 from app import db
 
+
 class FireIncident(db.Model):
     __tablename__ = 'fire_incidents'
     cad_call_number = db.Column(db.Integer, primary_key=True)
@@ -39,6 +40,7 @@ class FireIncident(db.Model):
 
     intersection = db.Column(db.String(6))
 
+
 class FireDispatch(db.Model):
     __tablename__ = 'fire_dispatches'
 
@@ -65,10 +67,11 @@ class FireDispatch(db.Model):
     turnaround_time_in_sec = db.Column(db.Integer)
     duration_time_in_sec = db.Column(db.Integer)
 
+
 class BusinessLicense(db.Model):
     __tablename__ = 'all_business_licenses'
     name = db.Column(db.String(200), primary_key=True)
-    
+
     business_service_description = db.Column(db.String(100))
     business_product = db.Column(db.String(40))
     business_address = db.Column(db.String(200), primary_key=True)
@@ -78,6 +81,7 @@ class BusinessLicense(db.Model):
     business_street_type = db.Column(db.String(20))
     business_street_suffix = db.Column(db.String(20))
     business_zip = db.Column(db.String(20))
+
 
 class PoliceIncident(db.Model):
     __tablename__ = 'police_incidents'
