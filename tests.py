@@ -3,7 +3,8 @@ import os
 
 os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 
-from app import app, db, fetch_incidents_at_address
+from app import app, db
+from app import fetch_incidents_at_address, count_incidents_by_timeframes
 
 
 class HomeTestCase(unittest.TestCase):
@@ -68,6 +69,71 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert len(incidents['businesses']) == 1
         pass
 
+    def test_count_incidents_returns_proper_counts_for_default_days(self):
+        import datetime
+
+        def get_date_days_ago(days):
+            return datetime.datetime.now() - datetime.timedelta(days=days)
+
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(5))
+         for i in range(0, 5)]
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(20))
+         for i in range(0, 8)]
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(40))
+         for i in range(0, 7)]
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(200))
+         for i in range(0, 10)]
+
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(5))
+         for i in range(0, 3)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(20))
+         for i in range(0, 8)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(40))
+         for i in range(0, 9)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(200))
+         for i in range(0, 6)]
+
+        db.session.flush()
+
+        incidents = fetch_incidents_at_address("123 main st")
+        counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
+
+        assert counts['fire'][7] == 5
+        assert counts['fire'][30] == 13
+        assert counts['fire'][90] == 20
+        assert counts['fire'][365] == 30
+
+        assert counts['police'][7] == 3
+        assert counts['police'][30] == 11
+        assert counts['police'][90] == 20
+        assert counts['police'][365] == 26
+
+    def test_count_incidents_returns_zeros_when_no_incidents(self):
+        import datetime
+
+        def get_date_days_ago(days):
+            return datetime.datetime.now() - datetime.timedelta(days=days)
+
+        incidents = fetch_incidents_at_address("123 main st")
+        counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
+
+        assert counts['fire'][7] == 0
+        assert counts['fire'][30] == 0
+        assert counts['fire'][90] == 0
+        assert counts['fire'][365] == 0
+
+        assert counts['police'][7] == 0
+        assert counts['police'][30] == 0
+        assert counts['police'][90] == 0
+        assert counts['police'][365] == 0
 
 import factory
 import factory.alchemy
