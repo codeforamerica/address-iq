@@ -14,13 +14,13 @@ import models
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
-    fire_query.filter(models.FireIncident.incident_address == address.upper())
+    fire_query = fire_query.filter(models.FireIncident.incident_address == address.upper())
 
     police_query = db.session.query(models.PoliceIncident)
-    police_query.filter(models.PoliceIncident.incident_address == address.upper())
+    police_query = police_query.filter(models.PoliceIncident.incident_address == address.upper())
 
     business_query = db.session.query(models.BusinessLicense)
-    business_query.filter(models.BusinessLicense.business_address == address.upper())
+    business_query = business_query.filter(models.BusinessLicense.business_address == address.upper())
 
     return {
         'fire': fire_query.all(),
