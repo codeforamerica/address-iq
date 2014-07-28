@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div id="address-data">
+    <h1 class="address">3360 Magnolia Ave</h1>
+    <div id="at-a-glance">
+        <p>Type: Residential Care Facility</p>
+        <p>Name: Vista Del Mar Senior Center</p>
+
+        <div class="week-alert">
+            <div class="call-count"><span class="bigger-number">{{ counts['fire'][7] }}</span> calls this week</div>
+            <div class="date-range">June 1st - June 8th 2013</div>
+        </div>
+
+        <div class="department-callout">
+            <h3 class="department-explanation">Fire Calls</h3>
+            <div class="callout-number">
+                <div class="timeframe">Last 30 days</div>
+                <div class="bignumber">{{ counts['fire'][30] }}</div>
+            </div>
+            <div class="callout-number">
+                <div class="timeframe">Last 90 days</div>
+                <div class="bignumber">{{ counts['fire'][90] }}</div>
+            </div>
+            <div class="callout-number">
+                <div class="timeframe">Last 365 days</div>
+                <div class="bignumber">{{ counts['fire'][365] }}</div>
+            </div>
+        </div>
+        <div class="department-callout">
+            <h3 class="department-explanation">Police Calls</h3>
+            <div class="callout-number">
+                <div class="timeframe">Last 30 days</div>
+                <div class="bignumber">{{ counts['police'][30] }}</div>
+            </div>
+            <div class="callout-number">
+                <div class="timeframe">Last 90 days</div>
+                <div class="bignumber">{{ counts['police'][90] }}</div>
+            </div>
+            <div class="callout-number">
+                <div class="timeframe">Last 365 days</div>
+                <div class="bignumber">{{ counts['police'][365] }}</div>
+            </div>
+        </div>
+    </div>
+    <div id="explore-more">
+    </div>
+</div>
+<div id="action-station">
+    Take Action
+</div>
+{% endblock %}
