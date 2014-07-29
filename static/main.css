@@ -190,3 +190,32 @@ header {
     font-size: 14px;
     font-weight: bolder;
 }
+
+#explore-more {
+    margin-top: 40px;
+}
+
+.department-tabs {
+    height: 40px;
+}
+
+.department-tab {
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    background-color: #ccc;
+    text-align: center;
+    
+    float: left;
+}
+
+.department-tab.active {
+    background-color: white;
+    border-width: 1px 1px 0px;
+    border-color: #B3B3B3;
+    border-style: solid;
+}
+
+.department-tab-content {
+    border: 1px solid #b3b3b3;
+}

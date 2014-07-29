@@ -1,6 +1,7 @@
 from flask import Flask, render_template, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 import os
+import operator
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -60,6 +61,59 @@ def count_incidents_by_timeframes(incidents, timeframes):
 
     return counts
 
+def get_top_incident_reasons_by_timeframes(incidents, timeframes):
+    import datetime
+
+    def cutoff_date_for_days(days):
+        return datetime.date.today() - datetime.timedelta(days=days)
+
+    # dates to look for events after for each timeframe
+    timeframes_info = [{"days": days,
+                        "cutoff_date": cutoff_date_for_days(days)
+                        } for days in timeframes]
+
+    counts = {'fire': {}, 'police': {}}
+
+    # count how many of each incident type happen in each timeframe
+    for incident_type in counts:
+        if incident_type == 'fire':
+            reason_field = 'actual_nfirs_incident_type_description'
+        else:
+            reason_field = 'final_cad_call_type_description'
+
+        if incident_type == 'fire':
+            date_field = 'alarm_datetime'
+        else:
+            date_field = 'call_datetime'
+
+        for timeframe in timeframes:
+            counts[incident_type][timeframe] = {}
+
+        for incident in incidents[incident_type]:
+            incident_date = getattr(incident, date_field).date()
+            incident_reason = getattr(incident, reason_field)
+            for timeframe_info in timeframes_info:
+                if incident_date > timeframe_info['cutoff_date']:
+                    relevant_reasons_table = counts[incident_type][timeframe_info['days']] 
+
+                    if incident_reason in relevant_reasons_table:
+                        relevant_reasons_table[incident_reason] = relevant_reasons_table[incident_reason] + 1
+                    else:
+                        relevant_reasons_table[incident_reason] = 1
+
+    top_call_types = {'fire': {}, 'police': {}}
+    for incident_type in top_call_types:
+        for timeframe_info in timeframes_info:
+            num_days = timeframe_info['days']
+            top_call_types[incident_type][num_days] = sorted(counts[incident_type][num_days].iteritems(),
+                                                             key=operator.itemgetter(1))
+            top_call_types[incident_type][num_days].reverse()
+            top_call_types[incident_type][num_days] = top_call_types[incident_type][num_days][:5]
+
+    print top_call_types
+
+    return top_call_types
+
 
 @app.route("/")
 def home():
@@ -74,7 +128,8 @@ def address(address):
         abort(404)
 
     counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
-    return render_template("address.html", incidents=incidents, counts=counts)
+    top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
+    return render_template("address.html", incidents=incidents, counts=counts, top_call_types=top_call_types)
 
 if __name__ == "__main__":
     app.run(debug=True)

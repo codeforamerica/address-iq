@@ -44,6 +44,19 @@
         </div>
     </div>
     <div id="explore-more">
+        <div class="department-tabs">
+            <div class="department-tab active" id="tab-fire">Fire</div>
+            <div class="department-tab" id="tab-police">Police</div>
+        </div>
+        <div class="department-tab-content active" id="content-fire">
+            <h3>Top 5 Call Types</h3>
+            <ol class="call-types">
+                {% for call_type in top_call_types['fire'][365] %}
+                <li>{{ call_type[0]|trim }} - {{ call_type[1] }} calls</li>
+                {% endfor %}
+            </ol>
+        </div>
+
     </div>
 </div>
 <div id="action-station">
