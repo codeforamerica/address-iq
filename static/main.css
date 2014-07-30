@@ -207,6 +207,7 @@ header {
     text-align: center;
     
     float: left;
+    cursor: pointer;
 }
 
 .department-tab.active {
@@ -214,8 +215,25 @@ header {
     border-width: 1px 1px 0px;
     border-color: #B3B3B3;
     border-style: solid;
+    cursor: default;
 }
 
 .department-tab-content {
     border: 1px solid #b3b3b3;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.department-tab-content h3 {
+    margin-left: 10px;
+    margin-bottom: 20px;
+}
+
+ol.call-types li {
+    line-height: 30px;
+    padding-left: 10px;
+}
+
+.call-types li.odd {
+    background-color: #ccc;
 }
