@@ -44,6 +44,15 @@
         </div>
     </div>
     <div id="explore-more">
+        <div class="date-range-selector">
+            Date Range:
+            <select id="data-date-range">
+                <option value="365">365 days</option>
+                <option value="7">7 days</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+            </select>
+        </div>
         <div class="department-tabs">
             <div class="department-tab active" id="tab-fire">Fire</div>
             <div class="department-tab" id="tab-police">Police</div>
@@ -55,6 +64,7 @@
                 <li class="{{ loop.cycle('odd', 'even') }}">{{ loop.index }}. {{ call_type[0]|trim }} - {{ call_type[1] }} calls</li>
                 {% endfor %}
             </ol>
+            <div class="no-calls-of-this-type">There were no calls of this type during the given timeframe.</div>
         </div>
 
     </div>
@@ -62,4 +72,7 @@
 <div id="action-station">
     Take Action
 </div>
+<script>
+var topCallTypes = {{ top_call_types|tojson|safe }};
+</script>
 {% endblock %}

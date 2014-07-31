@@ -192,7 +192,17 @@ header {
 }
 
 #explore-more {
-    margin-top: 40px;
+    margin-top: 20px;
+}
+
+.date-range-selector {
+    background-color: #6d6e71;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 25px;
+    color: white;
+    padding-left: 40px;
+    margin: 20px 0;
 }
 
 .department-tabs {
@@ -219,9 +229,10 @@ header {
 }
 
 .department-tab-content {
-    border: 1px solid #b3b3b3;
+    border: 1px solid #9f9fa0;
     padding: 30px;
     margin-bottom: 20px;
+    min-height: 200px;
 }
 
 .department-tab-content h3 {
@@ -235,5 +246,10 @@ ol.call-types li {
 }
 
 .call-types li.odd {
-    background-color: #ccc;
+    background-color: #d8d8d8;
+}
+
+.no-calls-of-this-type {
+    display: none;
+    margin-left: 10px;
 }
