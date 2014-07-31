@@ -7,6 +7,8 @@ os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 from app import app, db
 from app import fetch_incidents_at_address, count_incidents_by_timeframes
 
+from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory
+
 
 class HomeTestCase(unittest.TestCase):
 
@@ -146,38 +148,6 @@ class AddressUtilityTestCase(unittest.TestCase):
     def test_address_page_with_no_incidents_returns_404(self):
         rv = self.app.get('/address/123 main st')
         assert rv.status_code == 404
-
-import factory
-import factory.alchemy
-import factory.fuzzy
-import pytz
-import models
-
-
-class FireIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
-    class Meta:
-        model = models.FireIncident
-        sqlalchemy_session = db.session
-
-    cad_call_number = factory.Sequence(lambda n: n)
-    alarm_datetime = factory.fuzzy.FuzzyDateTime(
-        datetime.datetime(2013, 1, 1, tzinfo=pytz.utc))
-
-
-class PoliceIncidentFactory(factory.alchemy.SQLAlchemyModelFactory):
-    class Meta:
-        model = models.PoliceIncident
-        sqlalchemy_session = db.session
-
-    cad_call_number = factory.Sequence(lambda n: "L%d" % n)
-
-
-class BusinessLicenseFactory(factory.alchemy.SQLAlchemyModelFactory):
-    class Meta:
-        model = models.BusinessLicense
-        sqlalchemy_session = db.session
-
-    name = factory.fuzzy.FuzzyText()
 
 if __name__ == '__main__':
     unittest.main()
