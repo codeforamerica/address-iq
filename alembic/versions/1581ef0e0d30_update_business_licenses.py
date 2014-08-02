@@ -48,12 +48,9 @@ def upgrade():
     op.add_column('all_business_licenses', 
             sa.Column('business_street_suffix',
                     sa.types.CHAR(length=20)))
-#    op.alter_column('all_business_licenses',
-#                    'business_zip',
-#                    type_=sa.types.CHAR(length=20))
-    op.add_column('all_business_licenses', 
-            sa.Column('business_zip',
-                    sa.types.CHAR(length=20)))
+    op.alter_column('all_business_licenses',
+                    'business_zip',
+                    type_=sa.types.CHAR(length=20))
 
 
 def downgrade():
