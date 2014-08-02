@@ -74,7 +74,12 @@ def address(address):
         abort(404)
 
     counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
-    return render_template("address.html", incidents=incidents, counts=counts)
+    business_types = [biz.business_service_description.strip() for biz in incidents['businesses']]
+    business_names = [biz.name.strip() for biz in incidents['businesses']]
+
+    return render_template("address.html", incidents=incidents, counts=counts,
+                           business_types=business_types, business_names=business_names,
+                           address=address)
 
 if __name__ == "__main__":
     app.run(debug=True)
