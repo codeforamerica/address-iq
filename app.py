@@ -110,8 +110,6 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             top_call_types[incident_type][num_days].reverse()
             top_call_types[incident_type][num_days] = top_call_types[incident_type][num_days][:5]
 
-    print top_call_types
-
     return top_call_types
 
 

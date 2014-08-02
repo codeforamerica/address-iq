@@ -6,6 +6,7 @@ os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 
 from app import app, db
 from app import fetch_incidents_at_address, count_incidents_by_timeframes
+from app import get_top_incident_reasons_by_timeframes
 
 from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory
 
@@ -135,6 +136,91 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert counts['police'][30] == 0
         assert counts['police'][90] == 0
         assert counts['police'][365] == 0
+
+    def test_top_incident_reasons_by_timeframes_returns_proper_counts(self):
+        import datetime
+
+        def get_date_days_ago(days):
+            return datetime.datetime.now() - datetime.timedelta(days=days)
+
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(5),
+                             actual_nfirs_incident_type_description="Broken Nose")
+         for i in range(0, 5)]
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(20),
+                             actual_nfirs_incident_type_description="Stubbed Toe")
+         for i in range(0, 8)]
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(40),
+                             actual_nfirs_incident_type_description="Myocardial Infarction")
+         for i in range(0, 7)]
+        [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(200),
+                             actual_nfirs_incident_type_description="Lung Fell Off")
+         for i in range(0, 10)]
+
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(5),
+                               final_cad_call_type_description="Stepped on a Crack")
+         for i in range(0, 3)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(20),
+                               final_cad_call_type_description="Whipped It")
+         for i in range(0, 8)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(40),
+                               final_cad_call_type_description="Safety Dance")
+         for i in range(0, 9)]
+        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                               call_datetime=get_date_days_ago(200),
+                               final_cad_call_type_description="Runnin' With The Devil")
+         for i in range(0, 6)]
+
+
+        db.session.flush()
+
+
+        incidents = fetch_incidents_at_address("123 MAIN ST")
+        actual_top_reasons = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
+
+        expected_top_reasons = {
+           'fire': {
+               7: [('Broken Nose', 5)],
+               30: [('Stubbed Toe', 8), ('Broken Nose', 5)],
+               90: [('Stubbed Toe', 8), ('Myocardial Infarction', 7), ('Broken Nose', 5)],
+               365: [('Lung Fell Off', 10), ('Stubbed Toe', 8), ('Myocardial Infarction', 7), ('Broken Nose', 5)]
+           },
+           'police': {
+               7: [('Stepped on a Crack', 3)],
+               30: [('Whipped It', 8), ('Stepped on a Crack', 3)],
+               90: [('Safety Dance', 9), ('Whipped It', 8), ('Stepped on a Crack', 3)],
+               365: [('Safety Dance', 9), ('Whipped It', 8), ("Runnin' With The Devil", 6), ('Stepped on a Crack', 3)]
+           }
+        }
+
+        self.assertEquals(expected_top_reasons, actual_top_reasons)
+
+    def test_top_incident_reasons_by_timeframes_returns_empty_lists_if_no_incident(self):
+        incidents = fetch_incidents_at_address("123 MAIN ST")
+        actual_top_reasons = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
+
+        expected_top_reasons = {
+           'fire': {
+               7: [],
+               30: [],
+               90: [],
+               365: []
+           },
+           'police': {
+               7: [],
+               30: [],
+               90: [],
+               365: []
+           }
+        }
+
+        self.assertEquals(expected_top_reasons, actual_top_reasons)
 
     def test_address_page_with_incidents_returns_200(self):
         [FireIncidentFactory(incident_address="123 MAIN ST")
