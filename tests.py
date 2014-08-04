@@ -263,7 +263,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert "Business Type(s): Bar" in rv.data
         assert "Business Name(s): The Pub" in rv.data
 
-    def test_address_page_shows_correct_business_info_with_one_business(self):
+    def test_address_page_shows_correct_business_info_with_multiple_businesses(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
 
