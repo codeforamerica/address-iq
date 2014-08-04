@@ -71,7 +71,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert len(incidents['fire']) == 5
         assert len(incidents['police']) == 3
         assert len(incidents['businesses']) == 1
-        pass
 
     def test_count_incidents_returns_proper_counts_for_default_days(self):
         def get_date_days_ago(days):
@@ -234,6 +233,51 @@ class AddressUtilityTestCase(unittest.TestCase):
     def test_address_page_with_no_incidents_returns_404(self):
         rv = self.app.get('/address/123 main st')
         assert rv.status_code == 404
+
+    def test_address_page_shows_correct_address(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+        db.session.flush()
+
+        rv = self.app.get('/address/456 lala ln')
+        assert '456 Lala Ln' in rv.data
+
+    def test_address_page_shows_correct_business_info_with_no_businesses(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+        db.session.flush()
+
+        rv = self.app.get('/address/456 lala ln')
+        assert 'No business is registered' in rv.data
+
+    def test_address_page_shows_correct_business_info_with_one_business(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        [BusinessLicenseFactory(business_address="456 LALA LN",
+                                business_service_description="Bar",
+                                name="The Pub")]
+        db.session.flush()
+
+        rv = self.app.get('/address/456 lala ln')
+        assert "Business Type(s): Bar" in rv.data
+        assert "Business Name(s): The Pub" in rv.data
+
+    def test_address_page_shows_correct_business_info_with_multiple_businesses(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        BusinessLicenseFactory(business_address="456 LALA LN",
+                               business_service_description="Bar",
+                               name="The Pub")
+        BusinessLicenseFactory(business_address="456 LALA LN",
+                               business_service_description="Lawncare",
+                               name="Mowers R Us")
+        db.session.flush()
+
+        rv = self.app.get('/address/456 lala ln')
+        assert "Business Type(s): Bar, Lawncare" in rv.data
+        assert "Business Name(s): The Pub, Mowers R Us" in rv.data
 
 if __name__ == '__main__':
     unittest.main()

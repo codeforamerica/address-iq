@@ -126,8 +126,13 @@ def address(address):
         abort(404)
 
     counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
+    business_types = [biz.business_service_description.strip() for biz in incidents['businesses']]
+    business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
-    return render_template("address.html", incidents=incidents, counts=counts, top_call_types=top_call_types)
+
+    return render_template("address.html", incidents=incidents, counts=counts,
+                           business_types=business_types, business_names=business_names,
+                           top_call_types=top_call_types, address=address)
 
 if __name__ == "__main__":
     app.run(debug=True)

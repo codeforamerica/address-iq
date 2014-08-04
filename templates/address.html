@@ -2,10 +2,14 @@
 
 {% block body %}
 <div id="address-data">
-    <h1 class="address">3360 Magnolia Ave</h1>
+    <h1 class="address">{{ address | title}}</h1>
     <div id="at-a-glance">
-        <p>Type: Residential Care Facility</p>
-        <p>Name: Vista Del Mar Senior Center</p>
+        {% if incidents['businesses']|length > 0 %}
+        <p>Business Type(s): {{ business_types|join(', ')}}</p>
+        <p>Business Name(s): {{ business_names|join(', ')}}</p>
+        {% else %}
+        <p>No business is registered at this address.</p>
+        {% endif %}
 
         <div class="week-alert">
             <div class="call-count"><span class="bigger-number">{{ counts['fire'][7] }}</span> calls this week</div>
