@@ -33,12 +33,12 @@ def fetch_incidents_at_address(address):
 def count_incidents_by_timeframes(incidents, timeframes):
     import datetime
 
-    def cutoff_date_for_days(days):
+    def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
     # dates to look for events after for each timeframe
     timeframes_info = [{"days": days,
-                        "cutoff_date": cutoff_date_for_days(days)
+                        "start_date": start_date_for_days(days)
                         } for days in timeframes]
 
     counts = {'fire': {}, 'police': {}}
@@ -55,7 +55,7 @@ def count_incidents_by_timeframes(incidents, timeframes):
         for incident in incidents[incident_type]:
             incident_date = getattr(incident, date_field).date()
             for timeframe_info in timeframes_info:
-                if incident_date > timeframe_info['cutoff_date']:
+                if incident_date > timeframe_info['start_date']:
                     counts[incident_type][timeframe_info['days']] = \
                         counts[incident_type][timeframe_info['days']] + 1
 
@@ -64,12 +64,12 @@ def count_incidents_by_timeframes(incidents, timeframes):
 def get_top_incident_reasons_by_timeframes(incidents, timeframes):
     import datetime
 
-    def cutoff_date_for_days(days):
+    def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
     # dates to look for events after for each timeframe
     timeframes_info = [{"days": days,
-                        "cutoff_date": cutoff_date_for_days(days)
+                        "start_date": start_date_for_days(days)
                         } for days in timeframes]
 
     counts = {'fire': {}, 'police': {}}
@@ -93,7 +93,7 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             incident_date = getattr(incident, date_field).date()
             incident_reason = getattr(incident, reason_field)
             for timeframe_info in timeframes_info:
-                if incident_date > timeframe_info['cutoff_date']:
+                if incident_date > timeframe_info['start_date']:
                     relevant_reasons_table = counts[incident_type][timeframe_info['days']] 
 
                     if incident_reason in relevant_reasons_table:
