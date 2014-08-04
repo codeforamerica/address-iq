@@ -2,7 +2,7 @@
 
 {% block body %}
 <div id="address-data">
-    <h1 class="address">{{ address | title }}</h1>
+    <h1 class="address">{{ address | title}}</h1>
     <div id="at-a-glance">
         {% if incidents['businesses']|length > 0 %}
         <p>Business Type(s): {{ business_types|join(', ')}}</p>
