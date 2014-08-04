@@ -71,6 +71,7 @@ def generate_business_data():
                                          business_service_description=factory.fuzzy.FuzzyChoice(BUSINESS_TYPES))
     for i in range(num_biz)]
 
+
 if __name__ == '__main__':
     generate_fire_data()
     generate_police_data()
