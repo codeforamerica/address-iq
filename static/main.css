@@ -190,3 +190,66 @@ header {
     font-size: 14px;
     font-weight: bolder;
 }
+
+#explore-more {
+    margin-top: 20px;
+}
+
+.date-range-selector {
+    background-color: #6d6e71;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 25px;
+    color: white;
+    padding-left: 40px;
+    margin: 20px 0;
+}
+
+.department-tabs {
+    height: 40px;
+}
+
+.department-tab {
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    background-color: #ccc;
+    text-align: center;
+    
+    float: left;
+    cursor: pointer;
+}
+
+.department-tab.active {
+    background-color: white;
+    border-width: 1px 1px 0px;
+    border-color: #B3B3B3;
+    border-style: solid;
+    cursor: default;
+}
+
+.department-tab-content {
+    border: 1px solid #9f9fa0;
+    padding: 30px;
+    margin-bottom: 20px;
+    min-height: 200px;
+}
+
+.department-tab-content h3 {
+    margin-left: 10px;
+    margin-bottom: 20px;
+}
+
+ol.call-types li {
+    line-height: 30px;
+    padding-left: 10px;
+}
+
+.call-types li.odd {
+    background-color: #d8d8d8;
+}
+
+.no-calls-of-this-type {
+    display: none;
+    margin-left: 10px;
+}
