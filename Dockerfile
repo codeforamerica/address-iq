@@ -1,2 +1,2 @@
 FROM tutum/buildstep
-EXPOSE 5000
+EXPOSE 8000
