@@ -114,8 +114,9 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 
 @app.route("/")
-def home():
-    return render_template("home.html")
+@app.route("/browse")
+def browse():
+    return render_template("browse.html")
 
 
 @app.route("/address/<address>")
