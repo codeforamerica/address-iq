@@ -10,10 +10,23 @@
 <table>
     <thead>
         <tr>
-            <th>Address</th>
-            <th>Business License Type</th>
-            <th>Fire Calls</th>
-            <th>Police Calls</th>
+            {% set headings = [
+                ('address', 'Address'),
+                ('biz_type', 'Business License Type'),
+                ('fire', 'Fire Calls'),
+                ('police', 'Police Calls')
+            ] %}
+
+            {% for heading in headings %}
+            {% set is_current_heading = (sort_by == heading[0]) %}
+            {% set new_sort_order = 'asc' if is_current_heading and sort_order == 'desc' else 'desc' %}
+            <th{% if is_current_heading %} class="active"{% endif %}>
+
+                <a href="{{url_for('browse', date_range=date_range, sort_by=heading[0], sort_order=new_sort_order)}}">
+                    {{ heading[1] }}
+                </a>
+            </th>
+            {% endfor %}
             <th></th>
         </tr>
     </thead>
