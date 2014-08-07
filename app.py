@@ -1,5 +1,11 @@
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, request, Response, session
 from flask.ext.sqlalchemy import SQLAlchemy
+# 2 # from flask.ext.login import LoginManager
+# 2 # from flask.ext.browserid import BrowserID
+# 2 # # @todo: Clean up this next bit. I'm skeptical.
+# 2 # from my_stuff import get_user_by_id # finds a user by their id
+# 2 # from other_stuff import get_user #finds a user based on BrowserID response# 2 #
+
 import os
 import operator
 
@@ -9,6 +15,14 @@ db = SQLAlchemy(app)
 
 meta = db.MetaData()
 meta.bind = db.engine
+
+# 2 # login_manager = LoginManager()
+# 2 # login_manager.user_loader(get_user_by_id)
+# 2 # login_manager.init_app(app)# 2 #
+
+# 2 # browser_id = BrowserID()
+# 2 # browser_id.user_loader(get_user)
+# 2 # browser_id.init_app(app)# 2 #
 
 import models
 
@@ -94,7 +108,7 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             incident_reason = getattr(incident, reason_field)
             for timeframe_info in timeframes_info:
                 if incident_date > timeframe_info['start_date']:
-                    relevant_reasons_table = counts[incident_type][timeframe_info['days']] 
+                    relevant_reasons_table = counts[incident_type][timeframe_info['days']]
 
                     if incident_reason in relevant_reasons_table:
                         relevant_reasons_table[incident_reason] = relevant_reasons_table[incident_reason] + 1
@@ -115,8 +129,81 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    kwargs = dict(email=session.get('email', None))
 
+    return render_template('home.html', **kwargs)
+#    return render_template('home.html')
+
+@app.route('/sign-in', methods=['POST'])
+def sign_in():
+    posted = post('https://verifier.login.persona.org/verify',
+                  data=dict(assertion=request.form.get('assertion'),
+                            audience=current_app.config['BROWSERID_URL']))
+
+    response = posted.json()
+
+    if response.get('status', '') == 'okay':
+        session['email'] = response['email']
+        return 'OK'
+
+    return Response('Failed', status=400)
+
+@app.route('/sign-out', methods=['POST'])
+def sign_out():
+    if 'email' in session:
+        session.pop('email')
+
+    return 'OK'
+
+# So far so good. All from https://raw.githubusercontent.com/codeforamerica/bizarro-cms/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/views.py.
+# FAIL FAIL FAIL
+#   @app.route('/authorize', methods=['GET'])
+#   @login_required
+#   def authorize_page():
+#       kwargs = dict(email=session.get('email', None))
+#       return render_template('authorize.html', **kwargs)#
+
+#   @app.route('/authorize', methods=['POST'])
+#   def authorize():
+#       return authorize_google()#
+
+#   @app.route('/callback')
+#   def callback():
+#       state = request.args.get('state')
+#       code = request.args.get('code')
+#       callback_uri = '{0}://{1}/callback'.format(request.scheme, request.host)
+#       callback_google(state, code, callback_uri)
+#       return redirect('/authorization-complete')#
+
+#   @app.route('/authorization-complete')
+#   def authorization_complete():
+#       return render_template('authorization-complete.html', email=session['email'])
+
+
+
+
+
+# @app.route('/login', methods=['POST'])
+# def login():
+# #    return render_template("login.html")
+#     posted = post('https://verifier.login.persona.org/verify',
+#                   data=dict(assertion=request.form.get('assertion'),
+#                             audience='http://127.0.0.1:5000'))#
+
+#     response = posted.json()#
+
+#     if response.get('status', '') == 'okay':
+#         session['email'] = response['email']
+#         return 'OK'#
+
+#     return Response('Failed', status=400)#
+
+# @app.route('/logout', methods=['POST'])
+# def logout():
+#     if 'email' in session:
+#         session.pop('email')#
+
+#     return 'OK'
 
 @app.route("/address/<address>")
 def address(address):

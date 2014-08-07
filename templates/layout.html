@@ -5,10 +5,16 @@
     <link href='/static/main.css' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"><!-- suppress IE compatibility mode so Persona doesn't break -->
+    <script src="https://login.persona.org/include.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var currentUser = {{email|tojson|safe}};
+    </script>
+<!-- #2    <script type="text/javascript">{{ auth_script|safe }}</script> -->
   </head>
   <body>
       <header>
-        <div class="container"> 
+        <div class="container">
           {% set navigation_bar = [
               ('/watchlist', 'watchlist', 'My Watchlist'),
               ('/active', 'active', 'Active Cases'),
@@ -22,6 +28,13 @@
                 <a href="{{ href|e }}">{{ caption|e }}</a>
             </li>
             {% endfor %}
+            <li class="signon">
+              {% if email %}
+                <input type="button" id="signout" value="Sign out">
+              {% else %}
+                <input type="button" id="signin" value="Sign in">
+              {% endif %}
+            </li>
           </ul>
         </div>
       </header>
@@ -37,5 +50,19 @@
       </div>
       <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
       <script src="/static/main.js"></script>
+
+  <script type="text/javascript">
+    // From https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/templates/index.html#L73
+    var signinLink = document.getElementById('signin');
+    if (signinLink) {
+      signinLink.onclick = function() { navigator.id.request(); };
+//      signinLink.onclick = function() { navigator.id.request(); return False; }    }
+    var signoutLink = document.getElementById('signout');
+    if (signoutLink) {
+      signoutLink.onclick = function() { navigator.id.logout(); };
+//      signoutLink.onclick = function() { navigator.id.logout(); return False; };
+    }
+  </script>
+
   </body>
 </html>
