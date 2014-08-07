@@ -1,4 +1,4 @@
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy
 import os
 import operator
@@ -116,7 +116,10 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 @app.route("/")
 @app.route("/browse")
 def browse():
-    return render_template("browse.html")
+    date_range = int(request.args.get('date_range', 365))
+    summaries = db.session.query(models.AddressSummary).all()
+    print date_range
+    return render_template("browse.html", summaries=summaries, date_range=date_range)
 
 
 @app.route("/address/<address>")

@@ -107,3 +107,44 @@ class PoliceIncident(db.Model):
 
     final_cad_call_type = db.Column(db.String(20))
     final_cad_call_type_description = db.Column(db.String(100))
+
+class AddressSummary(db.Model):
+    __tablename__ = 'address_summaries'
+
+    address = db.Column(db.String(50), primary_key=True)
+
+    business_counts = db.Column(db.Integer)
+    business_names = db.Column(db.Text)
+    business_types = db.Column(db.Text)
+
+    fire_last7 = db.Column(db.Integer)
+    fire_prior7 = db.Column(db.Integer)
+    police_last7 = db.Column(db.Integer)
+    police_prior7 = db.Column(db.Integer)
+
+    fire_last30 = db.Column(db.Integer)
+    fire_prior30 = db.Column(db.Integer)
+    police_last30 = db.Column(db.Integer)
+    police_prior30 = db.Column(db.Integer)
+
+    fire_last90 = db.Column(db.Integer)
+    fire_prior90 = db.Column(db.Integer)
+    police_last90 = db.Column(db.Integer)
+    police_prior90 = db.Column(db.Integer)
+
+    fire_last365 = db.Column(db.Integer)
+    fire_prior365 = db.Column(db.Integer)
+    police_last365 = db.Column(db.Integer)
+    police_prior365 = db.Column(db.Integer)
+
+    def counts_for_days_ago(self, days):
+        return {
+            'fire': {
+                'last': getattr(self, "fire_last%d" % days),
+                'prior': getattr(self, "fire_prior%d" % days)
+            },
+            'police': {
+                'last': getattr(self, "police_last%d" % days),
+                'prior': getattr(self, "police_prior%d" % days)
+            }
+        }

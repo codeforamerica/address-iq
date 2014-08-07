@@ -1,4 +1,4 @@
-"""add call_counts table
+"""add address_summaries table
 
 Revision ID: 5932c01014d4
 Revises: 4ca6c04c18de
@@ -16,7 +16,7 @@ import sqlalchemy as sa
 
 def upgrade():
     op.create_table(
-        'call_counts',
+        'address_summaries',
         sa.Column('address', sa.String(50), primary_key=True),
         sa.Column('business_counts', sa.Integer),
         sa.Column('business_names', sa.Text),
@@ -35,10 +35,10 @@ def upgrade():
         sa.Column('police_prior90', sa.Integer),
         sa.Column('fire_last365', sa.Integer),
         sa.Column('fire_prior365', sa.Integer),
-        sa.Column('police_prior365', sa.Integer),
+        sa.Column('police_last365', sa.Integer),
         sa.Column('police_prior365', sa.Integer)
         )
 
 
 def downgrade():
-    op.drop_table('call_counts')
+    op.drop_table('address_summaries')
