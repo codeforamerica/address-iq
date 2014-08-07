@@ -2,10 +2,10 @@
 {% block body %}
 <h1>Browse All Addresses</h1>
 <ul class="browse-date-ranges">
-    <li><a href="{{ url_for('browse', date_range=7) }}">7 days</a></li>
-    <li><a href="{{ url_for('browse', date_range=30) }}">30 days</a></li>
-    <li><a href="{{ url_for('browse', date_range=90) }}">90 days</a></li>
-    <li><a href="{{ url_for('browse', date_range=365) }}">365 days</a></li>
+    <li><a href="{{ url_for('browse', date_range=7, sort_by=sort_by, sort_order=sort_order) }}">7 days</a></li>
+    <li><a href="{{ url_for('browse', date_range=30, sort_by=sort_by, sort_order=sort_order) }}">30 days</a></li>
+    <li><a href="{{ url_for('browse', date_range=90, sort_by=sort_by, sort_order=sort_order) }}">90 days</a></li>
+    <li><a href="{{ url_for('browse', date_range=365, sort_by=sort_by, sort_order=sort_order) }}">365 days</a></li>
 </ul>
 <table>
     <thead>

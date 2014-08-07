@@ -117,9 +117,29 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 @app.route("/browse")
 def browse():
     date_range = int(request.args.get('date_range', 365))
-    summaries = db.session.query(models.AddressSummary).all()
+
+    sort_by = request.args.get('sort_by', 'fire')
+    sort_order = request.args.get('sort_order', 'desc')
+
+    order_column_map = {
+        'address': getattr(models.AddressSummary, 'address'),
+        'fire': getattr(models.AddressSummary, 'fire_last%d' % date_range),
+        'police': getattr(models.AddressSummary, 'police_last%d' % date_range),
+        'biz_type': getattr(models.AddressSummary, 'business_types')
+    }
+    order_column = order_column_map.get(sort_by, order_column_map['fire'])
+
+    if sort_order == 'asc':
+        order_column = order_column.asc()
+    else:
+        order_column = order_column.desc()
+
+
+    summaries = db.session.query(models.AddressSummary)
+    summaries = summaries.order_by(order_column)
     print date_range
-    return render_template("browse.html", summaries=summaries, date_range=date_range)
+    return render_template("browse.html", summaries=summaries.all(), date_range=date_range,
+        sort_by=sort_by, sort_order=sort_order)
 
 
 @app.route("/address/<address>")
