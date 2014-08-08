@@ -336,6 +336,7 @@ ul.browse-date-ranges li a:visited {
 
 .browse-results tr {
     line-height: 40px;
+    cursor: pointer;
 }
 
 .browse-results tr.odd {

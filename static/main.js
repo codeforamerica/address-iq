@@ -58,5 +58,11 @@ $(document).ready(function() {
   });
 
   $('#data-date-range').change(updateContentTab);
+
+  // Make browse page rows clickable
+  $('#browse-page tr').click(function() {
+    window.location.href = $(this).find('.explore-link a').attr('href');
+    return false;
+  });
 });
 
