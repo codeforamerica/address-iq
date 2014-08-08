@@ -6,6 +6,7 @@ import operator
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
+print db.session
 
 meta = db.MetaData()
 meta.bind = db.engine
@@ -117,6 +118,7 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 @app.route("/browse")
 def browse():
     date_range = int(request.args.get('date_range', 365))
+    page = int(request.args.get('page', 1))
 
     sort_by = request.args.get('sort_by', 'fire')
     sort_order = request.args.get('sort_order', 'desc')
@@ -135,10 +137,10 @@ def browse():
         order_column = order_column.desc()
 
 
-    summaries = db.session.query(models.AddressSummary)
-    summaries = summaries.order_by(order_column)
+    summaries = models.AddressSummary.query
+    summaries = summaries.order_by(order_column).paginate(page, per_page=10)
     print date_range
-    return render_template("browse.html", summaries=summaries.all(), date_range=date_range,
+    return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order)
 
 

@@ -31,6 +31,14 @@ h5 {
     font-weight: bold;
 }
 
+a {
+    color: black;
+}
+
+a:visited {
+    color: black;
+}
+
 p {
     font-family: 'Open Sans Condensed', sans-serif;
     font-size: 16px;
@@ -253,3 +261,135 @@ ol.call-types li {
     display: none;
     margin-left: 10px;
 }
+
+/* Browse page */
+
+#browse-page {
+    background-color: #d8d8d8;
+    border-radius: 10px;
+    padding: 20px 60px;
+}
+
+ul.browse-date-ranges {
+    height: 42px;
+    margin: 30px 0;
+}
+
+ul.browse-date-ranges li {
+    float: left;
+    width: 90px;
+    line-height: 40px;
+
+    border: 1px solid #6d6e71;
+    border-width: 1px 0 1px 1px;
+
+    text-align: center;
+}
+
+ul.browse-date-ranges li.first {
+    border-radius: 5px 0 0 5px;
+}
+
+ul.browse-date-ranges li.last {
+    border-right: 1px solid #6d6e71;
+    border-radius: 0 5px 5px 0;
+}
+
+ul.browse-date-ranges li.active {
+    background-color: white;
+}
+
+ul.browse-date-ranges li a {
+    display: inline-block;
+    line-height: 40px;
+    padding: 0px 10px;
+
+    color: black;
+    font-weight: bold;
+    text-align: center;
+}
+
+ul.browse-date-ranges li a:visited {
+    color: black;
+}
+
+.browse-results {
+    clear: both;
+    width: 820px;
+    margin: 0 auto;
+}
+
+.browse-results thead {
+    border-bottom: 2px solid #9f9fa0;
+}
+
+.browse-results th {
+    text-align: left;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.browse-results th.active .fa {
+    color: #0071bc;
+    width: 14px;
+}
+
+.browse-results tr {
+    line-height: 40px;
+}
+
+.browse-results tr.odd {
+    background-color: white;
+}
+
+.browse-results tr.even {
+    background-color: #ddd;
+}
+
+.browse-results td {
+    padding-left: 22px;
+}
+
+.browse-results .explore-link a {
+    display: inline-block;
+    background-color: #9f9fa0;
+    line-height: 24px;
+    padding: 4px 10px;
+}
+
+.pagination {
+    margin: 20px 0px;
+    text-align: center;
+}
+
+.pagination .active-page {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+
+    color: white;
+    background-color: #6d6e71;
+    display: inline-block;
+}
+
+.pagination a.page {
+    height: 30px;
+    width: 30px;
+
+    line-height: 30px;
+
+    color: white;
+    background-color: #9f9fa0;
+    display: inline-block;
+}
+
+.pagination a.prev, .pagination a.next {
+    height: 30px;
+    width: 80px;
+
+    line-height: 30px;
+    color: white;
+    background-color: #6d6e71;
+    display: inline-block;
+}
+
