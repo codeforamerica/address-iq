@@ -26,7 +26,6 @@ def count_calls(incidents, time_field, output_header, timeframes):
             if getattr(incident, time_field) > start_dates[num_days]:
                 address_counts[num_days] = address_counts[num_days] + 1
 
-    print addresses
     return addresses
 
 def count_fire_calls(incidents):
@@ -84,7 +83,6 @@ for address in addresses:
         address_record['business_types'] = [', '.join([biz.business_service_description for biz in business_addresses[address.strip()]])]
 
 def address_counts_dict_to_call_summary(address, counts):
-    print counts
     row = {
         'address': address.strip()
     }

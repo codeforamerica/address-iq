@@ -6,7 +6,6 @@ import operator
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
-print db.session
 
 meta = db.MetaData()
 meta.bind = db.engine
@@ -139,7 +138,6 @@ def browse():
 
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
-    print date_range
     return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order)
 
