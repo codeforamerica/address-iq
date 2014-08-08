@@ -112,8 +112,10 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
     return top_call_types
 
+@app.route('/')
+def home():
+    return render_template('home.html')
 
-@app.route("/")
 @app.route("/browse")
 def browse():
     date_range = int(request.args.get('date_range', 365))
