@@ -120,8 +120,8 @@ def home():
 
     return render_template('home.html', **kwargs)
 
-@app.route('/sign-in', methods=['POST'])
-def sign_in():
+@app.route('/log-in', methods=['POST'])
+def log_in():
     posted = post('https://verifier.login.persona.org/verify',
                   data=dict(assertion=request.form.get('assertion'),
                             audience=current_app.config['BROWSERID_URL']))
@@ -134,8 +134,8 @@ def sign_in():
 
     return Response('Failed', status=400)
 
-@app.route('/sign-out', methods=['POST'])
-def sign_out():
+@app.route('/log-out', methods=['POST'])
+def log_out():
     if 'email' in session:
         session.pop('email')
 

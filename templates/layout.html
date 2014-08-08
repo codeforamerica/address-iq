@@ -14,27 +14,33 @@
   <body>
       <header>
         <div class="container">
-          {% set navigation_bar = [
-              ('/watchlist', 'watchlist', 'My Watchlist'),
-              ('/active', 'active', 'Active Cases'),
-              ('/browse', 'browse', 'Browse All')
-          ] -%}
-          {% set active_page = active_page|default('') -%}
-          <a href="/" id="logo">Hotspotter</a>
-          <ul id="navigation">
-            {% for href, id, caption in navigation_bar %}
-            <li{% if id == active_page %} class="active"{% endif %}>
-                <a href="{{ href|e }}">{{ caption|e }}</a>
-            </li>
-            {% endfor %}
-            <li class="signon">
-              {% if email %}
-                <input type="button" id="signout" value="Sign out">
-              {% else %}
-                <input type="button" id="signin" value="Sign in">
-              {% endif %}
-            </li>
-          </ul>
+          <div>
+            {% set navigation_bar = [
+                ('/watchlist', 'watchlist', 'My Watchlist'),
+                ('/active', 'active', 'Active Cases'),
+                ('/browse', 'browse', 'Browse All')
+            ] -%}
+            {% set active_page = active_page|default('') -%}
+            <a href="/" id="logo">Hotspotter</a>
+            <ul id="navigation">
+              {% for href, id, caption in navigation_bar %}
+              <li{% if id == active_page %} class="active"{% endif %}>
+                  <a href="{{ href|e }}">{{ caption|e }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div id="user-nav">
+            <div class="signon">
+              <form>
+                {% if email %}
+                  <a href="#" id="logout">Log out</a>
+                {% else %}
+                  <a href="#" id="login">Log in</a>
+                {% endif %}
+              </form>
+            </div>
+          </div>
         </div>
       </header>
       <div class="container">
@@ -52,12 +58,12 @@
 
   <script type="text/javascript">
     // From https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/templates/index.html#L73
-    var signinLink = document.getElementById('signin');
-    if (signinLink) {
-      signinLink.onclick = function() { navigator.id.request(); return false; }    }
-    var signoutLink = document.getElementById('signout');
-    if (signoutLink) {
-      signoutLink.onclick = function() { navigator.id.logout(); return false; };
+    var loginLink = document.getElementById('login');
+    if (loginLink) {
+      loginLink.onclick = function() { navigator.id.request(); return false; }    }
+    var logoutLink = document.getElementById('logout');
+    if (logoutLink) {
+      logoutLink.onclick = function() { navigator.id.logout(); return false; };
     }
   </script>
 
