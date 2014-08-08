@@ -116,3 +116,16 @@ class User(db.Model):
     name = db.Column(db.String(75))
     email = db.Column(db.String(100), unique=True)
     date_created = db.Column(db.DateTime(timezone=True))
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        # @todo: crossreference with Google Doc.
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)

@@ -7,6 +7,7 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = os.environ['SECRET_KEY']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    BROWSERID_URL = os.environ['BROWSERID_URL']
 
 class ProductionConfig(Config):
     DEBUG = False

@@ -1,8 +1,10 @@
-from flask import Flask, render_template, abort, request, Response, session, current_app
+from flask import Flask, render_template, abort, request, Response, session
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager, login_user
 
 import os
 import operator
+from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -13,6 +15,20 @@ meta.bind = db.engine
 
 import models
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(userid):
+    if not userid:
+        return None
+    try:
+        userid = int(userid)
+    except ValueError:
+        # @todo: Log error.
+        return None
+
+    return models.User.query.get(userid)
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -124,12 +140,14 @@ def home():
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
                   data=dict(assertion=request.form.get('assertion'),
-                            audience=current_app.config['BROWSERID_URL']))
+                            audience=app.config['BROWSERID_URL']))
 
     response = posted.json()
 
     if response.get('status', '') == 'okay':
         session['email'] = response['email']
+        user = load_user_by_email(session['email'])
+        login_user(user)
         return 'OK'
 
     return Response('Failed', status=400)
@@ -140,6 +158,15 @@ def log_out():
         session.pop('email')
 
     return 'OK'
+
+def load_user_by_email(email):
+    user = models.User.query.filter(models.User.email==email).first()
+    if not user:
+        # @todo: Pull name from Google spreadsheet
+        user = models.User(name = 'Fireworks Joe', email = email)
+        db.session.add(user)
+
+    return user
 
 @app.route("/address/<address>")
 def address(address):
