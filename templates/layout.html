@@ -10,7 +10,6 @@
     <script type="text/javascript">
       var currentUser = {{email|tojson|safe}};
     </script>
-<!-- #2    <script type="text/javascript">{{ auth_script|safe }}</script> -->
   </head>
   <body>
       <header>
@@ -55,12 +54,10 @@
     // From https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/templates/index.html#L73
     var signinLink = document.getElementById('signin');
     if (signinLink) {
-      signinLink.onclick = function() { navigator.id.request(); };
-//      signinLink.onclick = function() { navigator.id.request(); return False; }    }
+      signinLink.onclick = function() { navigator.id.request(); return false; }    }
     var signoutLink = document.getElementById('signout');
     if (signoutLink) {
-      signoutLink.onclick = function() { navigator.id.logout(); };
-//      signoutLink.onclick = function() { navigator.id.logout(); return False; };
+      signoutLink.onclick = function() { navigator.id.logout(); return false; };
     }
   </script>
 
