@@ -329,9 +329,12 @@ ul.browse-date-ranges li a:visited {
     font-size: 18px;
 }
 
+.browse-results th .fa {
+    width: 18px;
+}
+
 .browse-results th.active .fa {
     color: #0071bc;
-    width: 14px;
 }
 
 .browse-results tr {
