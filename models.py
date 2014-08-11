@@ -117,34 +117,34 @@ class AddressSummary(db.Model):
     business_names = db.Column(db.Text)
     business_types = db.Column(db.Text)
 
-    fire_last7 = db.Column(db.Integer)
-    fire_prior7 = db.Column(db.Integer)
-    police_last7 = db.Column(db.Integer)
-    police_prior7 = db.Column(db.Integer)
+    fire_incidents_last7 = db.Column(db.Integer)
+    fire_incidents_prev7 = db.Column(db.Integer)
+    police_incidents_last7 = db.Column(db.Integer)
+    police_incidents_prev7 = db.Column(db.Integer)
 
-    fire_last30 = db.Column(db.Integer)
-    fire_prior30 = db.Column(db.Integer)
-    police_last30 = db.Column(db.Integer)
-    police_prior30 = db.Column(db.Integer)
+    fire_incidents_last30 = db.Column(db.Integer)
+    fire_incidents_prev30 = db.Column(db.Integer)
+    police_incidents_last30 = db.Column(db.Integer)
+    police_incidents_prev30 = db.Column(db.Integer)
 
-    fire_last90 = db.Column(db.Integer)
-    fire_prior90 = db.Column(db.Integer)
-    police_last90 = db.Column(db.Integer)
-    police_prior90 = db.Column(db.Integer)
+    fire_incidents_last90 = db.Column(db.Integer)
+    fire_incidents_prev90 = db.Column(db.Integer)
+    police_incidents_last90 = db.Column(db.Integer)
+    police_incidents_prev90 = db.Column(db.Integer)
 
-    fire_last365 = db.Column(db.Integer)
-    fire_prior365 = db.Column(db.Integer)
-    police_last365 = db.Column(db.Integer)
-    police_prior365 = db.Column(db.Integer)
+    fire_incidents_last365 = db.Column(db.Integer)
+    fire_incidents_prev365 = db.Column(db.Integer)
+    police_incidents_last365 = db.Column(db.Integer)
+    police_incidents_prev365 = db.Column(db.Integer)
 
     def counts_for_days_ago(self, days):
         return {
             'fire': {
-                'last': getattr(self, "fire_last%d" % days),
-                'prior': getattr(self, "fire_prior%d" % days)
+                'last': getattr(self, "fire_incidents_last%d" % days),
+                'prior': getattr(self, "fire_incidents_prev%d" % days)
             },
             'police': {
-                'last': getattr(self, "police_last%d" % days),
-                'prior': getattr(self, "police_prior%d" % days)
+                'last': getattr(self, "police_incidents_last%d" % days),
+                'prior': getattr(self, "police_incidents_prev%d" % days)
             }
         }

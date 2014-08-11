@@ -57,42 +57,42 @@ def address_counts_dict_to_call_summary(address, counts):
     }
 
     if 'fire_counts' in counts:
-        row['fire_last7'] = counts['fire_counts'][7]
-        row['fire_prior7'] = counts['fire_counts'][14] - counts['fire_counts'][7]
-        row['fire_last30'] = counts['fire_counts'][30]
-        row['fire_prior30'] = counts['fire_counts'][60] - counts['fire_counts'][30]
-        row['fire_last90'] = counts['fire_counts'][90]
-        row['fire_prior90'] = counts['fire_counts'][180] - counts['fire_counts'][90]
-        row['fire_last365'] = counts['fire_counts'][365]
-        row['fire_prior365'] = counts['fire_counts'][730] - counts['fire_counts'][365]
+        row['fire_incidents_last7'] = counts['fire_counts'][7]
+        row['fire_incidents_prev7'] = counts['fire_counts'][14] - counts['fire_counts'][7]
+        row['fire_incidents_last30'] = counts['fire_counts'][30]
+        row['fire_incidents_prev30'] = counts['fire_counts'][60] - counts['fire_counts'][30]
+        row['fire_incidents_last90'] = counts['fire_counts'][90]
+        row['fire_incidents_prev90'] = counts['fire_counts'][180] - counts['fire_counts'][90]
+        row['fire_incidents_last365'] = counts['fire_counts'][365]
+        row['fire_incidents_prev365'] = counts['fire_counts'][730] - counts['fire_counts'][365]
     else:
-        row['fire_last7'] = 0
-        row['fire_prior7'] = 0
-        row['fire_last30'] = 0
-        row['fire_prior30'] = 0
-        row['fire_last90'] = 0
-        row['fire_prior90'] = 0
-        row['fire_last365'] = 0
-        row['fire_prior365'] = 0
+        row['fire_incidents_last7'] = 0
+        row['fire_incidents_prev7'] = 0
+        row['fire_incidents_last30'] = 0
+        row['fire_incidents_prev30'] = 0
+        row['fire_incidents_last90'] = 0
+        row['fire_incidents_prev90'] = 0
+        row['fire_incidents_last365'] = 0
+        row['fire_incidents_prev365'] = 0
 
     if 'police_counts' in counts:
-        row['police_last7'] = counts['police_counts'][7]
-        row['police_prior7'] = counts['police_counts'][14] - counts['police_counts'][7]
-        row['police_last30'] = counts['police_counts'][30]
-        row['police_prior30'] = counts['police_counts'][60] - counts['police_counts'][30]
-        row['police_last90'] = counts['police_counts'][90]
-        row['police_prior90'] = counts['police_counts'][180] - counts['police_counts'][90]
-        row['police_last365'] = counts['police_counts'][365]
-        row['police_prior365'] = counts['police_counts'][730] - counts['police_counts'][365]
+        row['police_incidents_last7'] = counts['police_counts'][7]
+        row['police_incidents_prev7'] = counts['police_counts'][14] - counts['police_counts'][7]
+        row['police_incidents_last30'] = counts['police_counts'][30]
+        row['police_incidents_prev30'] = counts['police_counts'][60] - counts['police_counts'][30]
+        row['police_incidents_last90'] = counts['police_counts'][90]
+        row['police_incidents_prev90'] = counts['police_counts'][180] - counts['police_counts'][90]
+        row['police_incidents_last365'] = counts['police_counts'][365]
+        row['police_incidents_prev365'] = counts['police_counts'][730] - counts['police_counts'][365]
     else:
-        row['police_last7'] = 0
-        row['police_prior7'] = 0
-        row['police_last30'] = 0
-        row['police_prior30'] = 0
-        row['police_last90'] = 0
-        row['police_prior90'] = 0
-        row['police_last365'] = 0
-        row['police_prior365'] = 0
+        row['police_incidents_last7'] = 0
+        row['police_incidents_prev7'] = 0
+        row['police_incidents_last30'] = 0
+        row['police_incidents_prev30'] = 0
+        row['police_incidents_last90'] = 0
+        row['police_incidents_prev90'] = 0
+        row['police_incidents_last365'] = 0
+        row['police_incidents_prev365'] = 0
 
     return AddressSummary(**row)
 
