@@ -370,7 +370,6 @@ ul.browse-date-ranges li a:visited {
     height: 30px;
     width: 30px;
     line-height: 30px;
-
     color: white;
     background-color: #6d6e71;
     display: inline-block;
@@ -379,9 +378,7 @@ ul.browse-date-ranges li a:visited {
 .pagination a.page {
     height: 30px;
     width: 30px;
-
     line-height: 30px;
-
     color: white;
     background-color: #9f9fa0;
     display: inline-block;
@@ -390,10 +387,8 @@ ul.browse-date-ranges li a:visited {
 .pagination a.prev, .pagination a.next {
     height: 30px;
     width: 80px;
-
     line-height: 30px;
     color: white;
     background-color: #6d6e71;
     display: inline-block;
 }
-

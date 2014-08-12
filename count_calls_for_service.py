@@ -4,7 +4,6 @@ import pytz
 
 import datetime
 
-
 def count_calls(incidents, time_field, output_header, timeframes):
     start_dates = {}
 
@@ -56,43 +55,25 @@ def address_counts_dict_to_call_summary(address, counts):
         'address': address.strip()
     }
 
+    model_timeframes = [7, 30, 90, 365]
+
     if 'fire_counts' in counts:
-        row['fire_incidents_last7'] = counts['fire_counts'][7]
-        row['fire_incidents_prev7'] = counts['fire_counts'][14] - counts['fire_counts'][7]
-        row['fire_incidents_last30'] = counts['fire_counts'][30]
-        row['fire_incidents_prev30'] = counts['fire_counts'][60] - counts['fire_counts'][30]
-        row['fire_incidents_last90'] = counts['fire_counts'][90]
-        row['fire_incidents_prev90'] = counts['fire_counts'][180] - counts['fire_counts'][90]
-        row['fire_incidents_last365'] = counts['fire_counts'][365]
-        row['fire_incidents_prev365'] = counts['fire_counts'][730] - counts['fire_counts'][365]
+        for days_ago in model_timeframes:
+            row['fire_incidents_last%d' % days_ago] = counts['fire_counts'][days_ago]
+            row['fire_incidents_prev%d' % days_ago] = counts['fire_counts'][days_ago] * 2 - counts['fire_counts'][days_ago]
     else:
-        row['fire_incidents_last7'] = 0
-        row['fire_incidents_prev7'] = 0
-        row['fire_incidents_last30'] = 0
-        row['fire_incidents_prev30'] = 0
-        row['fire_incidents_last90'] = 0
-        row['fire_incidents_prev90'] = 0
-        row['fire_incidents_last365'] = 0
-        row['fire_incidents_prev365'] = 0
+        for days_ago in model_timeframes:
+            row['fire_incidents_last%d' % days_ago] = 0
+            row['fire_incidents_prev%d' % days_ago] = 0
 
     if 'police_counts' in counts:
-        row['police_incidents_last7'] = counts['police_counts'][7]
-        row['police_incidents_prev7'] = counts['police_counts'][14] - counts['police_counts'][7]
-        row['police_incidents_last30'] = counts['police_counts'][30]
-        row['police_incidents_prev30'] = counts['police_counts'][60] - counts['police_counts'][30]
-        row['police_incidents_last90'] = counts['police_counts'][90]
-        row['police_incidents_prev90'] = counts['police_counts'][180] - counts['police_counts'][90]
-        row['police_incidents_last365'] = counts['police_counts'][365]
-        row['police_incidents_prev365'] = counts['police_counts'][730] - counts['police_counts'][365]
+        for days_ago in model_timeframes:
+            row['police_incidents_last%d' % days_ago] = counts['police_counts'][days_ago]
+            row['police_incidents_prev%d' % days_ago] = counts['police_counts'][days_ago] * 2 - counts['police_counts'][days_ago]
     else:
-        row['police_incidents_last7'] = 0
-        row['police_incidents_prev7'] = 0
-        row['police_incidents_last30'] = 0
-        row['police_incidents_prev30'] = 0
-        row['police_incidents_last90'] = 0
-        row['police_incidents_prev90'] = 0
-        row['police_incidents_last365'] = 0
-        row['police_incidents_prev365'] = 0
+        for days_ago in model_timeframes:
+            row['police_incidents_last%d' % days_ago] = 0
+            row['police_incidents_prev%d' % days_ago] = 0
 
     return AddressSummary(**row)
 

@@ -137,7 +137,6 @@ def browse():
     else:
         order_column = order_column.desc()
 
-
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
     return render_template("browse.html", summaries=summaries, date_range=date_range,
