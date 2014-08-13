@@ -74,7 +74,33 @@
     </div>
 </div>
 <div id="action-station">
-    Take Action
+    <div class="header"><h3>Take Action</h3></div>
+    <div class="content">
+        <ul class="actions">
+            <li class="action activated">
+                <span class="user main-user">Sally Johnson</span> activated this address.
+                <br><span class="action-date">May 24 2014</span>
+            </li>
+            <li class="action invited">
+                <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Rob Delaney</span>.
+                <br><span class="action-date">May 24 2014</span>
+            </li>
+            <li class="action comment">
+                <span class="user main-user">Sally Johnson</span> <span class="comment-text">Someone called me about this address. Looks like a lot of calls about XXXXXX. Think it's a XXXX issue. Rob, take a lok.</span>
+                <br><span class="action-date">May 24 2014</span>
+            </li>
+            <li class="action invited">
+                <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Marco Garcia</span>.
+                <br><span class="action-date">May 27 2014</span>
+            </li>
+        </ul>
+    </div>
+    <div class="add-comment">
+        <form>
+            <textarea></textarea>
+            <button>Add Comment</button>
+        </form>
+    </div>
 </div>
 <script>
 var topCallTypes = {{ top_call_types|tojson|safe }};

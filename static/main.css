@@ -146,9 +146,10 @@ header {
 #action-station {
     float: left;
     width: 280px;
-    min-height: 400px;
+    min-height: 200px;
     margin-left: 20px;
     border: 1px solid #3db349;
+    border-radius: 5px 5px 0 0;
 }
 
 .week-alert {
@@ -260,6 +261,23 @@ ol.call-types li {
 .no-calls-of-this-type {
     display: none;
     margin-left: 10px;
+}
+
+/* Action station */
+#action-station .header {
+    background-color: #3db349;
+    padding: 0 0 0 10px;
+    line-height: 30px;
+
+}
+
+#action-station .header h3 {
+    color: white;
+
+}
+
+#action-station .content {
+    background-color: #dfecda;
 }
 
 /* Browse page */
