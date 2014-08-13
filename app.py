@@ -1,6 +1,6 @@
 from flask import Flask, render_template, abort, request, Response, session
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, current_user
+from flask.ext.login import LoginManager, login_user, logout_user, current_user
 
 import os
 import operator
@@ -154,16 +154,26 @@ def log_in():
         session['email'] = response['email']
         user = load_user_by_email(session['email'])
         login_user(user)
+        print user
+        print current_user
         return 'OK'
 
     return Response('Failed', status=400)
 
 @app.route('/log-out', methods=['POST'])
 def log_out():
+    logout_user()
+
+#    flask.ext.login.logout_user()
+#    return redirect('/')
+
+    flash('You\'ve been logged out')
     if 'email' in session:
         session.pop('email')
 
-    return 'OK'
+    return redirect(url_for('home'))
+
+#    return 'OK'
 
 def load_user_by_email(email):
     user = models.User.query.filter(models.User.email==email).first()

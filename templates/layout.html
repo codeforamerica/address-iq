@@ -33,7 +33,7 @@
           <div id="user-nav">
             <div class="signon">
               <form>
-                {% if email %}
+                {% if current_user.is_authenticated() %}
                   <a href="#" id="logout">Log out</a>
                 {% else %}
                   <a href="#" id="login">Log in</a>
