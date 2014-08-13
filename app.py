@@ -1,6 +1,6 @@
 from flask import Flask, render_template, abort, request, Response, session
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user
+from flask.ext.login import LoginManager, login_user, current_user
 
 import os
 import operator
@@ -132,9 +132,15 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 @app.route("/")
 def home():
-    kwargs = dict(email=session.get('email', None))
+    user_email = get_email_of_current_user()
+    kwargs = dict(email=user_email)
 
     return render_template('home.html', **kwargs)
+#    return render_template('home.html', user_email=user_email) # fails because JSON can't serialize 'None'
+
+    # Pass email to each render_template call (so home.html isn't the only one getting it -- and take out session reference)
+        # See whether there's another way to pass this to multiple ones.
+
 
 @app.route('/log-in', methods=['POST'])
 def log_in():
@@ -168,6 +174,18 @@ def load_user_by_email(email):
 
     return user
 
+def get_email_of_current_user(user = current_user):
+    # @todo: Write a test for this function.
+    if user.is_anonymous():
+        return None
+
+    email = user.email
+
+    if not email:
+        return None
+
+    return email
+
 @app.route("/address/<address>")
 def address(address):
     incidents = fetch_incidents_at_address(address)
@@ -180,9 +198,17 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
 
-    return render_template("address.html", incidents=incidents, counts=counts,
+    # @todo: Test this.
+    user_email = get_email_of_current_user()
+    kwargs = dict(email=user_email, incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
                            top_call_types=top_call_types, address=address)
+
+    return render_template('address.html', **kwargs)
+
+#    return render_template("address.html", incidents=incidents, counts=counts,
+#                           business_types=business_types, business_names=business_names,
+#                           top_call_types=top_call_types, address=address)
 
 if __name__ == "__main__":
     app.run(debug=True)

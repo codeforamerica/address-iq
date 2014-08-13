@@ -21,6 +21,19 @@ class HomeTestCase(unittest.TestCase):
 
         assert rv.status_code == 200
 
+class LoginTestCase(unittest.TestCase):
+    # @todo: Integrate this with others, probably, so you confirm that access
+    # control is as it should be throughout.
+
+    def setUp(self):
+        self.app = app.test_client()
+
+    def testUserCanLogIn(self):
+        return True
+
+    def testUserCanLogOut(self):
+        return True
+
 
 class AddressUtilityTestCase(unittest.TestCase):
     def setUp(self):
