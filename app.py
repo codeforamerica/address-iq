@@ -179,8 +179,10 @@ def load_user_by_email(email):
     user = models.User.query.filter(models.User.email==email).first()
     if not user:
         # @todo: Pull name from Google spreadsheet
+        # @todo: Implement this using create_user instead.
         user = models.User(name = 'Fireworks Joe', email = email)
         db.session.add(user)
+        db.session.commit()
 
     return user
 
