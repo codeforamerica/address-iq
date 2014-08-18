@@ -37,21 +37,6 @@ def count_police_calls(incidents):
     return count_calls(incidents, 'call_datetime', 
                        'police_counts', DEFAULT_TIMEFRAMES)
 
-def fetch_businesses_for_addresses(addresses):
-    license_query = db.session.query(BusinessLicense).filter(BusinessLicense.business_address.in_(addresses))
-    licenses = license_query.all()
-
-    import itertools
-    biz_addresses = {}
-    for license in licenses:
-        if license.business_address in addresses:
-            biz_addresses[license.business_address.strip()].append(license)
-        else:
-            biz_addresses[license.business_address.strip()] = [license]
-
-    return biz_addresses
-
-
 def address_counts_dict_to_call_summary(address, counts):
     row = {
         'address': address.strip()
@@ -91,20 +76,6 @@ if __name__ == '__main__':
             addresses[address.strip()] = police_addresses[address.strip()]
         else:
             addresses[address.strip()].update(police_addresses[address.strip()])
-
-    business_addresses =  fetch_businesses_for_addresses(addresses.keys())
-
-    for address in addresses:
-        address_record = addresses[address.strip()]
-        if address.strip() not in business_addresses:
-            address_record['business_count'] = 0
-            address_record['business_names'] = ''
-            address_record['business_types'] = ''
-
-        else:
-            address_record['business_count'] = len(business_addresses[address.strip()])
-            address_record['business_names'] = [', '.join([biz.name for biz in business_addresses[address.strip()]])]
-            address_record['business_types'] = [', '.join([biz.business_service_description for biz in business_addresses[address.strip()]])]
 
     summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems()]
     db.session.query(AddressSummary).delete()
