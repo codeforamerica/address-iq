@@ -1,3 +1,5 @@
+import datetime
+
 from app import db
 
 
@@ -169,3 +171,16 @@ class User(db.Model):
 
     def get_id(self):
         return unicode(self.id)
+
+class Action(db.Model):
+    __tablename__ = 'actions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    user = db.relationship('User')
+
+class Comment(Action):
+    pass

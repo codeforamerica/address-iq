@@ -1,6 +1,6 @@
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, logout_user, current_user
+from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from functools import wraps
 
 import os
@@ -160,8 +160,10 @@ def browse():
 
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
+
+    user_email = get_email_of_current_user()
     return render_template("browse.html", summaries=summaries, date_range=date_range,
-        sort_by=sort_by, sort_order=sort_order)
+        sort_by=sort_by, sort_order=sort_order, email=user_email)
 
 @app.route('/log-in', methods=['POST'])
 def log_in():
@@ -225,14 +227,6 @@ def get_email_of_current_user(user = current_user):
 
     return email
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user is None:
-            return redirect(url_for('log_in', next=request_url))
-        return f(*args, **kwargs)
-    return decorated_function
-
 @app.route("/address/<address>")
 @login_required
 def address(address):
@@ -252,6 +246,7 @@ def address(address):
                            top_call_types=top_call_types, address=address)
 
     return render_template('address.html', **kwargs)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
