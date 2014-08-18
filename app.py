@@ -188,7 +188,6 @@ def log_out():
         session.pop('email')
 
     return redirect(url_for('home'))
->>>>>>> 0c3cd5cf188574c643d10f5364e9304af6115950
 
 def create_user(name, email):
     import pytz
