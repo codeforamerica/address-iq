@@ -148,3 +148,24 @@ class AddressSummary(db.Model):
                 'prior': getattr(self, "police_incidents_prev%d" % days)
             }
         }
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(75))
+    email = db.Column(db.String(100), unique=True)
+    date_created = db.Column(db.DateTime(timezone=True))
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        # @todo: crossreference with Google Doc or LDAP.
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)

@@ -71,7 +71,7 @@ a {
 /* Header Styles */
 header {
     background-color: #d8d8d8;
-    height: 50px;
+    min-height: 50px;
 }
 
 #logo {
@@ -88,20 +88,20 @@ header {
 
 #navigation {
     display: block;
-    height: 50px;
+    min-height: 50px;
     margin-left: 280px;
 }
 
 #navigation li {
     display: block;
-    height: 50px;
+    min-height: 50px;
     vertical-align: middle;
     float: left;
 }
 
 #navigation li a {
     display: block;
-    height: 50px;
+    min-height: 50px;
     width: 110px;
     padding: 15px 30px 15px 0px;
 
@@ -113,7 +113,7 @@ header {
     color: #0071BC;
 }
 
-/* Search box */ 
+/* Search box */
 
 .search-area {
     background-color: #d8d8d8;
@@ -224,7 +224,7 @@ header {
     line-height: 40px;
     background-color: #ccc;
     text-align: center;
-    
+
     float: left;
     cursor: pointer;
 }

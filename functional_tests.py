@@ -2,8 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 
 import unittest
-
 import os
+import browserid
 
 remote_browser = False
 if os.environ.get('NOTIFY_TEST_REMOTE_BROWSER') == "YES":
@@ -92,6 +92,42 @@ class AddressPageTest(unittest.TestCase):
         remove_test_data()
         db.session.commit()
         self.browser.quit()
+
+    def test_user_can_log_in_and_log_out(self):
+        self.browser.get('http://localhost:5000')
+        self.browser.implicitly_wait(3)
+
+        # On the homepage, the user sees the 'Log in' link.
+        login_link = self.browser.find_element_by_link_text('Log in')
+        self.assertTrue(login_link.is_displayed())
+
+        # The user is then able to actually log in.
+        login_link.click()
+
+        from browserid import BrowserID
+        browser_id = BrowserID(self.browser)
+        from browserid.pages.sign_in import SignIn
+        signin = SignIn(self.browser, self.timeout)
+        signin.email = 'testingtestingLBC@gmail.com'
+        signin.click_next()
+        signin.password = 'LBCtest123'
+        signin.click_select_email()
+        signin.click_sign_in()
+#        browser_id.sign_in('testingtestingLBC@gmail.com', 'LBCtest123')
+
+#        assert selenium.find_element_by_id('logout').is_displayed()
+
+#         signin = SignIn(self.browser, self.timeout)
+#         signin.email = 'testingtestingLBC@gmail.com'
+#         signin.click_next()
+#         signin.password = 'LBCtest123'
+#         signin.click_sign_in()
+        self.assertTrue(self.browser.find_element_by_link_text('Log out').is_displayed())
+
+    def test_user_can_log_out(self):
+        # @todo: Test that limitations on what they can see are working.
+
+        return True
 
     def test_page_loads_and_shows_top_fire_calls_for_year(self):
         self.browser.get('http://localhost:5000/address/123 test ln')

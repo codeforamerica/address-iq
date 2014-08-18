@@ -1,7 +1,11 @@
-from flask import Flask, render_template, abort, request
+from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager, login_user, logout_user, current_user
+from functools import wraps
+
 import os
 import operator
+from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -12,6 +16,20 @@ meta.bind = db.engine
 
 import models
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(userid):
+    if not userid:
+        return None
+    try:
+        userid = int(userid)
+    except ValueError:
+        # @todo: Log error.
+        return None
+
+    return models.User.query.get(userid)
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -94,7 +112,7 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             incident_reason = getattr(incident, reason_field)
             for timeframe_info in timeframes_info:
                 if incident_date > timeframe_info['start_date']:
-                    relevant_reasons_table = counts[incident_type][timeframe_info['days']] 
+                    relevant_reasons_table = counts[incident_type][timeframe_info['days']]
 
                     if incident_reason in relevant_reasons_table:
                         relevant_reasons_table[incident_reason] = relevant_reasons_table[incident_reason] + 1
@@ -114,7 +132,10 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    user_email = get_email_of_current_user()
+    kwargs = dict(email=user_email)
+
+    return render_template('home.html', **kwargs)
 
 @app.route("/browse")
 def browse():
@@ -142,8 +163,79 @@ def browse():
     return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order)
 
+@app.route('/log-in', methods=['POST'])
+def log_in():
+    posted = post('https://verifier.login.persona.org/verify',
+                  data=dict(assertion=request.form.get('assertion'),
+                            audience=app.config['BROWSERID_URL']))
+
+    response = posted.json()
+
+    if response.get('status', '') == 'okay':
+        session['email'] = response['email']
+        user = load_user_by_email(session['email'])
+        if user:
+            login_user(user)
+            return 'OK'
+
+    return Response('Failed', status=400)
+
+@app.route('/log-out', methods=['POST'])
+def log_out():
+    logout_user()
+
+    if 'email' in session:
+        session.pop('email')
+
+    return redirect(url_for('home'))
+>>>>>>> 0c3cd5cf188574c643d10f5364e9304af6115950
+
+def create_user(name, email):
+    import pytz
+    from datetime import datetime
+
+    # Check whether a record already exists for this user.
+    user = models.User.query.filter(models.User.email==email).first()
+    if user:
+        return False
+
+    # If no record exists, create the user.
+    user = models.User(name = name, email = email, date_created=datetime.now(pytz.utc))
+    db.session.add(user)
+    db.session.commit()
+
+    return user
+
+def load_user_by_email(email):
+    # @todo: When we incorporate LDAP, update this to pull real name.
+    name = 'Fireworks Joe'
+    user = models.User.query.filter(models.User.email==email).first()
+    if not user:
+        create_user(name, email)
+
+    return user
+
+def get_email_of_current_user(user = current_user):
+    if user.is_anonymous():
+        return None
+
+    email = user.email
+
+    if not email:
+        return None
+
+    return email
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user is None:
+            return redirect(url_for('log_in', next=request_url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route("/address/<address>")
+@login_required
 def address(address):
     incidents = fetch_incidents_at_address(address)
 
@@ -155,9 +247,12 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
 
-    return render_template("address.html", incidents=incidents, counts=counts,
+    user_email = get_email_of_current_user()
+    kwargs = dict(email=user_email, incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
                            top_call_types=top_call_types, address=address)
+
+    return render_template('address.html', **kwargs)
 
 if __name__ == "__main__":
     app.run(debug=True)
