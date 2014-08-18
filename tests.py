@@ -1,12 +1,15 @@
 import unittest
 import os
 import datetime
+import pytz
 
 os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 
 from app import app, db
 from app import fetch_incidents_at_address, count_incidents_by_timeframes
 from app import get_top_incident_reasons_by_timeframes
+
+from count_calls_for_service import count_calls
 
 from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory
 
@@ -278,6 +281,51 @@ class AddressUtilityTestCase(unittest.TestCase):
         rv = self.app.get('/address/456 lala ln')
         assert "Business Type(s): Bar, Lawncare" in rv.data
         assert "Business Name(s): The Pub, Mowers R Us" in rv.data
+
+class CountCallsTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = app.test_client()
+        db.create_all()
+
+    def tearDown(self):
+        db.drop_all()
+
+    def test_count_calls_returns_empty_when_given_no_incidents(self):
+        counts = count_calls([], 'alarm_datetime', 'fire_counts', [7, 14])
+
+        assert counts == {}
+
+    def test_count_calls_returns_correctly_for_fire_responses(self):
+        def get_date_days_ago(days):
+            return datetime.datetime.now(pytz.utc) - datetime.timedelta(days=days)
+
+        incidents = [FireIncidentFactory(incident_address="123 MAIN ST",
+                             alarm_datetime=get_date_days_ago(5))
+         for i in range(0, 5)]
+
+        counts = count_calls(incidents, 'alarm_datetime', 'fire_counts', [7, 14])
+
+        assert '123 MAIN ST' in counts
+        assert 'fire_counts' in counts['123 MAIN ST']
+        assert 7 in counts['123 MAIN ST']['fire_counts']
+        assert counts['123 MAIN ST']['fire_counts'][7] == 5
+        assert counts['123 MAIN ST']['fire_counts'][14] == 5
+
+    def test_count_calls_returns_correctly_for_police_responses(self):
+        def get_date_days_ago(days):
+            return datetime.datetime.now(pytz.utc) - datetime.timedelta(days=days)
+
+        incidents = [PoliceIncidentFactory(incident_address="123 MAIN ST",
+                             call_datetime=get_date_days_ago(5))
+         for i in range(0, 5)]
+
+        counts = count_calls(incidents, 'call_datetime', 'police_counts', [7, 14])
+
+        assert '123 MAIN ST' in counts
+        assert 'police_counts' in counts['123 MAIN ST']
+        assert 7 in counts['123 MAIN ST']['police_counts']
+        assert counts['123 MAIN ST']['police_counts'][7] == 5
+        assert counts['123 MAIN ST']['police_counts'][14] == 5
 
 if __name__ == '__main__':
     unittest.main()

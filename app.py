@@ -1,4 +1,4 @@
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy
 import os
 import operator
@@ -112,10 +112,35 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
     return top_call_types
 
-
-@app.route("/")
+@app.route('/')
 def home():
-    return render_template("home.html")
+    return render_template('home.html')
+
+@app.route("/browse")
+def browse():
+    date_range = int(request.args.get('date_range', 365))
+    page = int(request.args.get('page', 1))
+
+    sort_by = request.args.get('sort_by', 'fire')
+    sort_order = request.args.get('sort_order', 'desc')
+
+    order_column_map = {
+        'address': getattr(models.AddressSummary, 'address'),
+        'fire': getattr(models.AddressSummary, 'fire_incidents_last%d' % date_range),
+        'police': getattr(models.AddressSummary, 'police_incidents_last%d' % date_range),
+        'biz_type': getattr(models.AddressSummary, 'business_types')
+    }
+    order_column = order_column_map.get(sort_by, order_column_map['fire'])
+
+    if sort_order == 'asc':
+        order_column = order_column.asc()
+    else:
+        order_column = order_column.desc()
+
+    summaries = models.AddressSummary.query
+    summaries = summaries.order_by(order_column).paginate(page, per_page=10)
+    return render_template("browse.html", summaries=summaries, date_range=date_range,
+        sort_by=sort_by, sort_order=sort_order)
 
 
 @app.route("/address/<address>")
