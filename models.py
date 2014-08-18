@@ -121,7 +121,7 @@ class User(db.Model):
         return True
 
     def is_active(self):
-        # @todo: crossreference with Google Doc.
+        # @todo: crossreference with Google Doc or LDAP.
         return True
 
     def is_anonymous(self):
