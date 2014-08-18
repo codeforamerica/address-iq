@@ -1,13 +1,13 @@
-from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, logout_user, current_user
-from functools import wraps
-
+from datetime import datetime
 import os
 import operator
 import models
 import pytz
-from datetime import datetime
+
+from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager, login_user, logout_user, current_user
+from functools import wraps
 from requests import post
 
 app = Flask(__name__)
@@ -168,7 +168,7 @@ def create_user(name, email):
         return False
 
     # If no record exists, create the user.
-    user = models.User(name = name, email = email, date_created=datetime.now(pytz.utc))
+    user = models.User(name=name, email=email, date_created=datetime.now(pytz.utc))
     db.session.add(user)
     db.session.commit()
 
@@ -183,7 +183,7 @@ def load_user_by_email(email):
 
     return user
 
-def get_email_of_current_user(user = current_user):
+def get_email_of_current_user(user=current_user):
     if user.is_anonymous():
         return None
 
