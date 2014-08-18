@@ -1,0 +1,395 @@
+@import '_meyer-reset';
+
+/*** VARIABLES ***/
+$font-stack: 'Open Sans Condensed', sans-serif;
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+    font-size: 36px;
+    line-height: 43px;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+h3 {
+    font-family: $font-stack;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+h4 {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+h5 {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+a {
+    color: black;
+    &:visited {
+      color: black;
+    }
+}
+
+p {
+    font-family: $font-stack;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 18px;
+
+    .small {
+      font-size: 14px;
+      /*
+      font-family: $font-stack;
+      font-weight: bold;
+      */
+    }
+}
+
+.bignumber {
+    font-family: $font-stack;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+
+a {
+    text-decoration: none;
+}
+
+.container {
+    width: 1020px;
+    margin: 0 auto;
+}
+
+/* Header Styles */
+header {
+    background-color: #d8d8d8;
+    height: 50px;
+}
+
+#logo {
+    float: left;
+    display: block;
+    padding: 10px 15px 13px;
+    color: #6D6E71;
+    text-decoration: none;
+    font-size: 24px;
+    line-height: 28px;
+    width: 150px;
+    margin-left: 40px;
+}
+
+#navigation {
+    display: block;
+    height: 50px;
+    margin-left: 280px;
+    > li {
+/*
+      display: block;
+      height: 50px;
+*/
+      vertical-align: middle;
+      float: left;
+      > a {
+/*
+          display: block;
+          height: 50px;
+*/
+          width: 110px;
+          padding: 15px 30px 15px 0px;
+
+          font-size: 16px;
+          color: #6D6E71;
+          &:hover {
+            color: #0071BC;
+          }
+      }
+    }
+}
+
+/* Search box */
+
+.search-area {
+  background-color: #d8d8d8;
+  height: 40px;
+  width: 220px;
+  margin-left: 40px;
+  margin-bottom: 30px;
+  > input {
+      height: 26px;
+      width: 160px;
+      margin-left: 10px;
+      padding-left: 20px;
+      font-size: 13px;
+  }
+}
+
+/* Page content */
+.page-content {
+    padding: 0px 40px;
+}
+
+/* Address Page */
+#address-data {
+    float: left;
+    width: 620px;
+}
+
+#action-station {
+    float: left;
+    width: 280px;
+    min-height: 400px;
+    margin-left: 20px;
+    border: 1px solid #3db349;
+}
+
+.week-alert {
+  background-color: #fcd3c9;
+  height: 32px;
+  border-radius: 4px;
+  margin: 20px 0;
+
+  .call-count {
+    float: left;
+    margin-left: 20px;
+    padding: 3px 0 0;
+
+    .bigger-number {
+      font-size: 22px;
+      font-weight: bold;
+    }
+  }
+
+  .date-range {
+      float: right;
+      margin-right: 20px;
+      padding: 8px 0 0;
+  }
+}
+
+.department-callout {
+  background-color: #d8d8d8;
+  height: 65px;
+  margin-top: 30px;
+
+  .department-explanation {
+      float: left;
+      padding: 20px;
+      margin-right: 20px;
+      width: 110px;
+  }
+
+  .callout-number {
+      float: left;
+      padding: 10px 40px 0px;
+  }
+
+  .timeframe {
+      font-family: $font-stack;
+      font-size: 14px;
+      font-weight: bolder;
+  }
+}
+
+#explore-more {
+    margin-top: 20px;
+}
+
+.date-range-selector {
+    background-color: #6d6e71;
+    height: 50px;
+    line-height: 50px;
+    border-radius: 25px;
+    color: white;
+    padding-left: 40px;
+    margin: 20px 0;
+}
+
+.department-tabs {
+    height: 40px;
+}
+
+.department-tab {
+    width: 80px;
+    height: 40px;
+    line-height: 40px;
+    background-color: #ccc;
+    text-align: center;
+    float: left;
+    cursor: pointer;
+}
+
+.department-tab.active {
+    background-color: white;
+    border-width: 1px 1px 0px;
+    border-color: #B3B3B3;
+    border-style: solid;
+    cursor: default;
+}
+
+.department-tab-content {
+    border: 1px solid #9f9fa0;
+    padding: 30px;
+    margin-bottom: 20px;
+    min-height: 200px;
+}
+
+.department-tab-content h3 {
+    margin-left: 10px;
+    margin-bottom: 20px;
+}
+
+ol.call-types li {
+    line-height: 30px;
+    padding-left: 10px;
+}
+
+.call-types li.odd {
+    background-color: #d8d8d8;
+}
+
+.no-calls-of-this-type {
+    display: none;
+    margin-left: 10px;
+}
+
+/* Browse page */
+
+#browse-page {
+    background-color: #d8d8d8;
+    border-radius: 10px;
+    padding: 20px 60px;
+}
+
+ul.browse-date-ranges {
+    height: 42px;
+    margin: 30px 0;
+}
+
+ul.browse-date-ranges li {
+    float: left;
+    width: 90px;
+    line-height: 40px;
+
+    border: 1px solid #6d6e71;
+    border-width: 1px 0 1px 1px;
+
+    text-align: center;
+}
+
+ul.browse-date-ranges li.first {
+    border-radius: 5px 0 0 5px;
+}
+
+ul.browse-date-ranges li.last {
+    border-right: 1px solid #6d6e71;
+    border-radius: 0 5px 5px 0;
+}
+
+ul.browse-date-ranges li.active {
+    background-color: white;
+}
+
+ul.browse-date-ranges li a {
+    display: inline-block;
+    line-height: 40px;
+    padding: 0px 10px;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+}
+
+ul.browse-date-ranges li a:visited {
+    color: black;
+}
+
+.browse-results {
+    clear: both;
+    width: 820px;
+    margin: 0 auto;
+}
+
+.browse-results thead {
+    border-bottom: 2px solid #9f9fa0;
+}
+
+.browse-results th {
+    text-align: left;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.browse-results th .fa {
+    width: 18px;
+}
+
+.browse-results th.active .fa {
+    color: #0071bc;
+}
+
+.browse-results tr {
+    line-height: 40px;
+    cursor: pointer;
+}
+
+.browse-results tr.odd {
+    background-color: white;
+}
+
+.browse-results tr.even {
+    background-color: #ddd;
+}
+
+.browse-results td {
+    padding-left: 22px;
+}
+
+.browse-results .explore-link a {
+    display: inline-block;
+    background-color: #9f9fa0;
+    line-height: 24px;
+    padding: 4px 10px;
+}
+
+.pagination {
+    margin: 20px 0px;
+    text-align: center;
+}
+
+.pagination .active-page {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    color: white;
+    background-color: #6d6e71;
+    display: inline-block;
+}
+
+.pagination a.page {
+    height: 30px;
+    width: 30px;
+    line-height: 30px;
+    color: white;
+    background-color: #9f9fa0;
+    display: inline-block;
+}
+
+.pagination a.prev, .pagination a.next {
+    height: 30px;
+    width: 80px;
+    line-height: 30px;
+    color: white;
+    background-color: #6d6e71;
+    display: inline-block;
+}
