@@ -176,6 +176,8 @@ class Action(db.Model):
     __tablename__ = 'actions'
 
     id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String)
+    address = db.Column(db.String)
     content = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)

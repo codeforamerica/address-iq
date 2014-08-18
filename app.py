@@ -1,7 +1,8 @@
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
-from functools import wraps
+from flask.ext.seasurf import SeaSurf
+
 
 import os
 import operator
@@ -13,6 +14,8 @@ db = SQLAlchemy(app)
 
 meta = db.MetaData()
 meta.bind = db.engine
+
+csrf = SeaSurf(app)
 
 import models
 
@@ -239,14 +242,29 @@ def address(address):
     business_types = [biz.business_service_description.strip() for biz in incidents['businesses']]
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
+    actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
 
     user_email = get_email_of_current_user()
     kwargs = dict(email=user_email, incidents=incidents, counts=counts,
-                           business_types=business_types, business_names=business_names,
-                           top_call_types=top_call_types, address=address)
+                  business_types=business_types, business_names=business_names,
+                  top_call_types=top_call_types, address=address,
+                  actions=actions)
 
     return render_template('address.html', **kwargs)
 
+@app.route("/address/<address>/comments", methods=['POST'])
+@login_required
+def post_comment(address):
+    comment = request.form.get('content')
+
+    if not comment:
+        return "nope try actually posting a comment"
+
+    comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address)
+    db.session.add(comment)
+    db.session.commit()
+
+    return redirect(url_for("address", address=address))
 
 if __name__ == "__main__":
     app.run(debug=True)

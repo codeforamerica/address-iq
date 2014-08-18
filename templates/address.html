@@ -77,6 +77,7 @@
     <div class="header"><h3>Take Action</h3></div>
     <div class="content">
         <ul class="actions">
+            <!-- 
             <li class="action activated">
                 <span class="user main-user">Sally Johnson</span> activated this address.
                 <br><span class="action-date">May 24 2014</span>
@@ -85,20 +86,26 @@
                 <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Rob Delaney</span>.
                 <br><span class="action-date">May 24 2014</span>
             </li>
+            -->
+            {% for action in actions %}
             <li class="action comment">
-                <span class="user main-user">Sally Johnson</span> <span class="comment-text">Someone called me about this address. Looks like a lot of calls about XXXXXX. Think it's a XXXX issue. Rob, take a lok.</span>
-                <br><span class="action-date">May 24 2014</span>
+                <span class="user main-user">{{ action.user.name }}</span> <span class="comment-text">{{action.content}}</span>
+                <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
             </li>
+            {% endfor %}
+            <!--
             <li class="action invited">
                 <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Marco Garcia</span>.
                 <br><span class="action-date">May 27 2014</span>
             </li>
+            -->
         </ul>
     </div>
     <div class="add-comment">
-        <form>
-            <textarea></textarea>
-            <button>Add Comment</button>
+        <form method="POST" action="/address/{{ address }}/comments">
+            <textarea name="content"></textarea>
+            <input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
+            <button type="submit">Add Comment</button>
         </form>
     </div>
 </div>

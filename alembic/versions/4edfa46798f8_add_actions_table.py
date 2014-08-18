@@ -18,6 +18,7 @@ def upgrade():
     op.create_table(
         'actions',
         sa.Column('id', sa.Integer, primary_key=True),
+        sa.Column('address', sa.String),
         sa.Column('type', sa.String),
         sa.Column('content', sa.Text),
         sa.Column('user_id', sa.Integer, sa.ForeignKey('users.id')),
