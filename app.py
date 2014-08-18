@@ -148,10 +148,9 @@ def log_in():
     if response.get('status', '') == 'okay':
         session['email'] = response['email']
         user = load_user_by_email(session['email'])
-        login_user(user)
-        print user
-        print current_user
-        return 'OK'
+        if user:
+            login_user(user)
+            return 'OK'
 
     return Response('Failed', status=400)
 
@@ -164,13 +163,28 @@ def log_out():
 
     return redirect(url_for('home'))
 
+def create_user(name, email):
+    import pytz
+    from datetime import datetime
+
+    # Check whether a record already exists for this user.
+    user = models.User.query.filter(models.User.email==email).first()
+    if user:
+        return False
+
+    # If no record exists, create the user.
+    user = models.User(name = name, email = email, date_created=datetime.now(pytz.utc))
+    db.session.add(user)
+    db.session.commit()
+
+    return user
+
 def load_user_by_email(email):
+    # @todo: When we incorporate LDAP, update this to pull real name.
+    name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
     if not user:
-        # @todo: Implement this using create_user instead.
-        user = models.User(name = 'Fireworks Joe', email = email)
-        db.session.add(user)
-        db.session.commit()
+        create_user(name, email)
 
     return user
 
