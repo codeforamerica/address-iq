@@ -5,6 +5,9 @@ from functools import wraps
 
 import os
 import operator
+import models
+import pytz
+from datetime import datetime
 from requests import post
 
 app = Flask(__name__)
@@ -13,8 +16,6 @@ db = SQLAlchemy(app)
 
 meta = db.MetaData()
 meta.bind = db.engine
-
-import models
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -49,8 +50,6 @@ def fetch_incidents_at_address(address):
 
 
 def count_incidents_by_timeframes(incidents, timeframes):
-    import datetime
-
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -80,8 +79,6 @@ def count_incidents_by_timeframes(incidents, timeframes):
     return counts
 
 def get_top_incident_reasons_by_timeframes(incidents, timeframes):
-    import datetime
-
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -165,9 +162,6 @@ def log_out():
     return redirect(url_for('home'))
 
 def create_user(name, email):
-    import pytz
-    from datetime import datetime
-
     # Check whether a record already exists for this user.
     user = models.User.query.filter(models.User.email==email).first()
     if user:
