@@ -3,6 +3,9 @@
 {% block body %}
 <div id="address-data">
     <h1 class="address">{{ address | title}}</h1>
+    <div id="activated-toggle" class="{% if activated %}activated{% else %}deactivated{% endif %}">
+        Not Active | Active
+    </div>
     <div id="at-a-glance">
         {% if incidents['businesses']|length > 0 %}
         <p>Business Type(s): {{ business_types|join(', ')}}</p>
