@@ -113,10 +113,6 @@ class AddressSummary(db.Model):
 
     address = db.Column(db.String(50), primary_key=True)
 
-    business_counts = db.Column(db.Integer)
-    business_names = db.Column(db.Text)
-    business_types = db.Column(db.Text)
-
     fire_incidents_last7 = db.Column(db.Integer)
     fire_incidents_prev7 = db.Column(db.Integer)
     police_incidents_last7 = db.Column(db.Integer)

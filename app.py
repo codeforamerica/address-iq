@@ -127,8 +127,7 @@ def browse():
     order_column_map = {
         'address': getattr(models.AddressSummary, 'address'),
         'fire': getattr(models.AddressSummary, 'fire_incidents_last%d' % date_range),
-        'police': getattr(models.AddressSummary, 'police_incidents_last%d' % date_range),
-        'biz_type': getattr(models.AddressSummary, 'business_types')
+        'police': getattr(models.AddressSummary, 'police_incidents_last%d' % date_range)
     }
     order_column = order_column_map.get(sort_by, order_column_map['fire'])
 
