@@ -168,6 +168,7 @@ def browse():
     return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order, email=user_email)
 
+@csrf.exempt
 @app.route('/log-in', methods=['POST'])
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
@@ -185,10 +186,10 @@ def log_in():
 
     return Response('Failed', status=400)
 
+@csrf.exempt
 @app.route('/log-out', methods=['POST'])
 def log_out():
     logout_user()
-
     if 'email' in session:
         session.pop('email')
 
@@ -258,7 +259,7 @@ def post_comment(address):
     comment = request.form.get('content')
 
     if not comment:
-        return "nope try actually posting a comment"
+        return redirect(url_for("address", address=address))
 
     comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address)
     db.session.add(comment)

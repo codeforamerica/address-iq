@@ -11,8 +11,9 @@ from app import get_top_incident_reasons_by_timeframes
 
 from count_calls_for_service import count_calls
 
-from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory
+from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory, UserFactory
 
+from flask.ext.login import login_user
 
 class HomeTestCase(unittest.TestCase):
 
@@ -294,6 +295,16 @@ class AddressUtilityTestCase(unittest.TestCase):
         rv = self.app.get('/address/456 lala ln')
         assert "Business Type(s): Bar, Lawncare" in rv.data
         assert "Business Name(s): The Pub, Mowers R Us" in rv.data
+
+    def test_no_comment_msg_shows_on_address_with_none(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        rv = self.app.get('/address/456 lala ln')
+        assert 'no-action-found' in rv.data
+        assert 'Nothing has been done yet with this address. Add a note below, or click the activate button!' in rv.data
 
 class CountCallsTestCase(unittest.TestCase):
     def setUp(self):

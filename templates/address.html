@@ -92,6 +92,10 @@
                 <span class="user main-user">{{ action.user.name }}</span> <span class="comment-text">{{action.content}}</span>
                 <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
             </li>
+            {% else %}
+            <li class="no-action-found">
+                Nothing has been done yet with this address. Add a note below, or click the activate button!
+            </li>
             {% endfor %}
             <!--
             <li class="action invited">
