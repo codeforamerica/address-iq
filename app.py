@@ -6,7 +6,7 @@ import pytz
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, logout_user, current_user
+from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from functools import wraps
 from requests import post
 
@@ -189,14 +189,6 @@ def get_email_of_current_user(user=current_user):
         return None
 
     return email
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user is None:
-            return redirect(url_for('log_in', next=request_url))
-        return f(*args, **kwargs)
-    return decorated_function
 
 @app.route("/address/<address>")
 @login_required
