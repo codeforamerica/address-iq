@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 import os
 import operator
 import models
@@ -164,7 +164,7 @@ def create_user(name, email):
         return False
 
     # If no record exists, create the user.
-    user = models.User(name=name, email=email, date_created=datetime.now(pytz.utc))
+    user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
     db.session.add(user)
     db.session.commit()
 
