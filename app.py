@@ -144,8 +144,7 @@ def log_in():
     response = posted.json()
 
     if response.get('status', '') == 'okay':
-        session['email'] = response['email']
-        user = load_user_by_email(session['email'])
+        user = load_user_by_email(response['email'])
         if user:
             login_user(user)
             return 'OK'
@@ -155,9 +154,6 @@ def log_in():
 @app.route('/log-out', methods=['POST'])
 def log_out():
     logout_user()
-
-    if 'email' in session:
-        session.pop('email')
 
     return redirect(url_for('home'))
 
