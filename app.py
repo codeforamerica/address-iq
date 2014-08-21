@@ -1,7 +1,6 @@
 import datetime
 import os
 import operator
-import models
 import pytz
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
@@ -16,6 +15,8 @@ db = SQLAlchemy(app)
 
 meta = db.MetaData()
 meta.bind = db.engine
+
+import models
 
 login_manager = LoginManager()
 login_manager.init_app(app)
