@@ -59,6 +59,13 @@ $(document).ready(function() {
 
   $('#data-date-range').change(updateContentTab);
 
+  // Make browse page rows clickable
+  $('#browse-page tbody tr').click(function() {
+    window.location.href = $(this).find('.explore-link a').attr('href');
+    return false;
+  });
+
+
 // From https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
 
   function simpleXhrSentinel(xhr) {
