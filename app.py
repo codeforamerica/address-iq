@@ -3,7 +3,7 @@ import os
 import operator
 import pytz
 
-from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
+from flask import Flask, render_template, abort, request, Response, session, redirect, url_for, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from functools import wraps
@@ -32,6 +32,26 @@ def load_user(userid):
         return None
 
     return models.User.query.get(userid)
+
+def audit_log(f):
+    @wraps(f)
+
+    def decorated_function(*args, **kwargs):
+        response = make_response(f(*args, **kwargs))
+
+        log_info = {
+            "resource": request.path,
+            "method": request.method,
+            "response_code": response.status_code,
+            "user_id": current_user.get_id()
+        }
+        log_entry = models.AuditLogEntry(**log_info)
+        db.session.add(log_entry)
+        db.session.commit()
+
+        return response
+
+    return decorated_function
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -136,6 +156,7 @@ def home():
     return render_template('home.html', **kwargs)
 
 @app.route('/log-in', methods=['POST'])
+@audit_log
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
                   data=dict(assertion=request.form.get('assertion'),
@@ -152,6 +173,7 @@ def log_in():
     return Response('Failed', status=400)
 
 @app.route("/browse")
+@audit_log
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))
@@ -218,6 +240,7 @@ def get_email_of_current_user(user=current_user):
 
 @app.route("/address/<address>")
 @login_required
+@audit_log
 def address(address):
     incidents = fetch_incidents_at_address(address)
 
