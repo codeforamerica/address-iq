@@ -132,9 +132,8 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 @app.route('/')
 def home():
     user_email = get_email_of_current_user()
-    kwargs = dict(email=user_email)
 
-    return render_template('home.html', **kwargs)
+    return render_template('home.html', email=user_email)
 
 @app.route('/log-in', methods=['GET'])
 def login_page():
