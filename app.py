@@ -162,6 +162,7 @@ def log_in():
     return Response('Failed', status=400)
 
 @app.route("/browse")
+@login_required
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))
