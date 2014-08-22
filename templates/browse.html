@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% macro render_pagination(pagination, endpoint) %}
+  <div class=pagination>
+    {% if pagination.has_prev %}
+      <a class="prev" href="{{ url_for(endpoint, page=pagination.prev_num, date_range=date_range, sort_by=sort_by, sort_order=sort_order) }}">Prev</a>
+    {% endif %}
+  {%- for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+        <a class="page" href="{{ url_for(endpoint, page=page, date_range=date_range, sort_by=sort_by, sort_order=sort_order) }}">{{ page }}</a>
+      {% else %}
+        <strong class="active-page">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+      <span class=ellipsis>…</span>
+    {% endif %}
+  {%- endfor %}
+  {% if pagination.has_next %}
+    <a class="next" href="{{ url_for(endpoint, page=pagination.next_num, date_range=date_range, sort_by=sort_by, sort_order=sort_order) }}">Next</a>
+  {% endif %}
+
+  </div>
+{% endmacro %}
+
+{% block body %}
+<div id="browse-page">
+    <h1>Browse All Addresses</h1>
+    <ul class="browse-date-ranges">
+        {% set timeframes = [7, 30, 90, 365] %}
+        {% for days_ago in timeframes %}
+        <li class="{% if date_range==days_ago %}active{% endif %}{% if loop.first %} first{% endif %}{% if loop.last %} last{% endif %}">
+            <a href="{{ url_for('browse', date_range=days_ago, sort_by=sort_by, sort_order=sort_order) }}">{{ days_ago }} days</a>
+        </li>
+        {% endfor %}
+
+    </ul>
+    <table class="browse-results">
+        <thead>
+            <tr>
+                {% set headings = [
+                    ('address', 'Address'),
+                    ('fire', 'Fire Calls'),
+                    ('police', 'Police Calls')
+                ] %}
+
+                {% for heading in headings %}
+                {% set is_current_heading = (sort_by == heading[0]) %}
+                {% set new_sort_order = 'asc' if is_current_heading and sort_order == 'desc' else 'desc' %}
+                <th{% if is_current_heading  %} class="active"{% endif %}>
+
+                    <a href="{{url_for('browse', date_range=date_range, sort_by=heading[0], sort_order=new_sort_order)}}">
+                        <span class="fa fa-chevron-{% if is_current_heading and sort_order == 'asc' %}up{% else %}down{% endif %}"></span>
+                        {{ heading[1] }}
+                    </a>
+                </th>
+                {% endfor %}
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for address in summaries.items %}
+            <tr class="{{ loop.cycle('odd', 'even') }}">
+                <td class="address">{{ address.address }}</td>
+                <td class="fire-calls">{{ address.counts_for_days_ago(date_range)['fire']['last'] }}</td>
+                <td class="police-calls">{{ address.counts_for_days_ago(date_range)['police']['last'] }}</td>
+                <td class="explore-link"><a href="/address/{{ address.address}}">Take a look</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {{ render_pagination(summaries, 'browse') }}
+</div>
+{% endblock %}
