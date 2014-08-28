@@ -2,6 +2,8 @@ import datetime
 import os
 import operator
 import pytz
+import logging
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -29,7 +31,7 @@ def load_user(userid):
     try:
         userid = int(userid)
     except ValueError:
-        # @todo: Log error.
+        app.logger.error('There was a ValueError in load_user.')
         return None
 
     return models.User.query.get(userid)
@@ -246,4 +248,7 @@ def address(address):
     return render_template('address.html', **kwargs)
 
 if __name__ == "__main__":
+    handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run(debug=True)
