@@ -24,7 +24,7 @@
 {% endmacro %}
 
 {% block body %}
-<div id="browse-page">
+<div id="audit-logs">
     <h1>View Log Entries</h1>
 
     <table class="log-entries">
@@ -33,14 +33,14 @@
                 <th>Date</th>
                 <th>Resource</th>
                 <th>Request Type</th>
-                <th>Status Code</th>
+                <th>Status</th>
                 <th>User ID</th>
             </tr>
         </thead>
         <tbody>
             {% for entry in entries.items %}
             <tr class="{{ loop.cycle('odd', 'even') }}">
-                <td>{{ entry.timestamp}}</td>
+                <td>{{ entry.timestamp.strftime('%m-%d-%Y %I:%M%p')}}</td>
                 <td>{{ entry.resource}}</td>
                 <td>{{ entry.method}}</td>
                 <td>{{ entry.response_code}}</td>
@@ -49,6 +49,6 @@
             {% endfor %}
         </tbody>
     </table>
-    {{ render_pagination(summaries, 'view_log_entries') }}
+    {{ render_pagination(entries, 'view_log_entries') }}
 </div>
 {% endblock %}

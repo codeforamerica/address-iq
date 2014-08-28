@@ -206,7 +206,7 @@ def browse():
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
     return render_template("browse.html", summaries=summaries, date_range=date_range,
-        sort_by=sort_by, sort_order=sort_order)
+        sort_by=sort_by, sort_order=sort_order, email=current_user.email)
 
 
 @app.route('/log-out', methods=['POST'])
@@ -277,7 +277,7 @@ def view_audit_log():
     log_entries = models.AuditLogEntry.query
     log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
 
-    return render_template("view_audit_log.html", entries=log_entries.paginate(page, per_page=100))
+    return render_template("view_audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
 
 
 if __name__ == "__main__":
