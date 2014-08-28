@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% macro render_pagination(pagination, endpoint) %}
+  <div class=pagination>
+    {% if pagination.has_prev %}
+      <a class="prev" href="{{ url_for(endpoint, page=pagination.prev_num, date_range=date_range, sort_by=sort_by, sort_order=sort_order) }}">Prev</a>
+    {% endif %}
+  {%- for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+        <a class="page" href="{{ url_for(endpoint, page=page, date_range=date_range, sort_by=sort_by, sort_order=sort_order) }}">{{ page }}</a>
+      {% else %}
+        <strong class="active-page">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+      <span class=ellipsis>…</span>
+    {% endif %}
+  {%- endfor %}
+  {% if pagination.has_next %}
+    <a class="next" href="{{ url_for(endpoint, page=pagination.next_num, date_range=date_range, sort_by=sort_by, sort_order=sort_order) }}">Next</a>
+  {% endif %}
+
+  </div>
+{% endmacro %}
+
+{% block body %}
+<div id="browse-page">
+    <h1>View Log Entries</h1>
+
+    <table class="log-entries">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Resource</th>
+                <th>Request Type</th>
+                <th>Status Code</th>
+                <th>User ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries.items %}
+            <tr class="{{ loop.cycle('odd', 'even') }}">
+                <td>{{ entry.timestamp}}</td>
+                <td>{{ entry.resource}}</td>
+                <td>{{ entry.method}}</td>
+                <td>{{ entry.response_code}}</td>
+                <td>{{ entry.user_id}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {{ render_pagination(summaries, 'view_log_entries') }}
+</div>
+{% endblock %}

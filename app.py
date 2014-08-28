@@ -259,5 +259,16 @@ def address(address):
 
     return render_template('address.html', **kwargs)
 
+@app.route("/audit_log")
+def view_audit_log():
+    page = int(request.args.get('page', 1))
+
+
+    log_entries = models.AuditLogEntry.query
+    log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
+
+    return render_template("view_audit_log.html", entries=log_entries.paginate(page, per_page=100))
+
+
 if __name__ == "__main__":
     app.run(debug=True)
