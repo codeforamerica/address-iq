@@ -64,5 +64,12 @@ $(document).ready(function() {
     window.location.href = $(this).find('.explore-link a').attr('href');
     return false;
   });
+
+  $('.search-area form').submit(function() {
+    var address = $(this).find('input').val();
+
+    window.location.pathname = '/address/' + address;
+    return false;
+  })
 });
 
