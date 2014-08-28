@@ -70,6 +70,6 @@ $(document).ready(function() {
 
     window.location.pathname = '/address/' + address;
     return false;
-  })
+  });
 });
 
