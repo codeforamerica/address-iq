@@ -210,7 +210,7 @@ def load_user_by_email(email):
     name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
     if not user:
-        create_user(name, email)
+        user = create_user(name, email)
 
     return user
 
