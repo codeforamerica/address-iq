@@ -3,7 +3,8 @@ from selenium.webdriver.support.ui import Select
 
 import unittest
 import os
-import browserid
+from browserid import BrowserID
+import requests
 
 remote_browser = False
 if os.environ.get('NOTIFY_TEST_REMOTE_BROWSER') == "YES":
@@ -73,6 +74,8 @@ class AddressPageTest(unittest.TestCase):
         generate_test_data()
         db.session.commit()
 
+        self.persona_user = generate_persona_credentials()
+
         if remote_browser:
             caps = webdriver.DesiredCapabilities.INTERNETEXPLORER
             caps['platform'] = "Windows XP"
@@ -86,7 +89,6 @@ class AddressPageTest(unittest.TestCase):
         else:
             self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(3)
-
 
     def tearDown(self):
         remove_test_data()
@@ -104,25 +106,15 @@ class AddressPageTest(unittest.TestCase):
         # The user is then able to actually log in.
         login_link.click()
 
-        from browserid import BrowserID
         browser_id = BrowserID(self.browser)
-        from browserid.pages.sign_in import SignIn
-        signin = SignIn(self.browser, self.timeout)
-        signin.email = 'testingtestingLBC@gmail.com'
-        signin.click_next()
-        signin.password = 'LBCtest123'
-        signin.click_select_email()
-        signin.click_sign_in()
-#        browser_id.sign_in('testingtestingLBC@gmail.com', 'LBCtest123')
+        browser_id.sign_in(self.persona_user['email'], self.persona_user['password'])
+        logout_link = self.browser.find_element_by_link_text('Log out')
+        self.assertTrue(logout_link.is_displayed())
 
-#        assert selenium.find_element_by_id('logout').is_displayed()
-
-#         signin = SignIn(self.browser, self.timeout)
-#         signin.email = 'testingtestingLBC@gmail.com'
-#         signin.click_next()
-#         signin.password = 'LBCtest123'
-#         signin.click_sign_in()
-        self.assertTrue(self.browser.find_element_by_link_text('Log out').is_displayed())
+        # The user can click the logout link and again see the login link.
+        logout_link.click()
+        login_link = self.browser.find_element_by_link_text('Log in')
+        self.assertTrue(login_link.is_displayed())
 
     def test_user_can_log_out(self):
         # @todo: Test that limitations on what they can see are working.

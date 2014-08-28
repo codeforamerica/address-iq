@@ -8,6 +8,7 @@ MarkupSafe==0.23
 SQLAlchemy==0.9.6
 Werkzeug==0.9.6
 alembic==0.6.5
+browserid==1.0
 factory-boy==2.4.1
 flake8==2.2.2
 gunicorn==19.0.0
