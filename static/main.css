@@ -148,8 +148,62 @@ header {
     width: 280px;
     min-height: 200px;
     margin-left: 20px;
-    border: 1px solid #3db349;
     border-radius: 5px 5px 0 0;
+}
+
+#action-station .actions {
+    padding: 20px 0;
+}
+
+#action-station .action {
+    margin-bottom: 10px;
+}
+
+#action-station .comment .fa-comment {
+    color: #6d6e71;
+}
+
+#action-station .main-user {
+    font-weight: bold;
+}
+
+#action-station .action-date {
+    color: #6d6e71;
+    line-height: 26px;
+}
+
+.add-comment {
+    border: 4px solid #dfecda;
+    padding: 10px 5px;
+}
+
+.add-comment .fa-comment {
+    color: #3db349;
+    font-size: 12px;
+    width: 15px;
+    display: block;
+    float: left;
+}
+
+.add-comment textarea {
+    float: left;
+    resize: none;
+    width: 230px;
+    margin-left: 10px;
+}
+
+.add-comment button {
+    background-color: green;
+    color: white;
+    margin-left: 25px;
+    margin-top: 5px;
+
+    font-size: 14px;
+    line-height: 16px;
+
+    padding: 3px 10px;
+
+    border: 0;
 }
 
 .week-alert {

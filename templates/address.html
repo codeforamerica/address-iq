@@ -76,7 +76,7 @@
 <div id="action-station">
     <div class="header"><h3>Take Action</h3></div>
     <div class="content">
-        <ul class="actions">
+        <ul class="actions fa-ul">
             <!-- 
             <li class="action activated">
                 <span class="user main-user">Sally Johnson</span> activated this address.
@@ -89,6 +89,7 @@
             -->
             {% for action in actions %}
             <li class="action comment">
+                <i class="fa fa-li fa-comment"></i>
                 <span class="user main-user">{{ action.user.name }}</span> <span class="comment-text">{{action.content}}</span>
                 <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
             </li>
@@ -106,6 +107,7 @@
         </ul>
     </div>
     <div class="add-comment">
+        <i class="fa fa-comment"></i>
         <form method="POST" action="/address/{{ address }}/comments">
             <textarea name="content"></textarea>
             <input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
