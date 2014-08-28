@@ -159,6 +159,42 @@ header {
     margin: 20px 0;
 }
 
+#activated-toggle {
+    margin: 20px 0;
+    line-height: 30px;
+}
+
+#activated-toggle span {
+    display: inline-block;
+
+    font-size: 14px;
+    font-weight: bold;
+    vertical-align: middle;
+    cursor: default;
+}
+
+#activated-toggle .active-text {
+    color: #2D8433;
+}
+
+#activated-toggle .not-active-text {
+    color: #6D6E71;
+}
+
+#activated-toggle .toggle {
+    width: 55px;
+    height: 25px;
+    margin: 0 10px;
+    line-height: 30px;
+    display: inline-block;
+    cursor: pointer;
+    background-image: url('/static/toggle-on.png');
+}
+
+#activated-toggle.deactivated .toggle {
+    background-image: url('/static/toggle-off.png');
+}
+
 .week-alert .call-count {
     float: left;
     margin-left: 20px;

@@ -4,7 +4,7 @@
 <div id="address-data">
     <h1 class="address">{{ address | title}}</h1>
     <div id="activated-toggle" class="{% if activated %}activated{% else %}deactivated{% endif %}">
-        Not Active | Active
+        <span class="not-active-text">Not Active</span><span class="toggle"></span><span class="active-text">Active</span>
     </div>
     <div id="at-a-glance">
         {% if incidents['businesses']|length > 0 %}

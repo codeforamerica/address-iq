@@ -69,7 +69,6 @@ $(document).ready(function() {
   $('#activated-toggle').click(function() {
     var $toggle = $(this);
     var activated = $toggle.hasClass('activated');
-    alert("Current activated status: " + activated);
 
     var action = activated ? '/deactivate' : '/activate';
     var url = window.location.pathname + action;
@@ -87,7 +86,7 @@ $(document).ready(function() {
         $toggle.addClass(data);
       },
       error: function(data) {
-        alert('NOOOPE');
+        alert('Activation did not succeed. Please try again or refresh the page.');
       }
     })
 
