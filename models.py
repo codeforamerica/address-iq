@@ -130,6 +130,7 @@ class User(db.Model):
     def get_id(self):
         return unicode(self.id)
 
+
 class AddressSummary(db.Model):
     __tablename__ = 'address_summaries'
 
@@ -166,6 +167,7 @@ class AddressSummary(db.Model):
                 'prior': getattr(self, "police_incidents_prev%d" % days)
             }
         }
+
         
 class AuditLogEntry(db.Model):
     __tablename__ = 'audit_log'

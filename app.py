@@ -20,6 +20,7 @@ import models
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login_page"
 
 @login_manager.user_loader
 def load_user(userid):
@@ -151,9 +152,17 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 @app.route('/')
 def home():
     user_email = get_email_of_current_user()
-    kwargs = dict(email=user_email)
 
-    return render_template('home.html', **kwargs)
+    return render_template('home.html', email=user_email)
+
+@app.route('/log-in', methods=['GET'])
+def login_page():
+    user_email = get_email_of_current_user()
+    # @todo: Add that to each.
+
+    next = request.args.get('next')
+    return render_template('login.html', next=next, email=user_email)
+
 
 @app.route('/log-in', methods=['POST'])
 @audit_log
@@ -174,6 +183,7 @@ def log_in():
 
 @app.route("/browse")
 @audit_log
+@login_required
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))

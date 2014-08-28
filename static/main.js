@@ -65,15 +65,21 @@ $(document).ready(function() {
     return false;
   });
 
-
-// From https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
+// Adapted from https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
 
   function simpleXhrSentinel(xhr) {
       return function() {
           if (xhr.readyState == 4) {
               if (xhr.status == 200){
                   // reload page to reflect new login state
-                  window.location.reload();
+                  if (typeof window.next !== 'undefined' && window.next != 'None') {
+                    window.location.assign(window.next);
+                    // Now clear the 'next' variable.
+                    window.next = 'None';
+                  }
+                  else {
+                    window.location.reload();
+                  }
                 }
               else {
                   navigator.id.logout();
