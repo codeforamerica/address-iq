@@ -130,7 +130,7 @@ class AddressPageTest(unittest.TestCase):
         if remote_browser:
             caps = webdriver.DesiredCapabilities.INTERNETEXPLORER
             caps['platform'] = "Windows XP"
-            caps['version'] = "7"
+            caps['version'] = "8"
             if using_travis:
                 caps['tunnel-identifier'] = os.environ['TRAVIS_JOB_NUMBER']
                 print caps
