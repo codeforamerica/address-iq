@@ -44,7 +44,6 @@ $(document).ready(function() {
     var department = $('.department-tab.active').attr('id').slice(4);
     var timeframe = $('#data-date-range').val();
     fillContentTab(department, timeframe);
-    fillContentTab
   }
 
   $('.department-tab').click(function() {
