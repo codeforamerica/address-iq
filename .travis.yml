@@ -4,6 +4,7 @@ python:
 install: pip install -r requirements.txt
 script:
 - python tests.py
+- python functional_tests.py
 env:
   global:
   - NOTIFY_TEST_REMOTE_BROWSER=YES
