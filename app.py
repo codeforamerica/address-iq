@@ -159,4 +159,6 @@ def address(address):
                            top_call_types=top_call_types, address=address)
 
 if __name__ == "__main__":
+    if app.config['TESTING']:
+        db.create_all()
     app.run(debug=True)
