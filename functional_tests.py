@@ -24,8 +24,6 @@ from models import FireIncident, PoliceIncident
 from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory
 import datetime
 
-db.create_all()
-db.session.commit()
 
 def generate_test_data():
 
