@@ -75,7 +75,7 @@ a {
 /* Header Styles */
 header {
     background-color: #d8d8d8;
-    height: 50px;
+    min-height: 50px;
 }
 
 #logo {
@@ -96,14 +96,14 @@ header {
     margin-left: 280px;
     li {
       display: block;
-      height: 50px;
+      min-height: 50px;
 
       vertical-align: middle;
       float: left;
       a {
 
           display: block;
-          height: 50px;
+          min-height: 50px;
 
           width: 110px;
           padding: 15px 30px 15px 0px;
