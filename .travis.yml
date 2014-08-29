@@ -10,6 +10,6 @@ env:
   - APP_SETTINGS="config.TestingConfig"
 before_script:
 - curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash
-- python main.py &
+- python app.py &
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/197a4506-1dea-4340-a3a1-013dd0dc2db9/status
