@@ -4,7 +4,7 @@ python:
 install: pip install -r requirements.txt
 script:
 - APP_SETTINGS="config.TestingConfig" python tests.py
-- SQLALCHEMY_DATABASE_URI=postgres://travis:@localhost/travis_ci_test python functional_tests.py
+- DATABASE_URL="postgres://travis:@localhost/travis_ci_test" python functional_tests.py
 env:
   global:
   - NOTIFY_TEST_REMOTE_BROWSER=YES
@@ -14,7 +14,7 @@ env:
   - secure: HnHvr16NcxgN7+md2yWNYx6qvzA/k7HB5PJLp532ZVbQqOeExk/3soA8EmIobtTDKCqGAig/cxqqWNTG1NVTkDY5Bou41ReQdSE64mzRv6DmMOKdqb9txZCAfynKJMF9ggBADDdSYJ/aLu/esqBptJNRxa+AP8jYyTzxvo1XsEc=
 before_script:
 - psql -c 'create database travis_ci_test;' -U postgres
-- SQLALCHEMY_DATABASE_URI=postgres://travis:@localhost/travis_ci_test alembic upgrade head
+- DATABASE_URL="postgres://travis:@localhost/travis_ci_test" alembic upgrade head
 - curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash
 - python app.py &
 notifications:
