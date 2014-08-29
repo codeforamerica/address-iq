@@ -15,7 +15,8 @@ env:
 before_script:
 - psql -c 'create database travis_ci_test;' -U postgres
 - DATABASE_URL="postgres://travis:@localhost/travis_ci_test" alembic upgrade head
-- curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash
 - python app.py &
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/197a4506-1dea-4340-a3a1-013dd0dc2db9/status
+addons:
+  sauce_connect: true
