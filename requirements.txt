@@ -1,4 +1,5 @@
 Flask==0.10.1
+Flask-Login==0.2.11
 Flask-SQLAlchemy==1.0
 Flask-Testing==0.4.1
 Jinja2==2.7.3
@@ -7,9 +8,11 @@ MarkupSafe==0.23
 SQLAlchemy==0.9.6
 Werkzeug==0.9.6
 alembic==0.6.5
+browserid==1.0
 factory-boy==2.4.1
 flake8==2.2.2
 gunicorn==19.0.0
+httmock==1.2.2
 itsdangerous==0.24
 mccabe==0.2.1
 nose==1.3.3
@@ -17,5 +20,6 @@ pep8==1.5.7
 psycopg2==2.5.3
 pyflakes==0.8.1
 pytz==2014.4
+requests==2.3.0
 selenium==2.42.1
 wsgiref==0.1.2

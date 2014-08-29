@@ -108,6 +108,29 @@ class PoliceIncident(db.Model):
     final_cad_call_type = db.Column(db.String(20))
     final_cad_call_type_description = db.Column(db.String(100))
 
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(75))
+    email = db.Column(db.String(100), unique=True)
+    date_created = db.Column(db.DateTime(timezone=True))
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        # @todo: crossreference with Google Doc or LDAP.
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
+
 class AddressSummary(db.Model):
     __tablename__ = 'address_summaries'
 
