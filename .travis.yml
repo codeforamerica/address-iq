@@ -6,8 +6,9 @@ script:
 - python tests.py
 env:
   global:
-  - NOTIFY_TEST_REMOTE_BROWSER=YES
-  - APP_SETTINGS="config.TestingConfig"
+      - NOTIFY_TEST_REMOTE_BROWSER=YES
+      - APP_SETTINGS="config.TestingConfig"
+      - secure: "ThmWh7pkEHahN2Zijfr3Q3vPQlE7PPcrDHYBSrQNqibDTTZU1XbcD/yxDo1tEcTrGZkTaKzaf2Pm1vC0AUYRXhYsGWUCXn/1fr9IrZmgVXJa0nos94ZHy9P+sgyycAndkyiAYO0c8yEu4kbH432+NtKECpAVq3aVVmtscDJSHiI="
 before_script:
 - python app.py &
 notifications:
