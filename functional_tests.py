@@ -17,7 +17,7 @@ hub_url = "%s:%s@localhost:4445" % (SAUCE_USERNAME, SAUCE_ACCESS_KEY)
 
 if 'TRAVIS_JOB_NUMBER' in os.environ:
     using_travis = True
-    hub_url = "%s:%s@ondemand.saucelabs.com:80/wd/hub" % (SAUCE_USERNAME, SAUCE_ACCESS_KEY)
+    hub_url = "%s:%s@ondemand.saucelabs.com:80" % (SAUCE_USERNAME, SAUCE_ACCESS_KEY)
     print "USING TRAVIS", hub_url
 
 from app import app, db
