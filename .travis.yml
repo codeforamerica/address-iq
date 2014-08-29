@@ -10,6 +10,7 @@ env:
   - NOTIFY_TEST_REMOTE_BROWSER=YES
   - APP_SETTINGS="config.StagingConfig"
   - DATABASE_URL="postgres://travis:@localhost/travis_ci_test"
+  - BROWSERID_URL="http://localhost:5000/"
   - secure: ThmWh7pkEHahN2Zijfr3Q3vPQlE7PPcrDHYBSrQNqibDTTZU1XbcD/yxDo1tEcTrGZkTaKzaf2Pm1vC0AUYRXhYsGWUCXn/1fr9IrZmgVXJa0nos94ZHy9P+sgyycAndkyiAYO0c8yEu4kbH432+NtKECpAVq3aVVmtscDJSHiI=
   - secure: hNe88N+NImA7t63o83522zF2MpOMj48l0LKzu9D73AQo7xFMAR0G7rrksDtVnizRVhWFmRmfXF2V2vWGBbbe39a0SHPT098c7NDhqpChJtpGMFSxwRhfg8HXLPR/G0mt7+VxMtHG2hg5RPeNWOsazhLmc9lem9IjsrgXqVFVUoM=
   - secure: HnHvr16NcxgN7+md2yWNYx6qvzA/k7HB5PJLp532ZVbQqOeExk/3soA8EmIobtTDKCqGAig/cxqqWNTG1NVTkDY5Bou41ReQdSE64mzRv6DmMOKdqb9txZCAfynKJMF9ggBADDdSYJ/aLu/esqBptJNRxa+AP8jYyTzxvo1XsEc=
