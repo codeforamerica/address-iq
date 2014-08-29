@@ -14,7 +14,7 @@ env:
   - secure: HnHvr16NcxgN7+md2yWNYx6qvzA/k7HB5PJLp532ZVbQqOeExk/3soA8EmIobtTDKCqGAig/cxqqWNTG1NVTkDY5Bou41ReQdSE64mzRv6DmMOKdqb9txZCAfynKJMF9ggBADDdSYJ/aLu/esqBptJNRxa+AP8jYyTzxvo1XsEc=
 before_script:
 - psql -c 'create database travis_ci_test;' -U postgres
-- alembic upgrade head
+- SQLALCHEMY_DATABASE_URI=postgres://travis:@localhost/travis_ci_test alembic upgrade head
 - curl -L https://gist.github.com/santiycr/5139565/raw/sauce_connect_setup.sh | bash
 - python app.py &
 notifications:
