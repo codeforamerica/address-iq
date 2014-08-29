@@ -26,6 +26,8 @@ import datetime
 
 
 def generate_test_data():
+    db.create_all()
+
     def get_date_days_ago(days):
         return datetime.datetime.now() - datetime.timedelta(days=days)
 
