@@ -1,3 +1,9 @@
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
+
 $(document).ready(function() {
 
   var fillContentTab = function(department, timeframe) {
@@ -43,7 +49,7 @@ $(document).ready(function() {
   var updateContentTab = function() {
     var department = $('.department-tab.active').attr('id').slice(4);
     var timeframe = $('#data-date-range').val();
-    fillContentTab(department, timeframe);
+    fillContentTab(department, timeframe);    
   }
 
   $('.department-tab').click(function() {
