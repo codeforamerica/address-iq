@@ -11,6 +11,10 @@
         <p>No business is registered at this address.</p>
         {% endif %}
 
+        <div id="map">
+            <img src="https://maps.googleapis.com/maps/api/streetview?size=400x150&location={{ address | title}}, long beach, ca" alt="Google Streetview of this address" />
+        </div>
+
         <div class="week-alert">
             <div class="call-count"><span class="bigger-number">{{ counts['fire'][7] }}</span> calls this week</div>
             <div class="date-range">June 1st - June 8th 2013</div>
