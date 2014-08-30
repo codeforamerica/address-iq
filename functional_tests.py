@@ -157,6 +157,8 @@ class AddressPageTest(unittest.TestCase):
 
         browser_id = BrowserID(self.browser)
         browser_id.sign_in(self.persona_user['email'], self.persona_user['password'])
+
+        self.browser.implicitly_wait(5)
         logout_link = self.browser.find_element_by_link_text('Log out')
         self.assertTrue(logout_link.is_displayed())
 
