@@ -26,6 +26,7 @@ login_manager.login_view = "login_page"
 
 @login_manager.user_loader
 def load_user(userid):
+    print "ATTEMPTING TO LOAD USER: %s" % userid
     if not userid:
         return None
     try:
