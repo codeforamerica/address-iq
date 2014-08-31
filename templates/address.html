@@ -12,7 +12,9 @@
         {% endif %}
 
         <div id="map">
-            <img src="https://maps.googleapis.com/maps/api/streetview?size=400x150&location={{ address | title}}, long beach, ca" alt="Google Streetview of this address" />
+            <a href="https://www.google.com/maps/place/{{ address | title}},+long+beach,+ca" target="_blank">
+                <img src="https://maps.googleapis.com/maps/api/streetview?size=400x150&location={{ address | title}}, long beach, ca" alt="Google Streetview of this address" />
+            </a>
         </div>
 
         <div class="week-alert">
