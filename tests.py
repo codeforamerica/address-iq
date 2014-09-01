@@ -2,6 +2,7 @@ import unittest
 import os
 import datetime
 import pytz
+from httmock import response, HTTMock
 
 os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 
@@ -26,17 +27,53 @@ class HomeTestCase(unittest.TestCase):
         assert rv.status_code == 200
 
 class LoginTestCase(unittest.TestCase):
+    # @maybe: Refactor test_login and test_logout.
+
     # @todo: Integrate this with others, probably, so you confirm that access
     # control is as it should be throughout.
 
     def setUp(self):
         self.app = app.test_client()
+        db.create_all()
 
-    def testUserCanLogIn(self):
-        return True
+    def tearDown(self):
+        db.drop_all()
 
-    def testUserCanLogOut(self):
-        return True
+    def persona_verify(self, url, request):
+        if url.geturl() == 'https://verifier.login.persona.org/verify':
+            return response(200, '''{"status": "okay", "email": "user@example.com"}''')
+
+        else:
+            raise Exception('Asked for unknown URL ' + url.geturl())
+
+    def test_login(self):
+        ''' Check basic log in flow without talking to Persona.
+        '''
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(self.persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        response = self.app.get('/')
+        self.assertTrue('user@example.com' in response.data)
+
+    def test_logout(self):
+        ''' Check basic log out flow without talking to Persona.
+        '''
+        response = self.app.get('/')
+
+        with HTTMock(self.persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        response = self.app.get('/')
+
+        response = self.app.post('/log-out')
+        self.assertEquals(response.status_code, 302)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
 
 
 class AddressUtilityTestCase(unittest.TestCase):

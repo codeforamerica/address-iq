@@ -1,3 +1,9 @@
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
+
 $(document).ready(function() {
 
   var fillContentTab = function(department, timeframe) {
@@ -43,8 +49,7 @@ $(document).ready(function() {
   var updateContentTab = function() {
     var department = $('.department-tab.active').attr('id').slice(4);
     var timeframe = $('#data-date-range').val();
-    fillContentTab(department, timeframe);
-    fillContentTab
+    fillContentTab(department, timeframe);    
   }
 
   $('.department-tab').click(function() {
@@ -65,15 +70,27 @@ $(document).ready(function() {
     return false;
   });
 
+  $('.search-area form').submit(function() {
+    var address = $(this).find('input').val();
 
-// From https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
+    window.location.pathname = '/address/' + address;
+    return false;
+  });
 
+// Adapted from https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
   function simpleXhrSentinel(xhr) {
       return function() {
           if (xhr.readyState == 4) {
               if (xhr.status == 200){
                   // reload page to reflect new login state
-                  window.location.reload();
+                  if (typeof window.next !== 'undefined' && window.next != 'None') {
+                    window.location.assign(window.next);
+                    // Now clear the 'next' variable.
+                    window.next = 'None';
+                  }
+                  else {
+                    window.location.reload();
+                  }
                 }
               else {
                   navigator.id.logout();
