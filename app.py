@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 import os
 import operator
 import pytz
@@ -13,6 +14,7 @@ from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
 meta = db.MetaData()
@@ -23,6 +25,11 @@ import models
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
+
+@app.before_request
+def func():
+  session.modified = True
+
 
 @login_manager.user_loader
 def load_user(userid):
@@ -35,6 +42,7 @@ def load_user(userid):
         return None
 
     return models.User.query.get(userid)
+
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
