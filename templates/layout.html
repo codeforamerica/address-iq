@@ -32,6 +32,13 @@
             </ul>
           </div>
           <div id="user-nav">
+            {% if current_user.is_authenticated() %}
+              <div class="user-pic">
+              </div>
+              <div class="username">
+                {{ current_user.name }}
+              </div>
+            {% endif %}
             <div class="signon">
               <form>
                 {% if current_user.is_authenticated() %}
