@@ -70,6 +70,13 @@ $(document).ready(function() {
     return false;
   });
 
+  $('.search-area form').submit(function() {
+    var address = $(this).find('input').val();
+
+    window.location.pathname = '/address/' + address;
+    return false;
+  });
+
 // Adapted from https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
 
   function simpleXhrSentinel(xhr) {
