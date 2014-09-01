@@ -186,9 +186,8 @@ def browse():
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
 
-    user_email = get_email_of_current_user()
     return render_template("browse.html", summaries=summaries, date_range=date_range,
-        sort_by=sort_by, sort_order=sort_order, email=user_email)
+        sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
 
 
 @csrf.exempt
