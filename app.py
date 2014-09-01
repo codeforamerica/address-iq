@@ -1,7 +1,15 @@
-from flask import Flask, render_template, abort, request
-from flask.ext.sqlalchemy import SQLAlchemy
+import datetime
 import os
 import operator
+import pytz
+import logging
+from logging.handlers import RotatingFileHandler
+
+from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
+from functools import wraps
+from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -12,6 +20,21 @@ meta.bind = db.engine
 
 import models
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login_page"
+
+@login_manager.user_loader
+def load_user(userid):
+    if not userid:
+        return None
+    try:
+        userid = int(userid)
+    except ValueError:
+        app.logger.error('There was a ValueError in load_user.')
+        return None
+
+    return models.User.query.get(userid)
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -31,8 +54,6 @@ def fetch_incidents_at_address(address):
 
 
 def count_incidents_by_timeframes(incidents, timeframes):
-    import datetime
-
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -62,8 +83,6 @@ def count_incidents_by_timeframes(incidents, timeframes):
     return counts
 
 def get_top_incident_reasons_by_timeframes(incidents, timeframes):
-    import datetime
-
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -94,7 +113,7 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             incident_reason = getattr(incident, reason_field)
             for timeframe_info in timeframes_info:
                 if incident_date > timeframe_info['start_date']:
-                    relevant_reasons_table = counts[incident_type][timeframe_info['days']] 
+                    relevant_reasons_table = counts[incident_type][timeframe_info['days']]
 
                     if incident_reason in relevant_reasons_table:
                         relevant_reasons_table[incident_reason] = relevant_reasons_table[incident_reason] + 1
@@ -114,9 +133,32 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', email=get_email_of_current_user())
+
+@app.route('/log-in', methods=['GET'])
+def login_page():
+    next = request.args.get('next')
+    return render_template('login.html', next=next, email=get_email_of_current_user())
+
+
+@app.route('/log-in', methods=['POST'])
+def log_in():
+    posted = post('https://verifier.login.persona.org/verify',
+                  data=dict(assertion=request.form.get('assertion'),
+                            audience=app.config['BROWSERID_URL']))
+
+    response = posted.json()
+
+    if response.get('status', '') == 'okay':
+        user = load_user_by_email(response['email'])
+        if user:
+            login_user(user)
+            return 'OK'
+
+    return Response('Failed', status=400)
 
 @app.route("/browse")
+@login_required
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))
@@ -139,10 +181,49 @@ def browse():
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
     return render_template("browse.html", summaries=summaries, date_range=date_range,
-        sort_by=sort_by, sort_order=sort_order)
+        sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
 
+@app.route('/log-out', methods=['POST'])
+def log_out():
+    logout_user()
+
+    return redirect(url_for('home'))
+
+def create_user(name, email):
+    # Check whether a record already exists for this user.
+    user = models.User.query.filter(models.User.email==email).first()
+    if user:
+        return False
+
+    # If no record exists, create the user.
+    user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
+    db.session.add(user)
+    db.session.commit()
+
+    return user
+
+def load_user_by_email(email):
+    # @todo: When we incorporate LDAP, update this to pull real name.
+    name = 'Fireworks Joe'
+    user = models.User.query.filter(models.User.email==email).first()
+    if not user:
+        user = create_user(name, email)
+
+    return user
+
+def get_email_of_current_user(user=current_user):
+    if user.is_anonymous():
+        return None
+
+    email = user.email
+
+    if not email:
+        return None
+
+    return email
 
 @app.route("/address/<address>")
+@login_required
 def address(address):
     incidents = fetch_incidents_at_address(address)
 
@@ -154,9 +235,14 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
 
-    return render_template("address.html", incidents=incidents, counts=counts,
+    kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
                            top_call_types=top_call_types, address=address)
 
+    return render_template('address.html', **kwargs)
+
 if __name__ == "__main__":
+    handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run(debug=True)
