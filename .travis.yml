@@ -4,7 +4,6 @@ python:
 install: pip install -r requirements.txt
 script:
 - APP_SETTINGS="config.TestingConfig" python tests.py
-- DATABASE_URL="postgres://travis:@localhost/travis_ci_test" python functional_tests.py
 env:
   global:
   - NOTIFY_TEST_REMOTE_BROWSER=YES
