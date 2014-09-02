@@ -47,6 +47,10 @@ def audit_log(f):
     @wraps(f)
 
     def decorated_function(*args, **kwargs):
+        auditing_disabled = app.config.get('AUDIT_DISABLED', app.config.get('TESTING', False))
+        if auditing_disabled:
+            return f(*args, **kwargs)
+
         response = make_response(f(*args, **kwargs))
 
         log_info = {
