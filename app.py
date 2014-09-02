@@ -285,6 +285,7 @@ def address(address):
 
 @app.route("/address/<address>/comments", methods=['POST'])
 @login_required
+@audit_log
 def post_comment(address):
     comment = request.form.get('content')
 
