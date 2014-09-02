@@ -2,9 +2,17 @@
 
 /*** VARIABLES ***/
 $font-stack: 'Open Sans Condensed', sans-serif;
+$font-stack-uncondensed: 'Open Sans', sans-serif;
+$darkest-green: #2d8433;
+$medium-green: #3db349;
+$light-green: #dfecda;
+
+$darker-blue: #0071bc;
 
 body {
     font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.3em;
 }
 
 h1 {
@@ -42,10 +50,9 @@ a {
 }
 
 p {
-    font-family: $font-stack;
+    font-family: $font-stack-uncondensed;
     font-size: 16px;
-    font-weight: bold;
-    line-height: 18px;
+    line-height: 24px;
 
     .small {
       font-size: 14px;
@@ -57,7 +64,7 @@ p {
 }
 
 .bignumber {
-    font-family: $font-stack;
+    font-family: $font-stack-uncondensed;
     font-size: 36px;
     font-weight: bold;
 }
@@ -146,11 +153,34 @@ header {
 /* Address Page */
 #address-data {
     float: left;
-    width: 620px;
+    width: 560px;
+    padding: 20px 30px;
+    background-color: #d8d8d8;
+    border-radius: 5px;
 }
 
-#map img {
-  border: 2px solid #000;
+#button-row {
+  margin: 12px 0;
+}
+
+a.map-link {
+  display: block;
+  color: white;
+  background-color: #6d6e71;
+  width: 110px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+}
+
+#business-info {
+  border-top: 1px solid #bfbfbf;
+  border-bottom: 1px solid #bfbfbf;
+  padding: 12px 0;
+
+  .business-header {
+    font-weight: bold;
+  }
 }
 
 #action-station {
@@ -165,6 +195,7 @@ header {
   }
 
   .action {
+    padding-right: 10px;
     margin-bottom: 10px;
   }
 
@@ -183,7 +214,7 @@ header {
 
   .header {
     background-color: #3db349;
-    padding: 0 0 0 10px;
+    padding: 10px 33px;
     line-height: 30px;
 
     h3 {
@@ -193,6 +224,10 @@ header {
 
   .content {
     background-color: #dfecda;
+  }
+
+  .no-action-found {
+    padding-right: 10px;
   }
 
 }
@@ -223,56 +258,34 @@ header {
     margin-top: 5px;
     font-size: 14px;
     line-height: 16px;
-    padding: 3px 10px;
+    padding: 10px;
     border: 0;
   }
 }
 
-.week-alert {
-  background-color: #fcd3c9;
-  height: 32px;
-  border-radius: 4px;
-  margin: 20px 0;
-
-  .call-count {
-    float: left;
-    margin-left: 20px;
-    padding: 3px 0 0;
-
-    .bigger-number {
-      font-size: 22px;
-      font-weight: bold;
-    }
-  }
-
-  .date-range {
-      float: right;
-      margin-right: 20px;
-      padding: 8px 0 0;
-  }
-}
 
 .department-callout {
-  background-color: #d8d8d8;
-  height: 65px;
+  background-color: white;
+  height: 75px;
   margin-top: 30px;
 
   .department-explanation {
       float: left;
-      padding: 20px;
+      padding: 28px 20px;
       margin-right: 20px;
       width: 110px;
   }
 
   .callout-number {
       float: left;
-      padding: 10px 40px 0px;
+      padding: 10px 25px 0px;
   }
 
   .timeframe {
       font-family: $font-stack;
       font-size: 14px;
       font-weight: bolder;
+      margin-bottom: 5px;
   }
 }
 
@@ -338,7 +351,7 @@ ol.call-types li {
 /* Browse page */
 
 #browse-page {
-    background-color: #d8d8d8;
+    background-color: white;
     border-radius: 10px;
     padding: 20px 60px;
 }
@@ -347,6 +360,8 @@ ul.browse-date-ranges {
     height: 42px;
     margin: 30px 0;
     li {
+
+        background-color: #d8d8d8;
         float: left;
         width: 90px;
         line-height: 40px;
@@ -356,14 +371,14 @@ ul.browse-date-ranges {
 
         text-align: center;
 
-        .first {
+        &.first {
           border-radius: 5px 0 0 5px;
         }
-        .last {
+        &.last {
             border-right: 1px solid #6d6e71;
             border-radius: 0 5px 5px 0;
         }
-        .active {
+        &.active {
             background-color: white;
         }
         a {
@@ -399,7 +414,7 @@ ul.browse-date-ranges {
         }
     }
     tr {
-        line-height: 40px;
+        line-height: 50px;
         cursor: pointer;
         &.odd {
             background-color: white;
@@ -411,9 +426,19 @@ ul.browse-date-ranges {
     td {
         padding-left: 22px;
     }
+
+    td.address {
+      font-weight: bold;
+    }
+
+    td.fire-calls, td.police-calls {
+      font-family: $font-stack-uncondensed;
+      font-size: 18px;
+    }
     .explore-link a {
         display: inline-block;
-        background-color: #9f9fa0;
+        background-color: #0071bc;
+        color: white;
         line-height: 24px;
         padding: 4px 10px;
     }
