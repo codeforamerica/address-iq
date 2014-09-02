@@ -300,6 +300,7 @@ def post_comment(address):
 
 @app.route("/audit_log")
 @login_required
+@audit_log
 def view_audit_log():
     page = int(request.args.get('page', 1))
 
