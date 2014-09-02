@@ -1,3 +1,5 @@
+import datetime
+
 from app import db
 
 
@@ -109,28 +111,6 @@ class PoliceIncident(db.Model):
     final_cad_call_type_description = db.Column(db.String(100))
 
 
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(75))
-    email = db.Column(db.String(100), unique=True)
-    date_created = db.Column(db.DateTime(timezone=True))
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        # @todo: crossreference with Google Doc or LDAP.
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return unicode(self.id)
-
-
 class AddressSummary(db.Model):
     __tablename__ = 'address_summaries'
 
@@ -177,3 +157,36 @@ class AuditLogEntry(db.Model):
     method = db.Column(db.String(10), primary_key=True)
     response_code = db.Column(db.String(3), primary_key=True)
     user_id = db.Column(db.String(8), primary_key=True)
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(75))
+    email = db.Column(db.String(100), unique=True)
+    date_created = db.Column(db.DateTime(timezone=True))
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        # @todo: crossreference with Google Doc or LDAP.
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
+class Action(db.Model):
+    __tablename__ = 'actions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String)
+    address = db.Column(db.String)
+    content = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    user = db.relationship('User')

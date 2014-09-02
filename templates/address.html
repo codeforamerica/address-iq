@@ -80,7 +80,46 @@
     </div>
 </div>
 <div id="action-station">
-    Take Action
+    <div class="header"><h3>Take Action</h3></div>
+    <div class="content">
+        <ul class="actions fa-ul">
+            <!-- 
+            <li class="action activated">
+                <span class="user main-user">Sally Johnson</span> activated this address.
+                <br><span class="action-date">May 24 2014</span>
+            </li>
+            <li class="action invited">
+                <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Rob Delaney</span>.
+                <br><span class="action-date">May 24 2014</span>
+            </li>
+            -->
+            {% for action in actions %}
+            <li class="action comment">
+                <i class="fa fa-li fa-comment"></i>
+                <span class="user main-user">{{ action.user.name }}</span> <span class="comment-text">{{action.content}}</span>
+                <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
+            </li>
+            {% else %}
+            <li class="no-action-found">
+                Nothing has been done yet with this address. Add a note below, or click the activate button!
+            </li>
+            {% endfor %}
+            <!--
+            <li class="action invited">
+                <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Marco Garcia</span>.
+                <br><span class="action-date">May 27 2014</span>
+            </li>
+            -->
+        </ul>
+    </div>
+    <div class="add-comment">
+        <i class="fa fa-comment"></i>
+        <form method="POST" action="/address/{{ address }}/comments">
+            <textarea name="content"></textarea>
+            <input name="_csrf_token" type="hidden" value="{{ csrf_token() }}">
+            <button type="submit">Add Comment</button>
+        </form>
+    </div>
 </div>
 <script>
 var topCallTypes = {{ top_call_types|tojson|safe }};
