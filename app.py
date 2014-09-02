@@ -299,6 +299,7 @@ def post_comment(address):
     return redirect(url_for("address", address=address))
 
 @app.route("/audit_log")
+@login_required
 def view_audit_log():
     page = int(request.args.get('page', 1))
 
