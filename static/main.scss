@@ -117,6 +117,10 @@ header {
     }
 }
 
+#user-nav .username {
+  font-weight: bold;
+}
+
 /* Search box */
 
 .search-area {
@@ -143,6 +147,10 @@ header {
 #address-data {
     float: left;
     width: 620px;
+}
+
+#map img {
+  border: 2px solid #000;
 }
 
 #action-station {

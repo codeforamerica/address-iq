@@ -1,7 +1,10 @@
 import datetime
+from datetime import timedelta
 import os
 import operator
 import pytz
+import logging
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -11,6 +14,7 @@ from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
 meta = db.MetaData()
@@ -22,6 +26,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
 
+@app.before_request
+def func():
+  session.modified = True
+
+
 @login_manager.user_loader
 def load_user(userid):
     if not userid:
@@ -29,7 +38,7 @@ def load_user(userid):
     try:
         userid = int(userid)
     except ValueError:
-        # @todo: Log error.
+        app.logger.error('There was a ValueError in load_user.')
         return None
 
     return models.User.query.get(userid)
@@ -151,17 +160,12 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 @app.route('/')
 def home():
-    user_email = get_email_of_current_user()
-
-    return render_template('home.html', email=user_email)
+    return render_template('home.html', email=get_email_of_current_user())
 
 @app.route('/log-in', methods=['GET'])
 def login_page():
-    user_email = get_email_of_current_user()
-    # @todo: Add that to each.
-
     next = request.args.get('next')
-    return render_template('login.html', next=next, email=user_email)
+    return render_template('login.html', next=next, email=get_email_of_current_user())
 
 
 @app.route('/log-in', methods=['POST'])
@@ -206,8 +210,7 @@ def browse():
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
     return render_template("browse.html", summaries=summaries, date_range=date_range,
-        sort_by=sort_by, sort_order=sort_order, email=current_user.email)
-
+        sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
 
 @app.route('/log-out', methods=['POST'])
 def log_out():
@@ -233,7 +236,7 @@ def load_user_by_email(email):
     name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
     if not user:
-        create_user(name, email)
+        user = create_user(name, email)
 
     return user
 
@@ -262,8 +265,7 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
 
-    user_email = get_email_of_current_user()
-    kwargs = dict(email=user_email, incidents=incidents, counts=counts,
+    kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
                            top_call_types=top_call_types, address=address)
 
@@ -281,4 +283,7 @@ def view_audit_log():
 
 
 if __name__ == "__main__":
+    handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run(debug=True)
