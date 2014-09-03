@@ -180,3 +180,8 @@ class Action(db.Model):
     created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
 
     user = db.relationship('User')
+
+class ActivatedAddress(db.Model):
+    __tablename__ = 'activated_addresses'
+
+    address = db.Column(db.String, primary_key=True)
