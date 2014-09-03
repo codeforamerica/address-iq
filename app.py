@@ -14,6 +14,10 @@ from functools import wraps
 
 from requests import post
 
+from gdata.spreadsheets.client import SpreadsheetsClient
+from oauth2client.client import SignedJwtAssertionCredentials
+from gdata.gauth import OAuth2TokenFromCredentials
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.permanent_session_lifetime = timedelta(minutes=15)
@@ -163,7 +167,42 @@ def log_in():
     response = posted.json()
 
     if response.get('status', '') == 'okay':
-        user = load_user_by_email(response['email'])
+        email = response['email']
+        # TODO: break this up
+        CLIENT_EMAIL = app.config['GOOGLE_CLIENT_EMAIL']
+        PRIVATE_KEY = app.config['GOOGLE_PRIVATE_KEY']
+
+        SCOPE = "https://spreadsheets.google.com/feeds/"
+         
+
+        credentials = SignedJwtAssertionCredentials(CLIENT_EMAIL, PRIVATE_KEY, SCOPE)
+        token = OAuth2TokenFromCredentials(credentials)
+        client = SpreadsheetsClient()
+
+        token.authorize(client)
+
+        spreadsheet_id = app.config['GOOGLE_SPREADSHEET_ID']
+        worksheets = client.get_worksheets(spreadsheet_id)
+        worksheet = worksheets.entry[0]
+
+        id_parts = worksheet.id.text.split('/')
+        worksheet_id = id_parts[len(id_parts) - 1]
+
+        list_feed = client.get_list_feed(spreadsheet_id, worksheet_id)
+
+        rows = [row.to_dict() for row in list_feed.entry]
+
+        user_auth_row = {}
+        for row in rows:
+            if row['email'] == email:
+                if row['canviewsite'] == 'N':
+                    # TODO: figure out how to handle this?
+                    return Response('Failed', status=400)
+
+                user_auth_row = row
+                break
+
+        user = load_user_by_email(response['email'], user_auth_row['name'])
         if user:
             login_user(user)
             return 'OK'
@@ -218,9 +257,8 @@ def create_user(name, email):
 
     return user
 
-def load_user_by_email(email):
+def load_user_by_email(email, name):
     # @todo: When we incorporate LDAP, update this to pull real name.
-    name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
     if not user:
         user = create_user(name, email)
