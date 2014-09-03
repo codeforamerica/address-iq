@@ -1,4 +1,4 @@
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL file
 __pycache__/
 *.py[cod]
 
@@ -46,3 +46,6 @@ docs/_build/
 # virtualenvwrapper includes
 bin/
 include/
+
+# SASS-generated CSS files
+static/*.css

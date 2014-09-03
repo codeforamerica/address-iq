@@ -1,15 +1,22 @@
+import datetime
+from datetime import timedelta
+import os
+import operator
+import pytz
+import logging
+from logging.handlers import RotatingFileHandler
+
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from flask.ext.seasurf import SeaSurf
+from functools import wraps
 
-
-import os
-import operator
 from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
 meta = db.MetaData()
@@ -24,6 +31,12 @@ import models
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login_page"
+
+@app.before_request
+def func():
+  session.modified = True
+
 
 @login_manager.user_loader
 def load_user(userid):
@@ -32,10 +45,11 @@ def load_user(userid):
     try:
         userid = int(userid)
     except ValueError:
-        # @todo: Log error.
+        app.logger.error('There was a ValueError in load_user.')
         return None
 
     return models.User.query.get(userid)
+
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -55,8 +69,6 @@ def fetch_incidents_at_address(address):
 
 
 def count_incidents_by_timeframes(incidents, timeframes):
-    import datetime
-
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -86,8 +98,6 @@ def count_incidents_by_timeframes(incidents, timeframes):
     return counts
 
 def get_top_incident_reasons_by_timeframes(incidents, timeframes):
-    import datetime
-
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -138,12 +148,33 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
 @app.route('/')
 def home():
-    user_email = get_email_of_current_user()
-    kwargs = dict(email=user_email)
+    return render_template('home.html', email=get_email_of_current_user())
 
-    return render_template('home.html', **kwargs)
+@app.route('/log-in', methods=['GET'])
+def login_page():
+    next = request.args.get('next')
+    return render_template('login.html', next=next, email=get_email_of_current_user())
+
+
+@app.route('/log-in', methods=['POST'])
+@csrf.exempt
+def log_in():
+    posted = post('https://verifier.login.persona.org/verify',
+                  data=dict(assertion=request.form.get('assertion'),
+                            audience=app.config['BROWSERID_URL']))
+
+    response = posted.json()
+
+    if response.get('status', '') == 'okay':
+        user = load_user_by_email(response['email'])
+        if user:
+            login_user(user)
+            return 'OK'
+
+    return Response('Failed', status=400)
 
 @app.route("/browse")
+@login_required
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))
@@ -154,8 +185,7 @@ def browse():
     order_column_map = {
         'address': getattr(models.AddressSummary, 'address'),
         'fire': getattr(models.AddressSummary, 'fire_incidents_last%d' % date_range),
-        'police': getattr(models.AddressSummary, 'police_incidents_last%d' % date_range),
-        'biz_type': getattr(models.AddressSummary, 'business_types')
+        'police': getattr(models.AddressSummary, 'police_incidents_last%d' % date_range)
     }
     order_column = order_column_map.get(sort_by, order_column_map['fire'])
 
@@ -167,48 +197,25 @@ def browse():
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
 
-    user_email = get_email_of_current_user()
     return render_template("browse.html", summaries=summaries, date_range=date_range,
-        sort_by=sort_by, sort_order=sort_order, email=user_email)
+        sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
 
-@csrf.exempt
-@app.route('/log-in', methods=['POST'])
-def log_in():
-    posted = post('https://verifier.login.persona.org/verify',
-                  data=dict(assertion=request.form.get('assertion'),
-                            audience=app.config['BROWSERID_URL']))
-
-    response = posted.json()
-
-    if response.get('status', '') == 'okay':
-        session['email'] = response['email']
-        user = load_user_by_email(session['email'])
-        if user:
-            login_user(user)
-            return 'OK'
-
-    return Response('Failed', status=400)
 
 @csrf.exempt
 @app.route('/log-out', methods=['POST'])
 def log_out():
     logout_user()
-    if 'email' in session:
-        session.pop('email')
 
     return redirect(url_for('home'))
 
 def create_user(name, email):
-    import pytz
-    from datetime import datetime
-
     # Check whether a record already exists for this user.
     user = models.User.query.filter(models.User.email==email).first()
     if user:
         return False
 
     # If no record exists, create the user.
-    user = models.User(name = name, email = email, date_created=datetime.now(pytz.utc))
+    user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
     db.session.add(user)
     db.session.commit()
 
@@ -219,11 +226,11 @@ def load_user_by_email(email):
     name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
     if not user:
-        create_user(name, email)
+        user = create_user(name, email)
 
     return user
 
-def get_email_of_current_user(user = current_user):
+def get_email_of_current_user(user=current_user):
     if user.is_anonymous():
         return None
 
@@ -260,15 +267,12 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
     actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
-
-    user_email = get_email_of_current_user()
-
     activated = is_address_activated(address)
 
-    kwargs = dict(email=user_email, incidents=incidents, counts=counts,
-                  business_types=business_types, business_names=business_names,
-                  top_call_types=top_call_types, address=address,
-                  actions=actions, activated=activated)
+    kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
+                           business_types=business_types, business_names=business_names,
+                           top_call_types=top_call_types, address=address, actions=actions,
+                           activated=activated)
 
     return render_template('address.html', **kwargs)
 
@@ -301,4 +305,7 @@ def deactivate(address):
     return 'deactivated'
 
 if __name__ == "__main__":
+    handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
     app.run(debug=True)

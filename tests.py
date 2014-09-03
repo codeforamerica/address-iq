@@ -2,18 +2,27 @@ import unittest
 import os
 import datetime
 import pytz
+from httmock import response, HTTMock
 
 os.environ['APP_SETTINGS'] = 'config.TestingConfig'
 
 from app import app, db
 from app import fetch_incidents_at_address, count_incidents_by_timeframes
 from app import get_top_incident_reasons_by_timeframes
+import models
 
 from count_calls_for_service import count_calls
 
 from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicenseFactory, UserFactory
 
 from flask.ext.login import login_user
+
+def persona_verify(url, request):
+    if url.geturl() == 'https://verifier.login.persona.org/verify':
+        return response(200, '''{"status": "okay", "email": "user@example.com"}''')
+
+    else:
+        raise Exception('Asked for unknown URL ' + url.geturl())
 
 class HomeTestCase(unittest.TestCase):
 
@@ -26,17 +35,46 @@ class HomeTestCase(unittest.TestCase):
         assert rv.status_code == 200
 
 class LoginTestCase(unittest.TestCase):
+    # @maybe: Refactor test_login and test_logout.
+
     # @todo: Integrate this with others, probably, so you confirm that access
     # control is as it should be throughout.
 
     def setUp(self):
         self.app = app.test_client()
+        db.create_all()
 
-    def testUserCanLogIn(self):
-        return True
+    def tearDown(self):
+        db.drop_all()
 
-    def testUserCanLogOut(self):
-        return True
+    def test_login(self):
+        ''' Check basic log in flow without talking to Persona.
+        '''
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        response = self.app.get('/')
+        self.assertTrue('user@example.com' in response.data)
+
+    def test_logout(self):
+        ''' Check basic log out flow without talking to Persona.
+        '''
+        response = self.app.get('/')
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        response = self.app.get('/')
+
+        response = self.app.post('/log-out')
+        self.assertEquals(response.status_code, 302)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
 
 
 class AddressUtilityTestCase(unittest.TestCase):
@@ -305,6 +343,62 @@ class AddressUtilityTestCase(unittest.TestCase):
         rv = self.app.get('/address/456 lala ln')
         assert 'no-action-found' in rv.data
         assert 'Nothing has been done yet with this address. Add a note below, or click the activate button!' in rv.data
+
+    def test_posting_a_comment_loads_a_comment_into_database(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.post('/address/456 lala ln/comments', data={
+                'content': 'This is a test comment'
+            })
+        self.assertEquals(302, rv.status_code)
+
+        comments = models.Action.query.all()
+        self.assertEquals(1, len(comments))
+
+    def test_posting_a_comment_shows_it_on_the_page(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.post('/address/456 lala ln/comments', data={
+                'content': 'This is a test comment'
+            })
+        self.assertEquals(302, rv.status_code)
+
+        rv = self.app.get('/address/456 lala ln')
+        assert 'This is a test comment' in rv.data
+
+    def test_posting_two_comments_shows_the_most_recent_last(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/comments', data={
+                'content': 'Test 1'
+        })
+        self.app.post('/address/456 lala ln/comments', data={
+                'content': 'Test 2'
+        })
+
+        rv = self.app.get('/address/456 lala ln')
+        assert 'Test 1' in rv.data
+        assert 'Test 2' in rv.data
+        assert rv.data.find('Test 1') < rv.data.find('Test 2')
+
 
 class CountCallsTestCase(unittest.TestCase):
     def setUp(self):

@@ -4,6 +4,8 @@ import pytz
 
 import datetime
 
+DEFAULT_TIMEFRAMES = [7, 14, 30, 60, 90, 180, 365, 730]
+
 def count_calls(incidents, time_field, output_header, timeframes):
     start_dates = {}
 
@@ -29,26 +31,11 @@ def count_calls(incidents, time_field, output_header, timeframes):
 
 def count_fire_calls(incidents):
     return count_calls(incidents, 'alarm_datetime', 
-                       'fire_counts', [7, 14, 30, 60, 90, 180, 365, 730])
+                       'fire_counts', DEFAULT_TIMEFRAMES)
 
 def count_police_calls(incidents):
     return count_calls(incidents, 'call_datetime', 
-                       'police_counts', [7, 14, 30, 60, 90, 180, 365, 730])
-
-def fetch_businesses_for_addresses(addresses):
-    license_query = db.session.query(BusinessLicense).filter(BusinessLicense.business_address.in_(addresses))
-    licenses = license_query.all()
-
-    import itertools
-    biz_addresses = {}
-    for license in licenses:
-        if license.business_address in addresses:
-            biz_addresses[license.business_address.strip()].append(license)
-        else:
-            biz_addresses[license.business_address.strip()] = [license]
-
-    return biz_addresses
-
+                       'police_counts', DEFAULT_TIMEFRAMES)
 
 def address_counts_dict_to_call_summary(address, counts):
     row = {
@@ -57,23 +44,17 @@ def address_counts_dict_to_call_summary(address, counts):
 
     model_timeframes = [7, 30, 90, 365]
 
-    if 'fire_counts' in counts:
-        for days_ago in model_timeframes:
-            row['fire_incidents_last%d' % days_ago] = counts['fire_counts'][days_ago]
-            row['fire_incidents_prev%d' % days_ago] = counts['fire_counts'][days_ago] * 2 - counts['fire_counts'][days_ago]
-    else:
-        for days_ago in model_timeframes:
-            row['fire_incidents_last%d' % days_ago] = 0
-            row['fire_incidents_prev%d' % days_ago] = 0
+    for department in ['fire', 'police']:
+        count_field = department + '_counts'
 
-    if 'police_counts' in counts:
-        for days_ago in model_timeframes:
-            row['police_incidents_last%d' % days_ago] = counts['police_counts'][days_ago]
-            row['police_incidents_prev%d' % days_ago] = counts['police_counts'][days_ago] * 2 - counts['police_counts'][days_ago]
-    else:
-        for days_ago in model_timeframes:
-            row['police_incidents_last%d' % days_ago] = 0
-            row['police_incidents_prev%d' % days_ago] = 0
+        if count_field in counts:
+            for days_ago in model_timeframes:
+                row['%s_incidents_last%d' % (department, days_ago)] = counts[count_field][days_ago]
+                row['%s_incidents_prev%d' % (department, days_ago)] = counts[count_field][days_ago] * 2 - counts[count_field][days_ago]
+        else:
+            for days_ago in model_timeframes:
+                row['%s_incidents_last%d' % (department, days_ago)] = 0
+                row['%s_incidents_prev%d' % (department, days_ago)] = 0
 
     return AddressSummary(**row)
 
@@ -95,20 +76,6 @@ if __name__ == '__main__':
             addresses[address.strip()] = police_addresses[address.strip()]
         else:
             addresses[address.strip()].update(police_addresses[address.strip()])
-
-    business_addresses =  fetch_businesses_for_addresses(addresses.keys())
-
-    for address in addresses:
-        address_record = addresses[address.strip()]
-        if address.strip() not in business_addresses:
-            address_record['business_count'] = 0
-            address_record['business_names'] = ''
-            address_record['business_types'] = ''
-
-        else:
-            address_record['business_count'] = len(business_addresses[address.strip()])
-            address_record['business_names'] = [', '.join([biz.name for biz in business_addresses[address.strip()]])]
-            address_record['business_types'] = [', '.join([biz.business_service_description for biz in business_addresses[address.strip()]])]
 
     summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems()]
     db.session.query(AddressSummary).delete()

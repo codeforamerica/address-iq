@@ -110,14 +110,11 @@ class PoliceIncident(db.Model):
     final_cad_call_type = db.Column(db.String(20))
     final_cad_call_type_description = db.Column(db.String(100))
 
+
 class AddressSummary(db.Model):
     __tablename__ = 'address_summaries'
 
     address = db.Column(db.String(50), primary_key=True)
-
-    business_counts = db.Column(db.Integer)
-    business_names = db.Column(db.Text)
-    business_types = db.Column(db.Text)
 
     fire_incidents_last7 = db.Column(db.Integer)
     fire_incidents_prev7 = db.Column(db.Integer)
@@ -183,6 +180,3 @@ class Action(db.Model):
     created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
 
     user = db.relationship('User')
-
-class Comment(Action):
-    pass
