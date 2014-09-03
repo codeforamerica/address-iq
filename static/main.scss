@@ -91,7 +91,7 @@ a {
 /* Header Styles */
 header {
     background-color: $lighter-grey;
-    min-height: 50px;
+    height: 50px;
 }
 
 #logo {
@@ -109,17 +109,18 @@ header {
 #navigation {
     display: block;
     height: 50px;
-    margin-left: 280px;
+    float: left;
+
     li {
       display: block;
-      min-height: 50px;
+      height: 50px;
 
       vertical-align: middle;
       float: left;
       a {
 
           display: block;
-          min-height: 50px;
+          height: 50px;
 
           width: 110px;
           padding: 15px 30px 15px 0px;
@@ -133,8 +134,14 @@ header {
     }
 }
 
-#user-nav .username {
-  font-weight: bold;
+#user-nav {
+  float: left;
+  margin-left: 170px;
+  padding-top: 6px;
+
+  .username {
+    font-weight: bold;
+  }
 }
 
 /* Search box */
