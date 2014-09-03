@@ -1,3 +1,9 @@
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, ''); 
+  }
+}
+
 $(document).ready(function() {
 
   var fillContentTab = function(department, timeframe) {
@@ -43,8 +49,7 @@ $(document).ready(function() {
   var updateContentTab = function() {
     var department = $('.department-tab.active').attr('id').slice(4);
     var timeframe = $('#data-date-range').val();
-    fillContentTab(department, timeframe);
-    fillContentTab
+    fillContentTab(department, timeframe);    
   }
 
   $('.department-tab').click(function() {
@@ -62,6 +67,13 @@ $(document).ready(function() {
   // Make browse page rows clickable
   $('#browse-page tbody tr').click(function() {
     window.location.href = $(this).find('.explore-link a').attr('href');
+    return false;
+  });
+
+  $('.search-area form').submit(function() {
+    var address = $(this).find('input').val();
+
+    window.location.pathname = '/address/' + address;
     return false;
   });
 

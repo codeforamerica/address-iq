@@ -31,3 +31,12 @@ class BusinessLicenseFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
 
     name = factory.fuzzy.FuzzyText()
+
+class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = models.User
+        sqlalchemy_session = db.session
+
+    email = factory.fuzzy.FuzzyText(suffix='@example.org')
+    name = factory.fuzzy.FuzzyText()
+    

@@ -1,4 +1,5 @@
 import datetime
+from datetime import timedelta
 import os
 import operator
 import pytz
@@ -8,21 +9,31 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
+from flask.ext.seasurf import SeaSurf
 from functools import wraps
+
 from requests import post
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
 meta = db.MetaData()
 meta.bind = db.engine
+
+csrf = SeaSurf(app)
 
 import models
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
+
+@app.before_request
+def func():
+  session.modified = True
+
 
 @login_manager.user_loader
 def load_user(userid):
@@ -35,6 +46,7 @@ def load_user(userid):
         return None
 
     return models.User.query.get(userid)
+
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -142,6 +154,7 @@ def login_page():
 
 
 @app.route('/log-in', methods=['POST'])
+@csrf.exempt
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
                   data=dict(assertion=request.form.get('assertion'),
@@ -180,9 +193,12 @@ def browse():
 
     summaries = models.AddressSummary.query
     summaries = summaries.order_by(order_column).paginate(page, per_page=10)
+
     return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
 
+
+@csrf.exempt
 @app.route('/log-out', methods=['POST'])
 def log_out():
     logout_user()
@@ -234,12 +250,27 @@ def address(address):
     business_types = [biz.business_service_description.strip() for biz in incidents['businesses']]
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
+    actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
 
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
-                           top_call_types=top_call_types, address=address)
+                           top_call_types=top_call_types, address=address, actions=actions)
 
     return render_template('address.html', **kwargs)
+
+@app.route("/address/<address>/comments", methods=['POST'])
+@login_required
+def post_comment(address):
+    comment = request.form.get('content')
+
+    if not comment:
+        return redirect(url_for("address", address=address))
+
+    comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address)
+    db.session.add(comment)
+    db.session.commit()
+
+    return redirect(url_for("address", address=address))
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)

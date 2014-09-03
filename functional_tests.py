@@ -9,6 +9,7 @@ import unittest
 import os
 from browserid import BrowserID
 import requests
+import time
 
 remote_browser = False
 if os.environ.get('NOTIFY_TEST_REMOTE_BROWSER') == "YES":
@@ -22,6 +23,7 @@ hub_url = "%s:%s@localhost:4445" % (SAUCE_USERNAME, SAUCE_ACCESS_KEY)
 
 if 'TRAVIS_JOB_NUMBER' in os.environ:
     using_travis = True
+    hub_url = "%s:%s@ondemand.saucelabs.com:80" % (SAUCE_USERNAME, SAUCE_ACCESS_KEY)
     print "USING TRAVIS", hub_url
 
 from app import app, db
@@ -33,6 +35,7 @@ import pytz
 
 
 def generate_test_data():
+
     def get_date_days_ago(days):
         return datetime.datetime.now() - datetime.timedelta(days=days)
 
@@ -113,9 +116,6 @@ def log_in(browser, persona_user):
     browser_id = BrowserID(browser)
     browser_id.sign_in(persona_user['email'], persona_user['password'])
 
-    user = load_user_by_email(persona_user['email'])
-    if user:
-        login_user(user)
 
 class AddressPageTest(unittest.TestCase):
 
@@ -128,7 +128,7 @@ class AddressPageTest(unittest.TestCase):
         if remote_browser:
             caps = webdriver.DesiredCapabilities.INTERNETEXPLORER
             caps['platform'] = "Windows XP"
-            caps['version'] = "7"
+            caps['version'] = "8"
             if using_travis:
                 caps['tunnel-identifier'] = os.environ['TRAVIS_JOB_NUMBER']
                 print caps
@@ -157,6 +157,8 @@ class AddressPageTest(unittest.TestCase):
 
         browser_id = BrowserID(self.browser)
         browser_id.sign_in(self.persona_user['email'], self.persona_user['password'])
+
+        time.sleep(5)
         logout_link = self.browser.find_element_by_link_text('Log out')
         self.assertTrue(logout_link.is_displayed())
 
@@ -172,8 +174,9 @@ class AddressPageTest(unittest.TestCase):
 
     def test_page_loads_and_shows_top_fire_calls_for_year(self):
         log_in(self.browser, self.persona_user)
-        self.browser.get('http://localhost:5000/address/123 test ln')
-        self.implicitly_wait(3)
+        self.browser.implicitly_wait(3)
+
+        time.sleep(5)
         self.browser.get('http://localhost:5000/address/123 test ln')
 
         call_types_list = self.browser.find_element_by_class_name("call-types")
@@ -182,6 +185,8 @@ class AddressPageTest(unittest.TestCase):
 
     def test_changing_to_police_shows_top_police_calls_for_year(self):
         log_in(self.browser, self.persona_user)
+
+        time.sleep(5)
         self.browser.get('http://localhost:5000/address/123 test ln')
 
         police_tab = self.browser.find_element_by_id('tab-police')
@@ -195,6 +200,8 @@ class AddressPageTest(unittest.TestCase):
 
     def test_changing_date_range_changes_displayed_data(self):
         log_in(self.browser, self.persona_user)
+
+        time.sleep(5)
         self.browser.get('http://localhost:5000/address/123 test ln')
 
         select = Select(self.browser.find_element_by_id('data-date-range'))
