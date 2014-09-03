@@ -315,8 +315,8 @@ class AddressUtilityTestCase(unittest.TestCase):
         db.session.flush()
 
         rv = self.app.get('/address/456 lala ln')
-        assert "Business Type(s): Bar" in rv.data
-        assert "Business Name(s): The Pub" in rv.data
+        assert "Bar" in rv.data
+        assert "The Pub" in rv.data
 
     def test_address_page_shows_correct_business_info_with_multiple_businesses(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
@@ -331,8 +331,8 @@ class AddressUtilityTestCase(unittest.TestCase):
         db.session.flush()
 
         rv = self.app.get('/address/456 lala ln')
-        assert "Business Type(s): Bar, Lawncare" in rv.data
-        assert "Business Name(s): The Pub, Mowers R Us" in rv.data
+        assert "Bar, Lawncare" in rv.data
+        assert "The Pub, Mowers R Us" in rv.data
 
     def test_no_comment_msg_shows_on_address_with_none(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
