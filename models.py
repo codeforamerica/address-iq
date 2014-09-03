@@ -139,6 +139,14 @@ class User(db.Model):
         return unicode(self.id)
 
 
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    description = db.Column(db.String(100))
+
+
 class AddressSummary(db.Model):
     __tablename__ = 'address_summaries'
 
