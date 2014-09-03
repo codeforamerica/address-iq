@@ -34,7 +34,7 @@
                 <th>Resource</th>
                 <th>Request Type</th>
                 <th>Status</th>
-                <th>User ID</th>
+                <th>Email</th>
             </tr>
         </thead>
         <tbody>
@@ -44,7 +44,7 @@
                 <td>{{ entry.resource}}</td>
                 <td>{{ entry.method}}</td>
                 <td>{{ entry.response_code}}</td>
-                <td>{{ entry.user_id}}</td>
+                <td>{{ entry.user.email }}</td>
             </tr>
             {% endfor %}
         </tbody>
