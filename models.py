@@ -1,3 +1,5 @@
+import datetime
+
 from app import db
 
 
@@ -109,6 +111,44 @@ class PoliceIncident(db.Model):
     final_cad_call_type_description = db.Column(db.String(100))
 
 
+class AddressSummary(db.Model):
+    __tablename__ = 'address_summaries'
+
+    address = db.Column(db.String(50), primary_key=True)
+
+    fire_incidents_last7 = db.Column(db.Integer)
+    fire_incidents_prev7 = db.Column(db.Integer)
+    police_incidents_last7 = db.Column(db.Integer)
+    police_incidents_prev7 = db.Column(db.Integer)
+
+    fire_incidents_last30 = db.Column(db.Integer)
+    fire_incidents_prev30 = db.Column(db.Integer)
+    police_incidents_last30 = db.Column(db.Integer)
+    police_incidents_prev30 = db.Column(db.Integer)
+
+    fire_incidents_last90 = db.Column(db.Integer)
+    fire_incidents_prev90 = db.Column(db.Integer)
+    police_incidents_last90 = db.Column(db.Integer)
+    police_incidents_prev90 = db.Column(db.Integer)
+
+    fire_incidents_last365 = db.Column(db.Integer)
+    fire_incidents_prev365 = db.Column(db.Integer)
+    police_incidents_last365 = db.Column(db.Integer)
+    police_incidents_prev365 = db.Column(db.Integer)
+
+    def counts_for_days_ago(self, days):
+        return {
+            'fire': {
+                'last': getattr(self, "fire_incidents_last%d" % days),
+                'prior': getattr(self, "fire_incidents_prev%d" % days)
+            },
+            'police': {
+                'last': getattr(self, "police_incidents_last%d" % days),
+                'prior': getattr(self, "police_incidents_prev%d" % days)
+            }
+        }
+
+
 # Flask-Security wants a 'password' column too, but I'm trying first without
 # it. https://pythonhosted.org/Flask-Security/models.html
 class User(db.Model):
@@ -147,39 +187,14 @@ class Role(db.Model):
     description = db.Column(db.String(100))
 
 
-class AddressSummary(db.Model):
-    __tablename__ = 'address_summaries'
+class Action(db.Model):
+    __tablename__ = 'actions'
 
-    address = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String)
+    address = db.Column(db.String)
+    content = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
 
-    fire_incidents_last7 = db.Column(db.Integer)
-    fire_incidents_prev7 = db.Column(db.Integer)
-    police_incidents_last7 = db.Column(db.Integer)
-    police_incidents_prev7 = db.Column(db.Integer)
-
-    fire_incidents_last30 = db.Column(db.Integer)
-    fire_incidents_prev30 = db.Column(db.Integer)
-    police_incidents_last30 = db.Column(db.Integer)
-    police_incidents_prev30 = db.Column(db.Integer)
-
-    fire_incidents_last90 = db.Column(db.Integer)
-    fire_incidents_prev90 = db.Column(db.Integer)
-    police_incidents_last90 = db.Column(db.Integer)
-    police_incidents_prev90 = db.Column(db.Integer)
-
-    fire_incidents_last365 = db.Column(db.Integer)
-    fire_incidents_prev365 = db.Column(db.Integer)
-    police_incidents_last365 = db.Column(db.Integer)
-    police_incidents_prev365 = db.Column(db.Integer)
-
-    def counts_for_days_ago(self, days):
-        return {
-            'fire': {
-                'last': getattr(self, "fire_incidents_last%d" % days),
-                'prior': getattr(self, "fire_incidents_prev%d" % days)
-            },
-            'police': {
-                'last': getattr(self, "police_incidents_last%d" % days),
-                'prior': getattr(self, "police_incidents_prev%d" % days)
-            }
-        }
+    user = db.relationship('User')
