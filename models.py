@@ -164,7 +164,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(75))
     email = db.Column(db.String(100), unique=True)
-    date_created = db.Column(db.DateTime(timezone=True))
+    date_created = db.Column(db.DateTime(timezone=True), default=db.func.now())
 
     def is_authenticated(self):
         return True
@@ -187,6 +187,6 @@ class Action(db.Model):
     address = db.Column(db.String)
     content = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+    created = db.Column(db.DateTime(timezone=True), default=db.func.now())
 
     user = db.relationship('User')

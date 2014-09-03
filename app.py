@@ -194,8 +194,8 @@ def log_in():
     return Response('Failed', status=400)
 
 @app.route("/browse")
-@audit_log
 @login_required
+@audit_log
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))
@@ -306,7 +306,7 @@ def view_audit_log():
     log_entries = models.AuditLogEntry.query
     log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
 
-    return render_template("view_audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
+    return render_template("audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
 
 
 if __name__ == "__main__":
