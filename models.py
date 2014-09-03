@@ -109,6 +109,8 @@ class PoliceIncident(db.Model):
     final_cad_call_type_description = db.Column(db.String(100))
 
 
+# Flask-Security wants a 'password' column too, but I'm trying first without
+# it. https://pythonhosted.org/Flask-Security/models.html
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -116,6 +118,12 @@ class User(db.Model):
     name = db.Column(db.String(75))
     email = db.Column(db.String(100), unique=True)
     date_created = db.Column(db.DateTime(timezone=True))
+    active = db.Column(db.Boolean)
+    last_login_at = db.Column(db.DateTime(timezone=True))
+    current_login_at = db.Column(db.DateTime(timezone=True))
+    last_login_ip = db.Column(db.String(45))
+    current_login_ip = db.Column(db.String(45))
+    login_count = db.Column(db.Integer)
 
     def is_authenticated(self):
         return True

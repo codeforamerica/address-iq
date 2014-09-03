@@ -8,7 +8,10 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
+from flask.ext.security import Security, SQLAlchemyUserDatastore, \
+    UserMixin, RoleMixin, login_required
+from flask.ext.login import LoginManager, login_user, logout_user, \
+    current_user, login_required
 from functools import wraps
 from requests import post
 

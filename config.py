@@ -10,6 +10,13 @@ class Config(object):
     BROWSERID_URL = os.environ['BROWSERID_URL']
     BROWSERID_LOGIN_URL = '/log-in'
     BROWSERID_LOGOUT_URL = '/log-out'
+    SECURITY_LOGIN_URL = '/log-in'
+    SECURITY_LOGOUT_URL = '/log-out'
+    SECURITY_LOGIN_USER_TEMPLATE = 'login.html'
+    SECURITY_TRACKABLE = True
+    SECURITY_SEND_REGISTER_EMAIL = False
+    SECURITY_SEND_PASSWORD_CHANGE_EMAIL = False
+    SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL = False
 
 class ProductionConfig(Config):
     DEBUG = False
