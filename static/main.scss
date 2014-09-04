@@ -4,22 +4,22 @@
 $font-stack: 'Open Sans Condensed', sans-serif;
 $font-stack-uncondensed: 'Open Sans', sans-serif;
 
-$darker-green: #2d8433;
-$medium-green: #3db349;
-$lighter-green: #dfecda;
+$green-darker: #2d8433;
+$green-medium: #3db349;
+$green-lighter: #dfecda;
 
-$darker-blue: #0071bc;
-$lighter-blue: #8bbee7;
+$blue-darker: #0071bc;
+$blue-lighter: #8bbee7;
 
-$lighter-grey: #d8d8d8;
-$medium-grey: #9f9fa0;
-$darker-grey: #6d6e71;
+$grey-lighter: #d8d8d8;
+$grey-medium: #9f9fa0;
+$grey-darker: #6d6e71;
 
-$darker-red: #b91319;
-$lighter-red: #fcd3c9;
+$red-darker: #b91319;
+$red-lighter: #fcd3c9;
 
 body {
-    font-family: 'Open Sans', sans-serif;
+    font-family: $font-stack-uncondensed;
     font-size: 16px;
     line-height: 1.3em;
 }
@@ -90,7 +90,7 @@ a {
 
 /* Header Styles */
 header {
-    background-color: $lighter-grey;
+    background-color: $grey-lighter;
     height: 50px;
 }
 
@@ -98,7 +98,7 @@ header {
     float: left;
     display: block;
     padding: 10px 15px 13px;
-    color: $darker-grey;
+    color: $grey-darker;
     text-decoration: none;
     font-size: 24px;
     line-height: 28px;
@@ -126,9 +126,9 @@ header {
           padding: 15px 30px 15px 0px;
 
           font-size: 16px;
-          color: $darker-grey;
+          color: $grey-darker;
           &:hover {
-            color: $darker-blue;
+            color: $blue-darker;
           }
       }
     }
@@ -147,7 +147,7 @@ header {
 /* Search box */
 
 .search-area {
-  background-color: $lighter-grey;
+  background-color: $grey-lighter;
   height: 40px;
   width: 220px;
   margin-left: 40px;
@@ -171,7 +171,7 @@ header {
     float: left;
     width: 560px;
     padding: 20px 30px;
-    background-color: $lighter-grey;
+    background-color: $grey-lighter;
     border-radius: 5px;
 }
 
@@ -182,7 +182,7 @@ header {
 a.map-link {
   display: block;
   color: white;
-  background-color: $darker-grey;
+  background-color: $grey-darker;
   width: 110px;
   height: 35px;
   line-height: 35px;
@@ -216,7 +216,7 @@ a.map-link {
   }
 
   .comment .fa-comment {
-    color: #6d6e71;
+    color: $grey-darker;
   }
 
   .main-user {
@@ -224,12 +224,12 @@ a.map-link {
   }
 
   .action-date {
-    color: #6d6e71;
+    color: $grey-darker;
     line-height: 26px;
   }
 
   .header {
-    background-color: $medium-green;
+    background-color: $green-medium;
     padding: 10px 33px;
     line-height: 30px;
 
@@ -239,7 +239,7 @@ a.map-link {
   }
 
   .content {
-    background-color: $lighter-green;
+    background-color: $green-lighter;
   }
 
   .no-action-found {
@@ -249,11 +249,11 @@ a.map-link {
 }
 
 .add-comment {
-  border: 4px solid $lighter-green;
+  border: 4px solid $green-lighter;
   padding: 10px 5px;
 
   .fa-comment {
-    color: $medium-green;
+    color: $green-medium;
     font-size: 12px;
     width: 15px;
     display: block;
@@ -268,7 +268,7 @@ a.map-link {
   }
 
   button {
-    background-color: green;
+    background-color: $green-darker;
     color: white;
     margin-left: 25px;
     margin-top: 5px;
@@ -310,7 +310,7 @@ a.map-link {
 }
 
 .date-range-selector {
-    background-color: $darker-grey;
+    background-color: $grey-darker;
     height: 50px;
     line-height: 50px;
     border-radius: 25px;
@@ -341,7 +341,7 @@ a.map-link {
 }
 
 .department-tab-content {
-    border: 1px solid $medium-grey;
+    border: 1px solid $grey-medium;
     padding: 30px;
     margin-bottom: 20px;
     min-height: 200px;
@@ -355,7 +355,7 @@ ol.call-types li {
     line-height: 30px;
     padding-left: 10px;
     .odd {
-        background-color: $lighter-grey;
+        background-color: $grey-lighter;
     }
 }
 
@@ -376,13 +376,12 @@ ul.browse-date-ranges {
     height: 42px;
     margin: 30px 0;
     li {
-
-        background-color: $lighter-grey;
+        background-color: $grey-lighter;
         float: left;
         width: 90px;
         line-height: 40px;
 
-        border: 1px solid $darker-grey;
+        border: 1px solid $grey-darker;
         border-width: 1px 0 1px 1px;
 
         text-align: center;
@@ -391,7 +390,7 @@ ul.browse-date-ranges {
           border-radius: 5px 0 0 5px;
         }
         &.last {
-            border-right: 1px solid $darker-grey;
+            border-right: 1px solid $grey-darker;
             border-radius: 0 5px 5px 0;
         }
         &.active {
@@ -416,7 +415,7 @@ ul.browse-date-ranges {
     width: 820px;
     margin: 0 auto;
     thead {
-        border-bottom: 2px solid $medium-grey;
+        border-bottom: 2px solid $grey-medium;
     }
     th {
         text-align: left;
@@ -426,7 +425,7 @@ ul.browse-date-ranges {
             width: 18px;
         }
         &.active .fa {
-            color: $darker-blue;
+            color: $blue-darker;
         }
     }
     tr {
@@ -453,7 +452,7 @@ ul.browse-date-ranges {
     }
     .explore-link a {
         display: inline-block;
-        background-color: $darker-blue;
+        background-color: $blue-darker;
         color: white;
         line-height: 24px;
         padding: 4px 10px;
@@ -468,7 +467,7 @@ ul.browse-date-ranges {
         width: 30px;
         line-height: 30px;
         color: white;
-        background-color: $darker-grey;
+        background-color: $grey-darker;
         display: inline-block;
     }
     a.page {
@@ -476,7 +475,7 @@ ul.browse-date-ranges {
         width: 30px;
         line-height: 30px;
         color: white;
-        background-color: $medium-grey;
+        background-color: $grey-medium;
         display: inline-block;
     }
     a.prev, a.next {
@@ -484,7 +483,7 @@ ul.browse-date-ranges {
         width: 80px;
         line-height: 30px;
         color: white;
-        background-color: $darker-grey;
+        background-color: $grey-darker;
         display: inline-block;
     }
 }
