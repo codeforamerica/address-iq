@@ -70,7 +70,6 @@ $(document).ready(function() {
     return false;
   });
 
-<<<<<<< HEAD
   // Activation on the address page
   $('#activated-toggle').click(function() {
     var $toggle = $(this);
@@ -99,14 +98,12 @@ $(document).ready(function() {
   });
 
 
-=======
   $('.search-area form').submit(function() {
     var address = $(this).find('input').val();
 
     window.location.pathname = '/address/' + address;
     return false;
   });
->>>>>>> 40fa2c8f3bf30166fe019ff5e7226e95d4753d75
 
 // Adapted from https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
 
