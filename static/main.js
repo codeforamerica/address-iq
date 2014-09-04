@@ -129,7 +129,6 @@ $(document).ready(function() {
               }
             }
           }
-        }
 
   function verifyAssertion(assertion) {
       // Your backend must return HTTP status code 200 to indicate successful
