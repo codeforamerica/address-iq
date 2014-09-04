@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Hotspotter</title>
+    <title>AddressIQ</title>
     <link href='/static/main.css' rel='stylesheet' type='text/css'>
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -22,7 +22,7 @@
                 ('/browse', 'browse', 'Browse All')
             ] -%}
             {% set active_page = active_page|default('') -%}
-            <a href="/" id="logo">Hotspotter</a>
+            <a href="/" id="logo">AddressIQ</a>
             <ul id="navigation">
               {% for href, id, caption in navigation_bar %}
               <li{% if id == active_page %} class="active"{% endif %}>
