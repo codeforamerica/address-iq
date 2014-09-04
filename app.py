@@ -6,7 +6,7 @@ import pytz
 import logging
 from logging.handlers import RotatingFileHandler
 
-from flask import Flask, render_template, abort, request, Response, session, redirect, url_for
+from flask import Flask, render_template, abort, request, Response, session, redirect, url_for, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from flask.ext.seasurf import SeaSurf
@@ -50,6 +50,29 @@ def load_user(userid):
 
     return models.User.query.get(userid)
 
+def audit_log(f):
+    @wraps(f)
+
+    def decorated_function(*args, **kwargs):
+        auditing_disabled = app.config.get('AUDIT_DISABLED', app.config.get('TESTING', False))
+        if auditing_disabled:
+            return f(*args, **kwargs)
+
+        response = make_response(f(*args, **kwargs))
+
+        log_info = {
+            "resource": request.path,
+            "method": request.method,
+            "response_code": response.status_code,
+            "user_id": current_user.get_id()
+        }
+        log_entry = models.AuditLogEntry(**log_info)
+        db.session.add(log_entry)
+        db.session.commit()
+
+        return response
+
+    return decorated_function
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
@@ -175,6 +198,7 @@ def log_in():
 
 @app.route("/browse")
 @login_required
+@audit_log
 def browse():
     date_range = int(request.args.get('date_range', 365))
     page = int(request.args.get('page', 1))
@@ -264,6 +288,7 @@ def deactivate_address(address):
 
 @app.route("/address/<address>")
 @login_required
+@audit_log
 def address(address):
     incidents = fetch_incidents_at_address(address)
 
@@ -286,6 +311,7 @@ def address(address):
 
 @app.route("/address/<address>/comments", methods=['POST'])
 @login_required
+@audit_log
 def post_comment(address):
     comment = request.form.get('content')
 
@@ -311,6 +337,19 @@ def deactivate(address):
     deactivate_address(address)
     db.session.commit()
     return 'deactivated'
+
+
+@app.route("/audit_log")
+@login_required
+@audit_log
+def view_audit_log():
+    page = int(request.args.get('page', 1))
+
+
+    log_entries = models.AuditLogEntry.query
+    log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
+
+    return render_template("audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)

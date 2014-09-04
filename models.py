@@ -148,13 +148,25 @@ class AddressSummary(db.Model):
             }
         }
 
+        
+class AuditLogEntry(db.Model):
+    __tablename__ = 'audit_log'
+
+    timestamp = db.Column(db.DateTime(timezone=True), default=db.func.now(), primary_key=True)
+    resource = db.Column(db.String(100), primary_key=True)
+    method = db.Column(db.String(10), primary_key=True)
+    response_code = db.Column(db.String(3), primary_key=True)
+    user_id = db.Column(db.String(8), db.ForeignKey('users.id'), primary_key=True)
+
+    user = db.relationship('User', primaryjoin='AuditLogEntry.user_id==User.id')
+
 class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(75))
     email = db.Column(db.String(100), unique=True)
-    date_created = db.Column(db.DateTime(timezone=True))
+    date_created = db.Column(db.DateTime(timezone=True), default=db.func.now())
 
     def is_authenticated(self):
         return True
@@ -177,7 +189,7 @@ class Action(db.Model):
     address = db.Column(db.String)
     content = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    created = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+    created = db.Column(db.DateTime(timezone=True), default=db.func.now())
 
     user = db.relationship('User')
 
