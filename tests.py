@@ -425,9 +425,39 @@ class AddressUtilityTestCase(unittest.TestCase):
         self.app.post('/address/456 lala ln/activate')
         rv = self.app.post('/address/456 lala ln/deactivate')
 
-        assert 200 = rv.status_code
+        assert 200 == rv.status_code
         assert 0 == len(models.ActivatedAddress.query.all())
 
+    def test_activating_address_adds_to_action_station(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/activate')
+        rv = self.app.get('/address/456 lala ln')
+
+        assert 200 == rv.status_code
+        assert 'activated this address' in rv.data
+
+    def test_deactivating_address_adds_to_action_station(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/activate')
+        self.app.post('/address/456 lala ln/deactivate')
+        rv = self.app.get('/address/456 lala ln')
+
+        assert 200 == rv.status_code
+        assert 'deactivated this address' in rv.data
 
 
 class CountCallsTestCase(unittest.TestCase):

@@ -250,9 +250,17 @@ def activate_address(address):
     query = activated_table.insert().values(address=address)
     db.session.execute(query)
 
+    action = models.Action(user_id=current_user.id, type="activated", address=address)
+    db.session.add(action)
+    db.session.commit()
+
 def deactivate_address(address):
     query = activated_table.delete().where(activated_table.c.address == address)
     db.session.execute(query)
+
+    action = models.Action(user_id=current_user.id, type="deactivated", address=address)
+    db.session.add(action)
+    db.session.commit()
 
 @app.route("/address/<address>")
 @login_required
