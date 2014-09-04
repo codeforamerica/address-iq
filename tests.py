@@ -399,6 +399,36 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'Test 2' in rv.data
         assert rv.data.find('Test 1') < rv.data.find('Test 2')
 
+    def test_activation_endpoint_activates_address(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.post('/address/456 lala ln/activate')
+
+        assert 200 == rv.status_code
+        assert 1 == len(models.ActivatedAddress.query.all())
+
+    def test_deactivation_endpoint_deactivates_address(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/activate')
+        rv = self.app.post('/address/456 lala ln/deactivate')
+
+        assert 200 = rv.status_code
+        assert 0 == len(models.ActivatedAddress.query.all())
+
+
 
 class CountCallsTestCase(unittest.TestCase):
     def setUp(self):
