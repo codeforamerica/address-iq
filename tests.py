@@ -1,4 +1,5 @@
 import unittest
+import mock
 import os
 import datetime
 import pytz
@@ -24,6 +25,30 @@ def persona_verify(url, request):
     else:
         raise Exception('Asked for unknown URL ' + url.geturl())
 
+def setup_google_mock(can_view='Y'):
+    mock_client = mock.MagicMock()
+    instance = mock_client.return_value
+
+    worksheets_mock = mock.Mock()
+    worksheet_mock = mock.Mock()
+    worksheet_mock.id = mock.Mock()
+    worksheet_mock.id.text = 'foo/bar/abc'
+    worksheets_mock.entry = [worksheet_mock]
+    instance.get_worksheets.return_value = worksheets_mock
+
+    sample_row = {
+        'email': 'user@example.com',
+        'name': 'Joe Fireworks',
+        'canviewsite': 'Y'
+    }
+    row_mock = mock.Mock()
+    row_mock.to_dict.return_value = sample_row
+    list_feed_mock = mock.Mock()
+    list_feed_mock.entry = [row_mock]
+    instance.get_list_feed.return_value = list_feed_mock
+
+    return mock_client
+
 class HomeTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -47,6 +72,7 @@ class LoginTestCase(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_login(self):
         ''' Check basic log in flow without talking to Persona.
         '''
@@ -60,6 +86,7 @@ class LoginTestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertTrue('user@example.com' in response.data)
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_logout(self):
         ''' Check basic log out flow without talking to Persona.
         '''
@@ -344,6 +371,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'no-action-found' in rv.data
         assert 'Nothing has been done yet with this address. Add a note below, or click the activate button!' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_loads_a_comment_into_database(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -361,6 +389,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         comments = models.Action.query.all()
         self.assertEquals(1, len(comments))
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_shows_it_on_the_page(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -378,6 +407,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         rv = self.app.get('/address/456 lala ln')
         assert 'This is a test comment' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_two_comments_shows_the_most_recent_last(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]

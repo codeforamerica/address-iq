@@ -24,3 +24,4 @@ pytz==2014.4
 requests==2.3.0
 selenium==2.42.1
 wsgiref==0.1.2
+mock==1.0.1
