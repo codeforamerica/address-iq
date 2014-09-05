@@ -95,7 +95,7 @@ $(document).ready(function() {
                 }
               else {
                   navigator.id.logout();
-                  alert("XMLHttpRequest error: " + xhr.status);
+                  alert("We weren't able to log you in. Please try again, or contact the Address IQ administer to ensure you have permission to access the site.");
                 }
               }
             }
