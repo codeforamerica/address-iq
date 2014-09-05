@@ -10,6 +10,7 @@ from flask import Flask, render_template, abort, request, Response, session, red
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from flask.ext.seasurf import SeaSurf
+import flask.ext.assets
 from functools import wraps
 
 from requests import post
@@ -29,6 +30,9 @@ import models
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
+
+assets = flask.ext.assets.Environment()
+assets.init_app(app)
 
 @app.before_request
 def func():
