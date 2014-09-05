@@ -94,7 +94,7 @@ class LoginTestCase(unittest.TestCase):
         with HTTMock(persona_verify):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
         
-        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.status_code, 403)
 
         response = self.app.get('/')
         self.assertFalse('user@example.com' in response.data)
@@ -107,7 +107,7 @@ class LoginTestCase(unittest.TestCase):
         with HTTMock(persona_verify):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
         
-        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.status_code, 403)
 
         response = self.app.get('/')
         self.assertFalse('user@example.com' in response.data)
