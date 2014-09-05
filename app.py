@@ -146,6 +146,21 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
 
     return top_call_types
 
+# @todo: Determine how best to integrate this with the audit log.
+def _track_login(user):
+    user.active = True
+
+    if user.login_count > 0:
+        user.last_login_at = user.current_login_at
+        user.last_login_ip = user.current_login_ip
+
+    user.login_count += 1
+    user.current_login_at = datetime.datetime.now(pytz.utc)
+    user.current_login_ip = request.remote_addr
+
+    db.session.commit()
+
+
 @app.route('/')
 def home():
     return render_template('home.html', email=get_email_of_current_user())
@@ -169,6 +184,7 @@ def log_in():
         user = load_user_by_email(response['email'])
         if user:
             login_user(user)
+            _track_login(user)
             return 'OK'
 
     return Response('Failed', status=400)
@@ -210,12 +226,24 @@ def log_out():
 
 def create_user(name, email):
     # Check whether a record already exists for this user.
-    user = models.User.query.filter(models.User.email==email).first()
+
+    # Not this way, or you'll create a second session:
+    # user = models.User.query.filter(models.User.email==email).first()
+
+    # This way:
+    user = db.session.query(models.User).filter_by(email=email).first()
     if user:
         return False
 
     # If no record exists, create the user.
-    user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
+    user = models.User(
+                    name=name,
+                    email=email,
+                    date_created=datetime.datetime.now(pytz.utc),
+                    active=True,
+                    current_login_at=datetime.datetime.now(pytz.utc),
+                    current_login_ip=request.remote_addr,
+                    login_count=0)
     db.session.add(user)
     db.session.commit()
 
@@ -224,7 +252,7 @@ def create_user(name, email):
 def load_user_by_email(email):
     # @todo: When we incorporate LDAP, update this to pull real name.
     name = 'Fireworks Joe'
-    user = models.User.query.filter(models.User.email==email).first()
+    user = db.session.query(models.User).filter_by(email=email).first()
     if not user:
         user = create_user(name, email)
 
