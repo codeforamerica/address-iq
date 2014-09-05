@@ -192,7 +192,7 @@ def log_in():
 
         rows = [row.to_dict() for row in list_feed.entry]
 
-        user_auth_row = {}
+        user_auth_row = None
         for row in rows:
             if row['email'] == email:
                 if row['canviewsite'] == 'N':
@@ -202,6 +202,9 @@ def log_in():
                 user_auth_row = row
                 break
 
+        if not user_auth_row:
+            return Response('Failed', status=400)
+            
         user = load_user_by_email(response['email'], user_auth_row['name'])
         if user:
             login_user(user)

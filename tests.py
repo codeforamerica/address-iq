@@ -25,7 +25,7 @@ def persona_verify(url, request):
     else:
         raise Exception('Asked for unknown URL ' + url.geturl())
 
-def setup_google_mock(can_view='Y'):
+def setup_google_mock(can_view='Y', email='user@example.com'):
     mock_client = mock.MagicMock()
     instance = mock_client.return_value
 
@@ -37,9 +37,9 @@ def setup_google_mock(can_view='Y'):
     instance.get_worksheets.return_value = worksheets_mock
 
     sample_row = {
-        'email': 'user@example.com',
+        'email': email,
         'name': 'Joe Fireworks',
-        'canviewsite': 'Y'
+        'canviewsite': can_view
     }
     row_mock = mock.Mock()
     row_mock.to_dict.return_value = sample_row
@@ -85,6 +85,32 @@ class LoginTestCase(unittest.TestCase):
 
         response = self.app.get('/')
         self.assertTrue('user@example.com' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(email="notexample@example.com"))    
+    def test_login_fails_when_not_in_spreadsheet(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+        
+        self.assertEquals(response.status_code, 400)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view='N'))    
+    def test_login_fails_when_not_allowed_to_view(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+        
+        self.assertEquals(response.status_code, 400)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_logout(self):
