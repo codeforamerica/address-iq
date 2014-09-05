@@ -455,6 +455,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'Test 2' in rv.data
         assert rv.data.find('Test 1') < rv.data.find('Test 2')
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_viewing_an_address_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
@@ -478,6 +479,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert first_entry.resource == '/address/456 lala ln'
         assert first_entry.response_code == "200"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
