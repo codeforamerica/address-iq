@@ -28,7 +28,11 @@ $(document).ready(function() {
       return $el;
     }
 
-    callTypes = topCallTypes[department][timeframe]
+    if (typeof topCallTypes[department] == 'undefined') {
+      return;
+    }
+    
+    callTypes = topCallTypes[department][timeframe];
 
 
     $callTypesOl = $('.call-types');
@@ -49,6 +53,9 @@ $(document).ready(function() {
   var updateContentTab = function() {
     var department = $('.department-tab.active').attr('id').slice(4);
     var timeframe = $('#data-date-range').val();
+    $('.department-tab-content').removeClass('police');
+    $('.department-tab-content').removeClass('fire');
+    $('.department-tab-content').addClass(department);
     fillContentTab(department, timeframe);    
   }
 

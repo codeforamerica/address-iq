@@ -167,6 +167,7 @@ class User(db.Model):
     name = db.Column(db.String(75))
     email = db.Column(db.String(100), unique=True)
     date_created = db.Column(db.DateTime(timezone=True), default=db.func.now())
+    can_view_fire_data = db.Column(db.Boolean, default=False)
 
     def is_authenticated(self):
         return True

@@ -18,6 +18,9 @@ from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicens
 
 from flask.ext.login import login_user
 
+def get_date_days_ago(days):
+    return datetime.datetime.now() - datetime.timedelta(days=days)
+
 def persona_verify(url, request):
     if url.geturl() == 'https://verifier.login.persona.org/verify':
         return response(200, '''{"status": "okay", "email": "user@example.com"}''')
@@ -25,7 +28,7 @@ def persona_verify(url, request):
     else:
         raise Exception('Asked for unknown URL ' + url.geturl())
 
-def setup_google_mock(can_view='Y', email='user@example.com'):
+def setup_google_mock(can_view='Y', can_view_fire='Y', email='user@example.com'):
     mock_client = mock.MagicMock()
     instance = mock_client.return_value
 
@@ -39,7 +42,8 @@ def setup_google_mock(can_view='Y', email='user@example.com'):
     sample_row = {
         'email': email,
         'name': 'Joe Fireworks',
-        'canviewsite': can_view
+        'canviewsite': can_view,
+        'canviewfiredata': can_view_fire
     }
     row_mock = mock.Mock()
     row_mock.to_dict.return_value = sample_row
@@ -112,6 +116,42 @@ class LoginTestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertFalse('user@example.com' in response.data)
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())    
+    def test_login_successfully_pulls_in_name(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        response = self.app.get('/')
+        self.assertTrue('Joe Fireworks' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='Y'))    
+    def test_login_successfully_pulls_in_fire_viewable_true(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        user = db.session.query(models.User).filter(models.User.email=='user@example.com').first()
+        assert user.can_view_fire_data == True
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='N'))    
+    def test_login_successfully_pulls_in_fire_viewable_false(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        user = db.session.query(models.User).filter(models.User.email=='user@example.com').first()
+        assert user.can_view_fire_data == False
+
     @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_logout(self):
         ''' Check basic log out flow without talking to Persona.
@@ -181,9 +221,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert len(incidents['businesses']) == 1
 
     def test_count_incidents_returns_proper_counts_for_default_days(self):
-        def get_date_days_ago(days):
-            return datetime.datetime.now() - datetime.timedelta(days=days)
-
         [FireIncidentFactory(incident_address="123 MAIN ST",
                              alarm_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
@@ -226,11 +263,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert counts['police'][365] == 26
 
     def test_count_incidents_returns_zeros_when_no_incidents(self):
-        import datetime
-
-        def get_date_days_ago(days):
-            return datetime.datetime.now() - datetime.timedelta(days=days)
-
         incidents = fetch_incidents_at_address("123 main st")
         counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
 
@@ -245,11 +277,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert counts['police'][365] == 0
 
     def test_top_incident_reasons_by_timeframes_returns_proper_counts(self):
-        import datetime
-
-        def get_date_days_ago(days):
-            return datetime.datetime.now() - datetime.timedelta(days=days)
-
         [FireIncidentFactory(incident_address="123 MAIN ST",
                              alarm_datetime=get_date_days_ago(5),
                              actual_nfirs_incident_type_description="Broken Nose")
@@ -505,7 +532,19 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert first_entry.resource == '/address/456 lala ln/comments'
         assert first_entry.response_code == "302"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='N'))
+    def test_viewing_an_address_does_not_show_fire_data_if_not_allowed(self):
+        [FireIncidentFactory(incident_address="456 LALA LN", alarm_datetime=get_date_days_ago(5),
+                             actual_nfirs_incident_type_description="Broken Nose")
+         for i in range(0, 5)]
 
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.get('/address/456 lala ln')
+        assert 'Broken Nose' not in rv.data
 
 
 class CountCallsTestCase(unittest.TestCase):

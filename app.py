@@ -121,7 +121,7 @@ def count_incidents_by_timeframes(incidents, timeframes):
 
     return counts
 
-def get_top_incident_reasons_by_timeframes(incidents, timeframes):
+def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=True):
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -168,6 +168,8 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             top_call_types[incident_type][num_days].reverse()
             top_call_types[incident_type][num_days] = top_call_types[incident_type][num_days][:5]
 
+    if not include_fire:
+        del top_call_types['fire']
     return top_call_types
 
 @app.route('/')
@@ -234,6 +236,10 @@ def log_in():
         if not user:
             user = create_user(email, user_auth_row['name'])
 
+        user.name = user_auth_row['name']
+        user.can_view_fire_data = user_auth_row['canviewfiredata'] == 'Y'
+        db.session.commit()
+
         login_user(user)
         return 'OK'
 
@@ -275,7 +281,7 @@ def log_out():
 
     return redirect(url_for('home'))
 
-def create_user(name, email):
+def create_user(email, name):
     # Check whether a record already exists for this user.
     user = models.User.query.filter(models.User.email==email).first()
     if user:
@@ -289,8 +295,7 @@ def create_user(name, email):
     return user
 
 def load_user_by_email(email):
-    user = models.User.query.filter(models.User.email==email).first()
-
+    user = db.session.query(models.User).filter(models.User.email==email).first()
     return user
 
 def get_email_of_current_user(user=current_user):
@@ -316,7 +321,14 @@ def address(address):
     counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
     business_types = [biz.business_service_description.strip() for biz in incidents['businesses']]
     business_names = [biz.name.strip() for biz in incidents['businesses']]
-    top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
+
+    can_view_fire = False
+    if current_user.is_anonymous() and app.config['TESTING']:
+        can_view_fire = True
+    elif current_user.is_authenticated() and current_user.can_view_fire_data:
+        can_view_fire = True
+
+    top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365], include_fire=can_view_fire)
     actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
 
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,

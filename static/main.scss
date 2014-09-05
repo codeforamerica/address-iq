@@ -337,6 +337,18 @@ footer {
       margin-left: 10px;
       margin-bottom: 20px;
     }
+
+    &.fire.no-fire-data-access {
+      h3 {
+        display: none;
+      }
+      .call-types {
+        display: none;
+      }
+      .no-calls-of-this-type {
+        display: none;
+      }
+    }
 }
 
 ol.call-types li {
