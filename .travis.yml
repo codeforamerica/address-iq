@@ -18,6 +18,6 @@ before_script:
 - alembic upgrade head
 - python app.py &
 notifications:
-  webhooks: http://project-monitor.codeforamerica.org/projects/197a4506-1dea-4340-a3a1-013dd0dc2db9/status
+  webhooks: http://project-monitor.codeforamerica.org/projects/7f784962-2d83-4ad5-a23d-a598bec3345e/status
 addons:
   sauce_connect: true

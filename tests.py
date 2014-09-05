@@ -455,6 +455,56 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'Test 2' in rv.data
         assert rv.data.find('Test 1') < rv.data.find('Test 2')
 
+    def test_viewing_an_address_creates_an_audit_log(self):
+        app.config['AUDIT_DISABLED'] = False
+
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.get('/address/456 lala ln')
+
+        del app.config['AUDIT_DISABLED']
+
+        assert len(models.AuditLogEntry.query.all()) == 1
+
+        first_entry = models.AuditLogEntry.query.first()
+        assert first_entry.user_id != None
+        assert first_entry.method == 'GET'
+        assert first_entry.resource == '/address/456 lala ln'
+        assert first_entry.response_code == "200"
+
+    def test_posting_a_comment_creates_an_audit_log(self):
+        app.config['AUDIT_DISABLED'] = False
+
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.post('/address/456 lala ln/comments', data={
+                'content': 'This is a test comment'
+            })
+
+        del app.config['AUDIT_DISABLED']
+
+        assert len(models.AuditLogEntry.query.all()) == 1
+
+        first_entry = models.AuditLogEntry.query.first()
+        assert first_entry.user_id != None
+        assert first_entry.method == 'POST'
+        assert first_entry.resource == '/address/456 lala ln/comments'
+        assert first_entry.response_code == "302"
+
+
+
 
 class CountCallsTestCase(unittest.TestCase):
     def setUp(self):
