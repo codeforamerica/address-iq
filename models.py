@@ -163,7 +163,7 @@ class User(db.Model):
     current_login_at = db.Column(db.DateTime(timezone=True))
     last_login_ip = db.Column(db.String(45))
     current_login_ip = db.Column(db.String(45))
-    login_count = db.Column(db.Integer)
+    login_count = db.Column(db.Integer, default=0)
 
     def is_authenticated(self):
         return True
