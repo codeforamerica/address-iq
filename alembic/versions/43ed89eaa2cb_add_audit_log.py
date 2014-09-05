@@ -1,7 +1,7 @@
 """add audit log
 
 Revision ID: 43ed89eaa2cb
-Revises: 5932c01014d4
+Revises: 4edfa46798f8
 Create Date: 2014-08-21 14:05:51.120546
 
 """
