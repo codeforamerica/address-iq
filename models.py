@@ -148,8 +148,6 @@ class AddressSummary(db.Model):
             }
         }
 
-# Flask-Security wants a 'password' column too, but I'm trying first without
-# it. https://pythonhosted.org/Flask-Security/models.html
 class AuditLogEntry(db.Model):
     __tablename__ = 'audit_log'
 
