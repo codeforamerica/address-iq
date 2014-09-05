@@ -25,3 +25,4 @@ requests==2.3.0
 selenium==2.42.1
 wsgiref==0.1.2
 Flask-Assets==0.10
+pyScss==1.2.0.post3
