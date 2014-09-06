@@ -22,6 +22,9 @@ db = SQLAlchemy(app)
 meta = db.MetaData()
 meta.bind = db.engine
 
+activated_table = db.Table('activated_addresses', meta,
+                            db.Column('address', db.String, primary_key=True))
+
 csrf = SeaSurf(app)
 
 import models
@@ -262,6 +265,27 @@ def get_email_of_current_user(user=current_user):
 
     return email
 
+def is_address_activated(address):
+    address_query = db.session.query(activated_table).filter(activated_table.c.address == address)
+
+    return db.session.query(address_query.exists()).scalar()
+
+def activate_address(address):
+    query = activated_table.insert().values(address=address)
+    db.session.execute(query)
+
+    action = models.Action(user_id=current_user.id, type="activated", address=address)
+    db.session.add(action)
+    db.session.commit()
+
+def deactivate_address(address):
+    query = activated_table.delete().where(activated_table.c.address == address)
+    db.session.execute(query)
+
+    action = models.Action(user_id=current_user.id, type="deactivated", address=address)
+    db.session.add(action)
+    db.session.commit()
+
 @app.route("/address/<address>")
 @login_required
 @audit_log
@@ -276,10 +300,12 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
     actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
+    activated = is_address_activated(address)
 
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
-                           top_call_types=top_call_types, address=address, actions=actions)
+                           top_call_types=top_call_types, address=address, actions=actions,
+                           activated=activated)
 
     return render_template('address.html', **kwargs)
 
@@ -298,6 +324,21 @@ def post_comment(address):
 
     return redirect(url_for("address", address=address))
 
+@app.route("/address/<address>/activate", methods=["POST"])
+@login_required
+def activate(address):
+    activate_address(address)
+    db.session.commit()
+    return 'activated'
+
+@app.route("/address/<address>/deactivate", methods=["POST"])
+@login_required
+def deactivate(address):
+    deactivate_address(address)
+    db.session.commit()
+    return 'deactivated'
+
+
 @app.route("/audit_log")
 @login_required
 @audit_log
@@ -309,7 +350,6 @@ def view_audit_log():
     log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
 
     return render_template("audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
-
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)

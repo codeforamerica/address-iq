@@ -245,6 +245,43 @@ footer {
   }
 }
 
+
+#activated-toggle {
+  margin: 20px 0;
+  line-height: 30px;
+
+  span {
+    display: inline-block;
+
+    font-size: 14px;
+    font-weight: bold;
+    vertical-align: middle;
+    cursor: default;
+  }
+
+  .active-text {
+    color: #2d8433;
+  }
+
+  .not-active-text {
+    color: #6d6e71;
+  }
+
+  .toggle {
+    width: 55px;
+    height: 25px;
+    margin: 0 10px;
+    line-height: 30px;
+    display: inline-block;
+    cursor: pointer;
+    background-image: url('/static/toggle-on.png');
+  }
+
+  &.deactivated .toggle {
+    background-image: url('/static/toggle-off.png');
+  }
+}
+
 .week-alert {
   background-color: #fcd3c9;
   height: 32px;
