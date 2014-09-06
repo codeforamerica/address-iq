@@ -3,27 +3,24 @@
 {% block body %}
 <div id="address-data">
     <h1 class="address">{{ address | title}}</h1>
-    <div id="activated-toggle" class="{% if activated %}activated{% else %}deactivated{% endif %}">
-        <span class="not-active-text">Not Active</span><span class="toggle"></span><span class="active-text">Active</span>
+
+    <div id="button-row">
+            <div id="activated-toggle" class="{% if activated %}activated{% else %}deactivated{% endif %}">
+                <span class="not-active-text">Not Active</span><span class="toggle"></span><span class="active-text">Active</span>
+            </div>  
+            <a href="https://www.google.com/maps/place/{{ address | title}},+long+beach,+ca" target="_blank" class="map-link button">
+                View Map
+            </a>
     </div>
-    <div id="at-a-glance">
+    <div id="business-info">
         {% if incidents['businesses']|length > 0 %}
-        <p>Business Type(s): {{ business_types|join(', ')}}</p>
-        <p>Business Name(s): {{ business_names|join(', ')}}</p>
+        <p><span class="business-header">Business Type(s):</span> {{ business_types|join(', ')}}</p>
+        <p><span class="business-header">Business Name(s):</span> {{ business_names|join(', ')}}</p>
         {% else %}
         <p>No business is registered at this address.</p>
         {% endif %}
-
-        <div id="map">
-            <a href="https://www.google.com/maps/place/{{ address | title}},+long+beach,+ca" target="_blank">
-                <img src="https://maps.googleapis.com/maps/api/streetview?size=400x150&location={{ address | title}}, long beach, ca" alt="Google Streetview of this address" />
-            </a>
-        </div>
-
-        <div class="week-alert">
-            <div class="call-count"><span class="bigger-number">{{ counts['fire'][7] }}</span> calls this week</div>
-            <div class="date-range">June 1st - June 8th 2013</div>
-        </div>
+    </div>
+    <div id="at-a-glance">
 
         <div class="department-callout">
             <h3 class="department-explanation">Fire Calls</h3>

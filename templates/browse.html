@@ -63,7 +63,7 @@
         <tbody>
             {% for address in summaries.items %}
             <tr class="{{ loop.cycle('odd', 'even') }}">
-                <td class="address">{{ address.address }}</td>
+                <td class="address">{{ address.address | title }}</td>
                 <td class="business-type">
                     {% if address.business_count == 0 %}No registered business
                     {% elif address.business_count == 1 %}{{ address.business_types }}
