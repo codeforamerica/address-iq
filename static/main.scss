@@ -118,7 +118,6 @@ header {
       vertical-align: middle;
       float: left;
       a {
-
           display: block;
           height: 50px;
 
@@ -141,6 +140,24 @@ header {
 
   .username {
     font-weight: bold;
+  }
+}
+
+
+footer {
+  margin-left: -110px;
+  margin-top: 20px;
+  background-color: $background-gray;
+  .container {
+    padding: 12px 18px;
+    a {
+      padding: 15px 30px 15px 0px;
+      font-size: 16px;
+      color: #6D6E71;
+      &:hover {
+        color: #0071BC;
+      }
+    }
   }
 }
 
@@ -485,5 +502,22 @@ ul.browse-date-ranges {
         color: white;
         background-color: $grey-darker;
         display: inline-block;
+    }
+}
+
+/* Audit Logs */
+#audit-logs {
+    background-color: #d8d8d8;
+    border-radius: 10px;
+    padding: 20px 60px;
+
+    table {
+      tr {
+        line-height: 40px;
+      }
+
+      td {
+        padding: 0px 20px;
+      }
     }
 }
