@@ -4,6 +4,8 @@ from app import db
 
 
 class FireIncident(db.Model):
+    __bind_key__ = 'lbc_data'
+
     __tablename__ = 'fire_incidents'
     cad_call_number = db.Column(db.Integer, primary_key=True)
     incident_number = db.Column(db.Integer)
@@ -44,6 +46,7 @@ class FireIncident(db.Model):
 
 
 class FireDispatch(db.Model):
+    __bind_key__ = 'lbc_data'
     __tablename__ = 'fire_dispatches'
 
     incident_number = db.Column(db.Integer, primary_key=True)
@@ -71,6 +74,7 @@ class FireDispatch(db.Model):
 
 
 class BusinessLicense(db.Model):
+    __bind_key__ = 'lbc_data'
     __tablename__ = 'all_business_licenses'
     name = db.Column(db.String(200), primary_key=True)
 
@@ -86,6 +90,7 @@ class BusinessLicense(db.Model):
 
 
 class PoliceIncident(db.Model):
+    __bind_key__ = 'lbc_data'
     __tablename__ = 'police_incidents'
 
     cad_call_number = db.Column(db.String(25), primary_key=True)
