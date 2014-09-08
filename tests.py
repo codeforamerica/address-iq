@@ -456,6 +456,26 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert rv.data.find('Test 1') < rv.data.find('Test 2')
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock())
+    def test_logging_in_creates_an_audit_log(self):
+        app.config['AUDIT_DISABLED'] = False
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        del app.config['AUDIT_DISABLED']
+
+        # Length should be 2: one log entry for login, one for accessing page.
+        assert len(models.AuditLogEntry.query.all()) == 1
+
+        first_entry = models.AuditLogEntry.query.first()
+        assert first_entry.user_id != None
+        assert first_entry.resource == '/log-in'
+        assert first_entry.method == 'POST'
+        assert first_entry.response_code == "200"
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_viewing_an_address_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
@@ -471,13 +491,14 @@ class AddressUtilityTestCase(unittest.TestCase):
 
         del app.config['AUDIT_DISABLED']
 
-        assert len(models.AuditLogEntry.query.all()) == 1
+        # Length should be 2: one log entry for login, one for accessing page.
+        assert len(models.AuditLogEntry.query.all()) == 2
 
-        first_entry = models.AuditLogEntry.query.first()
-        assert first_entry.user_id != None
-        assert first_entry.method == 'GET'
-        assert first_entry.resource == '/address/456 lala ln'
-        assert first_entry.response_code == "200"
+        second_entry = models.AuditLogEntry.query.all()[1]
+        assert second_entry.user_id != None
+        assert second_entry.method == 'GET'
+        assert second_entry.resource == '/address/456 lala ln'
+        assert second_entry.response_code == "200"
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_creates_an_audit_log(self):
@@ -497,13 +518,14 @@ class AddressUtilityTestCase(unittest.TestCase):
 
         del app.config['AUDIT_DISABLED']
 
-        assert len(models.AuditLogEntry.query.all()) == 1
+        # Length should be 2: one log entry for login, one for accessing page.
+        assert len(models.AuditLogEntry.query.all()) == 2
 
-        first_entry = models.AuditLogEntry.query.first()
-        assert first_entry.user_id != None
-        assert first_entry.method == 'POST'
-        assert first_entry.resource == '/address/456 lala ln/comments'
-        assert first_entry.response_code == "302"
+        second_entry = models.AuditLogEntry.query.all()[1]
+        assert second_entry.user_id != None
+        assert second_entry.method == 'POST'
+        assert second_entry.resource == '/address/456 lala ln/comments'
+        assert second_entry.response_code == "302"
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activation_endpoint_activates_address(self):
