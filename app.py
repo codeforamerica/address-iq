@@ -4,6 +4,7 @@ import os
 import operator
 import pytz
 import logging
+import sqlalchemy.exc
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for, make_response
@@ -327,9 +328,12 @@ def post_comment(address):
 @app.route("/address/<address>/activate", methods=["POST"])
 @login_required
 def activate(address):
-    activate_address(address)
-    db.session.commit()
-    return 'activated'
+    try: 
+        activate_address(address)
+        db.session.commit()
+        return 'activated'
+    except sqlalchemy.exc.IntegrityError:
+        return 'already activated', 400
 
 @app.route("/address/<address>/deactivate", methods=["POST"])
 @login_required
