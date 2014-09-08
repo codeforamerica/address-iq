@@ -3,6 +3,7 @@ Flask-Login==0.2.11
 Flask-SQLAlchemy==1.0
 Flask-Testing==0.4.1
 Flask-SeaSurf==0.1.22
+Flask-SSLify==0.1.4
 Jinja2==2.7.3
 Mako==1.0.0
 MarkupSafe==0.23
