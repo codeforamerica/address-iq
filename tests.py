@@ -505,6 +505,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert first_entry.resource == '/address/456 lala ln/comments'
         assert first_entry.response_code == "302"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activation_endpoint_activates_address(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -519,6 +520,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 1 == len(models.ActivatedAddress.query.all())
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_deactivation_endpoint_deactivates_address(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -534,6 +536,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 0 == len(models.ActivatedAddress.query.all())
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activating_address_adds_to_action_station(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -549,6 +552,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 'activated this address' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_deactivating_address_adds_to_action_station(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
