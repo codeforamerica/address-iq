@@ -2,10 +2,26 @@
 
 /*** VARIABLES ***/
 $font-stack: 'Open Sans Condensed', sans-serif;
-$background-gray: #d8d8d8;
+$font-stack-uncondensed: 'Open Sans', sans-serif;
+
+$green-darker: #2d8433;
+$green-medium: #3db349;
+$green-lighter: #dfecda;
+
+$blue-darker: #0071bc;
+$blue-lighter: #8bbee7;
+
+$grey-lighter: #d8d8d8;
+$grey-medium: #9f9fa0;
+$grey-darker: #6d6e71;
+
+$red-darker: #b91319;
+$red-lighter: #fcd3c9;
 
 body {
-    font-family: 'Open Sans', sans-serif;
+    font-family: $font-stack-uncondensed;
+    font-size: 16px;
+    line-height: 1.3em;
 }
 
 h1 {
@@ -43,10 +59,9 @@ a {
 }
 
 p {
-    font-family: $font-stack;
+    font-family: $font-stack-uncondensed;
     font-size: 16px;
-    font-weight: bold;
-    line-height: 18px;
+    line-height: 24px;
 
     .small {
       font-size: 14px;
@@ -58,7 +73,7 @@ p {
 }
 
 .bignumber {
-    font-family: $font-stack;
+    font-family: $font-stack-uncondensed;
     font-size: 36px;
     font-weight: bold;
 }
@@ -75,15 +90,15 @@ a {
 
 /* Header Styles */
 header {
-    background-color: $background-gray;
-    min-height: 50px;
+    background-color: $grey-lighter;
+    height: 50px;
 }
 
 #logo {
     float: left;
     display: block;
     padding: 10px 15px 13px;
-    color: #6D6E71;
+    color: $grey-darker;
     text-decoration: none;
     font-size: 24px;
     line-height: 28px;
@@ -94,28 +109,40 @@ header {
 #navigation {
     display: block;
     height: 50px;
-    margin-left: 280px;
+    float: left;
+
     li {
       display: block;
-      min-height: 50px;
+      height: 50px;
 
       vertical-align: middle;
       float: left;
       a {
           display: block;
-          min-height: 50px;
+          height: 50px;
 
           width: 110px;
           padding: 15px 30px 15px 0px;
 
           font-size: 16px;
-          color: #6D6E71;
+          color: $grey-darker;
           &:hover {
-            color: #0071BC;
+            color: $blue-darker;
           }
       }
     }
 }
+
+#user-nav {
+  float: left;
+  margin-left: 170px;
+  padding-top: 6px;
+
+  .username {
+    font-weight: bold;
+  }
+}
+
 
 footer {
   margin-left: -110px;
@@ -134,14 +161,10 @@ footer {
   }
 }
 
-#user-nav .username {
-  font-weight: bold;
-}
-
 /* Search box */
 
 .search-area {
-  background-color: #d8d8d8;
+  background-color: $grey-lighter;
   height: 40px;
   width: 220px;
   margin-left: 40px;
@@ -163,11 +186,34 @@ footer {
 /* Address Page */
 #address-data {
     float: left;
-    width: 620px;
+    width: 560px;
+    padding: 20px 30px;
+    background-color: $grey-lighter;
+    border-radius: 5px;
 }
 
-#map img {
-  border: 2px solid #000;
+#button-row {
+  margin: 12px 0;
+}
+
+a.map-link {
+  display: block;
+  color: white;
+  background-color: $grey-darker;
+  width: 110px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+}
+
+#business-info {
+  border-top: 1px solid #bfbfbf;
+  border-bottom: 1px solid #bfbfbf;
+  padding: 12px 0;
+
+  .business-header {
+    font-weight: bold;
+  }
 }
 
 #action-station {
@@ -182,11 +228,12 @@ footer {
   }
 
   .action {
+    padding-right: 10px;
     margin-bottom: 10px;
   }
 
   .comment .fa-comment {
-    color: #6d6e71;
+    color: $grey-darker;
   }
 
   .main-user {
@@ -194,13 +241,13 @@ footer {
   }
 
   .action-date {
-    color: #6d6e71;
+    color: $grey-darker;
     line-height: 26px;
   }
 
   .header {
-    background-color: #3db349;
-    padding: 0 0 0 10px;
+    background-color: $green-medium;
+    padding: 10px 33px;
     line-height: 30px;
 
     h3 {
@@ -209,17 +256,21 @@ footer {
   }
 
   .content {
-    background-color: #dfecda;
+    background-color: $green-lighter;
+  }
+
+  .no-action-found {
+    padding-right: 10px;
   }
 
 }
 
 .add-comment {
-  border: 4px solid #dfecda;
+  border: 4px solid $green-lighter;
   padding: 10px 5px;
 
   .fa-comment {
-    color: #3db349;
+    color: $green-medium;
     font-size: 12px;
     width: 15px;
     display: block;
@@ -234,62 +285,40 @@ footer {
   }
 
   button {
-    background-color: green;
+    background-color: $green-darker;
     color: white;
     margin-left: 25px;
     margin-top: 5px;
     font-size: 14px;
     line-height: 16px;
-    padding: 3px 10px;
+    padding: 10px;
     border: 0;
   }
 }
 
-.week-alert {
-  background-color: #fcd3c9;
-  height: 32px;
-  border-radius: 4px;
-  margin: 20px 0;
-
-  .call-count {
-    float: left;
-    margin-left: 20px;
-    padding: 3px 0 0;
-
-    .bigger-number {
-      font-size: 22px;
-      font-weight: bold;
-    }
-  }
-
-  .date-range {
-      float: right;
-      margin-right: 20px;
-      padding: 8px 0 0;
-  }
-}
 
 .department-callout {
-  background-color: #d8d8d8;
-  height: 65px;
+  background-color: white;
+  height: 75px;
   margin-top: 30px;
 
   .department-explanation {
       float: left;
-      padding: 20px;
+      padding: 28px 20px;
       margin-right: 20px;
       width: 110px;
   }
 
   .callout-number {
       float: left;
-      padding: 10px 40px 0px;
+      padding: 10px 25px 0px;
   }
 
   .timeframe {
       font-family: $font-stack;
       font-size: 14px;
       font-weight: bolder;
+      margin-bottom: 5px;
   }
 }
 
@@ -298,7 +327,7 @@ footer {
 }
 
 .date-range-selector {
-    background-color: #6d6e71;
+    background-color: $grey-darker;
     height: 50px;
     line-height: 50px;
     border-radius: 25px;
@@ -329,7 +358,7 @@ footer {
 }
 
 .department-tab-content {
-    border: 1px solid #9f9fa0;
+    border: 1px solid $grey-medium;
     padding: 30px;
     margin-bottom: 20px;
     min-height: 200px;
@@ -343,7 +372,7 @@ ol.call-types li {
     line-height: 30px;
     padding-left: 10px;
     .odd {
-        background-color: #d8d8d8;
+        background-color: $grey-lighter;
     }
 }
 
@@ -355,7 +384,7 @@ ol.call-types li {
 /* Browse page */
 
 #browse-page {
-    background-color: #d8d8d8;
+    background-color: white;
     border-radius: 10px;
     padding: 20px 60px;
 }
@@ -364,23 +393,24 @@ ul.browse-date-ranges {
     height: 42px;
     margin: 30px 0;
     li {
+        background-color: $grey-lighter;
         float: left;
         width: 90px;
         line-height: 40px;
 
-        border: 1px solid #6d6e71;
+        border: 1px solid $grey-darker;
         border-width: 1px 0 1px 1px;
 
         text-align: center;
 
-        .first {
+        &.first {
           border-radius: 5px 0 0 5px;
         }
-        .last {
-            border-right: 1px solid #6d6e71;
+        &.last {
+            border-right: 1px solid $grey-darker;
             border-radius: 0 5px 5px 0;
         }
-        .active {
+        &.active {
             background-color: white;
         }
         a {
@@ -402,7 +432,7 @@ ul.browse-date-ranges {
     width: 820px;
     margin: 0 auto;
     thead {
-        border-bottom: 2px solid #9f9fa0;
+        border-bottom: 2px solid $grey-medium;
     }
     th {
         text-align: left;
@@ -412,11 +442,11 @@ ul.browse-date-ranges {
             width: 18px;
         }
         &.active .fa {
-            color: #0071bc;
+            color: $blue-darker;
         }
     }
     tr {
-        line-height: 40px;
+        line-height: 50px;
         cursor: pointer;
         &.odd {
             background-color: white;
@@ -428,9 +458,19 @@ ul.browse-date-ranges {
     td {
         padding-left: 22px;
     }
+
+    td.address {
+      font-weight: bold;
+    }
+
+    td.fire-calls, td.police-calls {
+      font-family: $font-stack-uncondensed;
+      font-size: 18px;
+    }
     .explore-link a {
         display: inline-block;
-        background-color: #9f9fa0;
+        background-color: $blue-darker;
+        color: white;
         line-height: 24px;
         padding: 4px 10px;
     }
@@ -444,7 +484,7 @@ ul.browse-date-ranges {
         width: 30px;
         line-height: 30px;
         color: white;
-        background-color: #6d6e71;
+        background-color: $grey-darker;
         display: inline-block;
     }
     a.page {
@@ -452,7 +492,7 @@ ul.browse-date-ranges {
         width: 30px;
         line-height: 30px;
         color: white;
-        background-color: #9f9fa0;
+        background-color: $grey-medium;
         display: inline-block;
     }
     a.prev, a.next {
@@ -460,7 +500,7 @@ ul.browse-date-ranges {
         width: 80px;
         line-height: 30px;
         color: white;
-        background-color: #6d6e71;
+        background-color: $grey-darker;
         display: inline-block;
     }
 }
