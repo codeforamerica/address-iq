@@ -4,6 +4,7 @@ import os
 import operator
 import pytz
 import logging
+import sqlalchemy.exc
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for, make_response
@@ -15,6 +16,10 @@ from functools import wraps
 
 from requests import post
 
+from gdata.spreadsheets.client import SpreadsheetsClient
+from oauth2client.client import SignedJwtAssertionCredentials
+from gdata.gauth import OAuth2TokenFromCredentials
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.permanent_session_lifetime = timedelta(minutes=15)
@@ -22,6 +27,9 @@ db = SQLAlchemy(app)
 
 meta = db.MetaData()
 meta.bind = db.engine
+
+activated_table = db.Table('activated_addresses', meta,
+                            db.Column('address', db.String, primary_key=True))
 
 csrf = SeaSurf(app)
 
@@ -179,6 +187,39 @@ def login_page():
     next = request.args.get('next')
     return render_template('login.html', next=next, email=get_email_of_current_user())
 
+def fetch_authorization_row(email):
+    CLIENT_EMAIL = app.config['GOOGLE_CLIENT_EMAIL']
+    PRIVATE_KEY = app.config['GOOGLE_PRIVATE_KEY']
+
+    SCOPE = "https://spreadsheets.google.com/feeds/"
+    
+    credentials = SignedJwtAssertionCredentials(CLIENT_EMAIL, PRIVATE_KEY, SCOPE)
+    token = OAuth2TokenFromCredentials(credentials)
+    client = SpreadsheetsClient()
+
+    token.authorize(client)
+
+    # Load worksheet with auth info
+    spreadsheet_id = app.config['GOOGLE_SPREADSHEET_ID']
+    worksheets = client.get_worksheets(spreadsheet_id)
+    worksheet = worksheets.entry[0]
+
+    # worksheet.id.text takes the form of a full url including the spreadsheet, while
+    # we only need the last part of that
+    id_parts = worksheet.id.text.split('/')
+    worksheet_id = id_parts[len(id_parts) - 1]
+
+    list_feed = client.get_list_feed(spreadsheet_id, worksheet_id)
+
+    rows = [row.to_dict() for row in list_feed.entry]
+
+    user_auth_row = None
+    for row in rows:
+        if row['email'] == email:
+            user_auth_row = row
+            break
+
+    return user_auth_row
 
 @app.route('/log-in', methods=['POST'])
 @csrf.exempt
@@ -190,10 +231,19 @@ def log_in():
     response = posted.json()
 
     if response.get('status', '') == 'okay':
-        user = load_user_by_email(response['email'])
-        if user:
-            login_user(user)
-            return 'OK'
+        email = response['email']
+        user_auth_row = fetch_authorization_row(email)
+
+        if not user_auth_row or user_auth_row['canviewsite'] != 'Y':
+            return 'Not authorized', 403
+
+        user = load_user_by_email(email)
+
+        if not user:
+            user = create_user(email, user_auth_row['name'])
+
+        login_user(user)
+        return 'OK'
 
     return Response('Failed', status=400)
 
@@ -247,11 +297,7 @@ def create_user(name, email):
     return user
 
 def load_user_by_email(email):
-    # @todo: When we incorporate LDAP, update this to pull real name.
-    name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
-    if not user:
-        user = create_user(name, email)
 
     return user
 
@@ -265,6 +311,27 @@ def get_email_of_current_user(user=current_user):
         return None
 
     return email
+
+def is_address_activated(address):
+    address_query = db.session.query(activated_table).filter(activated_table.c.address == address)
+
+    return db.session.query(address_query.exists()).scalar()
+
+def activate_address(address):
+    query = activated_table.insert().values(address=address)
+    db.session.execute(query)
+
+    action = models.Action(user_id=current_user.id, type="activated", address=address)
+    db.session.add(action)
+    db.session.commit()
+
+def deactivate_address(address):
+    query = activated_table.delete().where(activated_table.c.address == address)
+    db.session.execute(query)
+
+    action = models.Action(user_id=current_user.id, type="deactivated", address=address)
+    db.session.add(action)
+    db.session.commit()
 
 @app.route("/address/<address>")
 @login_required
@@ -280,10 +347,12 @@ def address(address):
     business_names = [biz.name.strip() for biz in incidents['businesses']]
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
     actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
+    activated = is_address_activated(address)
 
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
-                           top_call_types=top_call_types, address=address, actions=actions)
+                           top_call_types=top_call_types, address=address, actions=actions,
+                           activated=activated)
 
     return render_template('address.html', **kwargs)
 
@@ -302,6 +371,24 @@ def post_comment(address):
 
     return redirect(url_for("address", address=address))
 
+@app.route("/address/<address>/activate", methods=["POST"])
+@login_required
+def activate(address):
+    try: 
+        activate_address(address)
+        db.session.commit()
+        return 'activated'
+    except sqlalchemy.exc.IntegrityError:
+        return 'already activated', 400
+
+@app.route("/address/<address>/deactivate", methods=["POST"])
+@login_required
+def deactivate(address):
+    deactivate_address(address)
+    db.session.commit()
+    return 'deactivated'
+
+
 @app.route("/audit_log")
 @login_required
 @audit_log
@@ -313,7 +400,6 @@ def view_audit_log():
     log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
 
     return render_template("audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
-
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)
