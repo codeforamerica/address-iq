@@ -262,6 +262,16 @@ def get_email_of_current_user(user=current_user):
 
     return email
 
+def count_incidents_by_month_for_year(incidents, year):
+    counts = [0] * 12
+    for incident in incidents:
+        incident_year = incident.incident_datetime.year
+        incident_month = incident.incident_datetime.month
+        if incident.incident_datetime.year == year:
+            counts[incident_month - 1] = counts[incident_month - 1] + 1
+
+    return counts
+
 @app.route("/address/<address>")
 @login_required
 @audit_log
@@ -277,9 +287,13 @@ def address(address):
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
     actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
 
+    this_year = datetime.date.today().year
+    fire_chart_counts = count_incidents_by_month_for_year(incidents['fire'], this_year)
+
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
                            business_types=business_types, business_names=business_names,
-                           top_call_types=top_call_types, address=address, actions=actions)
+                           top_call_types=top_call_types, address=address, actions=actions,
+                           fire_chart_counts=fire_chart_counts)
 
     return render_template('address.html', **kwargs)
 

@@ -5,6 +5,20 @@ if(typeof String.prototype.trim !== 'function') {
 }
 
 $(document).ready(function() {
+  // Setup fire chart
+  function setupChart() {
+    var ctx = document.getElementById("incidentChart").getContext("2d");
+    var data = {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+               'August', 'September', 'October', 'November', 'December'],
+      datasets: [{
+        data: fireChartCounts
+      }]
+    };
+    var myNewChart = new Chart(ctx).Line(data);
+
+  }
+  setupChart()
 
   var fillContentTab = function(department, timeframe) {
 

@@ -42,6 +42,10 @@ class FireIncident(db.Model):
 
     intersection = db.Column(db.String(6))
 
+    @property
+    def incident_datetime(self):
+        return self.alarm_datetime
+
 
 class FireDispatch(db.Model):
     __tablename__ = 'fire_dispatches'
@@ -109,6 +113,10 @@ class PoliceIncident(db.Model):
 
     final_cad_call_type = db.Column(db.String(20))
     final_cad_call_type_description = db.Column(db.String(100))
+
+    @property
+    def incident_datetime(self):
+        return self.alarm_datetime
 
 
 class AddressSummary(db.Model):

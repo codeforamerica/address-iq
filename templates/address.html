@@ -74,6 +74,7 @@
                 <li class="{{ loop.cycle('odd', 'even') }}">{{ loop.index }}. {{ call_type[0]|trim }} - {{ call_type[1] }} calls</li>
                 {% endfor %}
             </ol>
+            <canvas id="incidentChart" width="450" height="400"></canvas>
             <div class="no-calls-of-this-type">There were no calls of this type during the given timeframe.</div>
         </div>
 
@@ -117,5 +118,6 @@
 </div>
 <script>
 var topCallTypes = {{ top_call_types|tojson|safe }};
+var fireChartCounts = {{ fire_chart_counts|tojson|safe }};
 </script>
 {% endblock %}
