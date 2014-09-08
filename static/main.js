@@ -95,7 +95,7 @@ $(document).ready(function() {
                 }
               else {
                   navigator.id.logout();
-                  alert("We weren't able to log you in. Please try again, or contact the Address IQ administer to ensure you have permission to access the site.");
+                  alert("We weren't able to log you in. Please try again or contact the AddressIQ administrator to ensure you have permission to access the site.");
                 }
               }
             }
