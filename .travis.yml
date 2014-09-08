@@ -20,4 +20,4 @@ before_script:
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/7f784962-2d83-4ad5-a23d-a598bec3345e/status
 addons:
-  sauce_connect: true
+  sauce_connect: false

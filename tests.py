@@ -368,8 +368,8 @@ class AddressUtilityTestCase(unittest.TestCase):
         db.session.flush()
 
         rv = self.app.get('/address/456 lala ln')
-        assert "Business Type(s): Bar" in rv.data
-        assert "Business Name(s): The Pub" in rv.data
+        assert "Bar" in rv.data
+        assert "The Pub" in rv.data
 
     def test_address_page_shows_correct_business_info_with_multiple_businesses(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
@@ -384,8 +384,8 @@ class AddressUtilityTestCase(unittest.TestCase):
         db.session.flush()
 
         rv = self.app.get('/address/456 lala ln')
-        assert "Business Type(s): Bar, Lawncare" in rv.data
-        assert "Business Name(s): The Pub, Mowers R Us" in rv.data
+        assert "Bar, Lawncare" in rv.data
+        assert "The Pub, Mowers R Us" in rv.data
 
     def test_no_comment_msg_shows_on_address_with_none(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
@@ -492,8 +492,8 @@ class AddressUtilityTestCase(unittest.TestCase):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
 
         rv = self.app.post('/address/456 lala ln/comments', data={
-                'content': 'This is a test comment'
-            })
+            'content': 'This is a test comment'
+        })
 
         del app.config['AUDIT_DISABLED']
 
@@ -505,7 +505,65 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert first_entry.resource == '/address/456 lala ln/comments'
         assert first_entry.response_code == "302"
 
+    def test_activation_endpoint_activates_address(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
 
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.post('/address/456 lala ln/activate')
+
+        assert 200 == rv.status_code
+        assert 1 == len(models.ActivatedAddress.query.all())
+
+    def test_deactivation_endpoint_deactivates_address(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/activate')
+        rv = self.app.post('/address/456 lala ln/deactivate')
+
+        assert 200 == rv.status_code
+        assert 0 == len(models.ActivatedAddress.query.all())
+
+    def test_activating_address_adds_to_action_station(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/activate')
+        rv = self.app.get('/address/456 lala ln')
+
+        assert 200 == rv.status_code
+        assert 'activated this address' in rv.data
+
+    def test_deactivating_address_adds_to_action_station(self):
+        [FireIncidentFactory(incident_address="456 LALA LN")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        self.app.post('/address/456 lala ln/activate')
+        self.app.post('/address/456 lala ln/deactivate')
+        rv = self.app.get('/address/456 lala ln')
+
+        assert 200 == rv.status_code
+        assert 'deactivated this address' in rv.data
 
 
 class CountCallsTestCase(unittest.TestCase):
