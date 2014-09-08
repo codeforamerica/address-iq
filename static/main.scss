@@ -214,11 +214,15 @@ footer {
   }
 
   .active-text {
-    color: #2d8433;
+    color: $green-darker;
+  }
+
+  &.deactivated .active-text {
+    color: $grey-darker;
   }
 
   .not-active-text {
-    color: #6d6e71;
+    color: $grey-darker;;
   }
 
   .toggle {
