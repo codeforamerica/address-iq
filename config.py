@@ -14,6 +14,10 @@ class Config(object):
     BROWSERID_LOGIN_URL = '/log-in'
     BROWSERID_LOGOUT_URL = '/log-out'
 
+    GOOGLE_PRIVATE_KEY = os.environ.get('GOOGLE_PRIVATE_KEY', '').replace("\\n", "\n")
+    GOOGLE_CLIENT_EMAIL = os.environ.get('GOOGLE_CLIENT_EMAIL', '')
+    GOOGLE_SPREADSHEET_ID = os.environ.get('GOOGLE_SPREADSHEET_ID', '')
+
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_BINDS = {

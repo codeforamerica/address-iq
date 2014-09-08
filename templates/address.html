@@ -3,24 +3,24 @@
 {% block body %}
 <div id="address-data">
     <h1 class="address">{{ address | title}}</h1>
-    <div id="at-a-glance">
+
+    <div id="button-row">
+            <div id="activated-toggle" class="{% if activated %}activated{% else %}deactivated{% endif %}">
+                <span class="not-active-text">Not Active</span><span class="toggle"></span><span class="active-text">Active</span>
+            </div>  
+            <a href="https://www.google.com/maps/place/{{ address | title}},+long+beach,+ca" target="_blank" class="map-link button">
+                View Map
+            </a>
+    </div>
+    <div id="business-info">
         {% if incidents['businesses']|length > 0 %}
-        <p>Business Type(s): {{ business_types|join(', ')}}</p>
-        <p>Business Name(s): {{ business_names|join(', ')}}</p>
+        <p><span class="business-header">Business Type(s):</span> {{ business_types|join(', ')}}</p>
+        <p><span class="business-header">Business Name(s):</span> {{ business_names|join(', ')}}</p>
         {% else %}
         <p>No business is registered at this address.</p>
         {% endif %}
-
-        <div id="map">
-            <a href="https://www.google.com/maps/place/{{ address | title}},+long+beach,+ca" target="_blank">
-                <img src="https://maps.googleapis.com/maps/api/streetview?size=400x150&location={{ address | title}}, long beach, ca" alt="Google Streetview of this address" />
-            </a>
-        </div>
-
-        <div class="week-alert">
-            <div class="call-count"><span class="bigger-number">{{ counts['fire'][7] }}</span> calls this week</div>
-            <div class="date-range">June 1st - June 8th 2013</div>
-        </div>
+    </div>
+    <div id="at-a-glance">
 
         <div class="department-callout">
             <h3 class="department-explanation">Fire Calls</h3>
@@ -83,26 +83,35 @@
     <div class="header"><h3>Take Action</h3></div>
     <div class="content">
         <ul class="actions fa-ul">
-            <!-- 
-            <li class="action activated">
-                <span class="user main-user">Sally Johnson</span> activated this address.
-                <br><span class="action-date">May 24 2014</span>
-            </li>
-            <li class="action invited">
-                <span class="user main-user">Sally Johnson</span> invited <span class="user invited-user">Rob Delaney</span>.
-                <br><span class="action-date">May 24 2014</span>
-            </li>
-            -->
             {% for action in actions %}
-            <li class="action comment">
-                <i class="fa fa-li fa-comment"></i>
-                <span class="user main-user">{{ action.user.name }}</span> <span class="comment-text">{{action.content}}</span>
-                <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
-            </li>
+                {% if action.type == "comment" %}
+                    <li class="action comment">
+                        <i class="fa fa-li fa-comment"></i>
+                        <span class="user main-user">{{ action.user.name }}</span> <span class="comment-text">{{action.content}}</span>
+                        <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
+                    </li>
+                {% elif action.type == "activated" %}
+                    <li class="action activated">
+                        <span class="user main-user">{{ action.user.name }}</span> activated this address.
+                        <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
+                    </li>
+                {% elif action.type == "deactivated" %}
+                    <li class="action deactivated">
+                        <span class="user main-user">{{ action.user.name }}</span> deactivated this address.
+                        <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
+                    </li>
+                {% elif action.type == "invited" %}
+                    <!--
+                    <li class="action invited">
+                        <span class="user main-user">{{ action.user.name }}</span> invited <span class="user invited-user">Rob Delaney</span>.
+                        <br><span class="action-date">{{ action.created.strftime('%b %e %Y') }}</span>
+                    </li>
+                -->
+                {% endif %}
             {% else %}
-            <li class="no-action-found">
-                Nothing has been done yet with this address. Add a note below, or click the activate button!
-            </li>
+                <li class="no-action-found">
+                    Nothing has been done yet with this address. Add a note below, or click the activate button!
+                </li>
             {% endfor %}
         </ul>
     </div>

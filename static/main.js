@@ -70,6 +70,34 @@ $(document).ready(function() {
     return false;
   });
 
+  // Activation on the address page
+  $('#activated-toggle').click(function() {
+    var $toggle = $(this);
+    var activated = $toggle.hasClass('activated');
+
+    var action = activated ? '/deactivate' : '/activate';
+    var url = window.location.pathname + action;
+
+    $.ajax({
+      url: url,
+      method: 'POST',
+      data: {
+        "_csrf_token": csrfToken
+      },
+      success: function(data) {
+        $toggle.removeClass('activated');
+        $toggle.removeClass('deactivated');
+
+        $toggle.addClass(data);
+      },
+      error: function(data) {
+        alert('Activation did not succeed. Please try again or refresh the page.');
+      }
+    })
+
+  });
+
+
   $('.search-area form').submit(function() {
     var address = $(this).find('input').val();
 
@@ -80,6 +108,7 @@ $(document).ready(function() {
 // Adapted from https://github.com/codeforamerica/bizarro-cms/blob/0d2e3cea116e054eb1e2ebbd2787175fa6c09923/bizarro/static/script.js
 
   function simpleXhrSentinel(xhr) {
+
       return function() {
           if (xhr.readyState == 4) {
               if (xhr.status == 200){
@@ -95,7 +124,7 @@ $(document).ready(function() {
                 }
               else {
                   navigator.id.logout();
-                  alert("XMLHttpRequest error: " + xhr.status);
+                  alert("We weren't able to log you in. Please try again or contact the AddressIQ administrator to ensure you have permission to access the site.");
                 }
               }
             }
