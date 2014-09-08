@@ -15,6 +15,10 @@ from functools import wraps
 
 from requests import post
 
+from gdata.spreadsheets.client import SpreadsheetsClient
+from oauth2client.client import SignedJwtAssertionCredentials
+from gdata.gauth import OAuth2TokenFromCredentials
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.permanent_session_lifetime = timedelta(minutes=15)
@@ -179,6 +183,39 @@ def login_page():
     next = request.args.get('next')
     return render_template('login.html', next=next, email=get_email_of_current_user())
 
+def fetch_authorization_row(email):
+    CLIENT_EMAIL = app.config['GOOGLE_CLIENT_EMAIL']
+    PRIVATE_KEY = app.config['GOOGLE_PRIVATE_KEY']
+
+    SCOPE = "https://spreadsheets.google.com/feeds/"
+    
+    credentials = SignedJwtAssertionCredentials(CLIENT_EMAIL, PRIVATE_KEY, SCOPE)
+    token = OAuth2TokenFromCredentials(credentials)
+    client = SpreadsheetsClient()
+
+    token.authorize(client)
+
+    # Load worksheet with auth info
+    spreadsheet_id = app.config['GOOGLE_SPREADSHEET_ID']
+    worksheets = client.get_worksheets(spreadsheet_id)
+    worksheet = worksheets.entry[0]
+
+    # worksheet.id.text takes the form of a full url including the spreadsheet, while
+    # we only need the last part of that
+    id_parts = worksheet.id.text.split('/')
+    worksheet_id = id_parts[len(id_parts) - 1]
+
+    list_feed = client.get_list_feed(spreadsheet_id, worksheet_id)
+
+    rows = [row.to_dict() for row in list_feed.entry]
+
+    user_auth_row = None
+    for row in rows:
+        if row['email'] == email:
+            user_auth_row = row
+            break
+
+    return user_auth_row
 
 @app.route('/log-in', methods=['POST'])
 @csrf.exempt
@@ -190,10 +227,19 @@ def log_in():
     response = posted.json()
 
     if response.get('status', '') == 'okay':
-        user = load_user_by_email(response['email'])
-        if user:
-            login_user(user)
-            return 'OK'
+        email = response['email']
+        user_auth_row = fetch_authorization_row(email)
+
+        if not user_auth_row or user_auth_row['canviewsite'] != 'Y':
+            return 'Not authorized', 403
+
+        user = load_user_by_email(email)
+
+        if not user:
+            user = create_user(email, user_auth_row['name'])
+
+        login_user(user)
+        return 'OK'
 
     return Response('Failed', status=400)
 
@@ -247,11 +293,7 @@ def create_user(name, email):
     return user
 
 def load_user_by_email(email):
-    # @todo: When we incorporate LDAP, update this to pull real name.
-    name = 'Fireworks Joe'
     user = models.User.query.filter(models.User.email==email).first()
-    if not user:
-        user = create_user(name, email)
 
     return user
 

@@ -1,4 +1,5 @@
 import unittest
+import mock
 import os
 import datetime
 import pytz
@@ -24,6 +25,30 @@ def persona_verify(url, request):
     else:
         raise Exception('Asked for unknown URL ' + url.geturl())
 
+def setup_google_mock(can_view='Y', email='user@example.com'):
+    mock_client = mock.MagicMock()
+    instance = mock_client.return_value
+
+    worksheets_mock = mock.Mock()
+    worksheet_mock = mock.Mock()
+    worksheet_mock.id = mock.Mock()
+    worksheet_mock.id.text = 'foo/bar/abc'
+    worksheets_mock.entry = [worksheet_mock]
+    instance.get_worksheets.return_value = worksheets_mock
+
+    sample_row = {
+        'email': email,
+        'name': 'Joe Fireworks',
+        'canviewsite': can_view
+    }
+    row_mock = mock.Mock()
+    row_mock.to_dict.return_value = sample_row
+    list_feed_mock = mock.Mock()
+    list_feed_mock.entry = [row_mock]
+    instance.get_list_feed.return_value = list_feed_mock
+
+    return mock_client
+
 class HomeTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -47,6 +72,7 @@ class LoginTestCase(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_login(self):
         ''' Check basic log in flow without talking to Persona.
         '''
@@ -60,6 +86,33 @@ class LoginTestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertTrue('user@example.com' in response.data)
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(email="notexample@example.com"))    
+    def test_login_fails_when_not_in_spreadsheet(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+        
+        self.assertEquals(response.status_code, 403)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view='N'))    
+    def test_login_fails_when_not_allowed_to_view(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+        
+        self.assertEquals(response.status_code, 403)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_logout(self):
         ''' Check basic log out flow without talking to Persona.
         '''
@@ -344,6 +397,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'no-action-found' in rv.data
         assert 'Nothing has been done yet with this address. Add a note below, or click the activate button!' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_loads_a_comment_into_database(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -361,6 +415,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         comments = models.Action.query.all()
         self.assertEquals(1, len(comments))
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_shows_it_on_the_page(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -378,6 +433,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         rv = self.app.get('/address/456 lala ln')
         assert 'This is a test comment' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_two_comments_shows_the_most_recent_last(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -399,6 +455,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'Test 2' in rv.data
         assert rv.data.find('Test 1') < rv.data.find('Test 2')
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_viewing_an_address_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
@@ -422,6 +479,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert first_entry.resource == '/address/456 lala ln'
         assert first_entry.response_code == "200"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
@@ -447,6 +505,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert first_entry.resource == '/address/456 lala ln/comments'
         assert first_entry.response_code == "302"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activation_endpoint_activates_address(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -461,6 +520,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 1 == len(models.ActivatedAddress.query.all())
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_deactivation_endpoint_deactivates_address(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -476,6 +536,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 0 == len(models.ActivatedAddress.query.all())
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activating_address_adds_to_action_station(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -491,6 +552,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 'activated this address' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_deactivating_address_adds_to_action_station(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
