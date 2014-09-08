@@ -24,6 +24,8 @@ pytz==2014.4
 requests==2.3.0
 selenium==2.42.1
 wsgiref==0.1.2
+Flask-Assets==0.10
+pyScss==1.2.0.post3
 mock==1.0.1
 gdata==2.0.18
 oauth2client==1.2
