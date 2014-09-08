@@ -36,7 +36,4 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    SQLALCHEMY_BINDS = {
-        'lbc_data': 'sqlite:///:memory:'
-    }
 
