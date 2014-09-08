@@ -29,4 +29,4 @@ pyScss==1.2.0.post3
 mock==1.0.1
 gdata==2.0.18
 oauth2client==1.2
-pycrypto==2.6.1=
+pycrypto==2.6.1
