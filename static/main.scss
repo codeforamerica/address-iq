@@ -290,7 +290,7 @@ footer {
   }
 
   .not-active-text {
-    color: $grey-darker;;
+    color: $grey-darker;
   }
 
   .toggle {
@@ -298,9 +298,6 @@ footer {
     height: 25px;
     margin: 0 10px;
     line-height: 30px;
-    display: inline;
-    zoom: 1;
-    display: inline-block;
     cursor: pointer;
     background-image: url('/static/toggle-on.png');
   }
