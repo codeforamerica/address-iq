@@ -11,7 +11,9 @@ from flask import Flask, render_template, abort, request, Response, session, red
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from flask.ext.seasurf import SeaSurf
+from flask_sslify import SSLify 
 import flask.ext.assets
+
 from functools import wraps
 
 from requests import post
@@ -41,6 +43,8 @@ login_manager.login_view = "login_page"
 
 assets = flask.ext.assets.Environment()
 assets.init_app(app)
+
+sslify = SSLify(app)
 
 @app.before_request
 def func():
@@ -225,6 +229,7 @@ def fetch_authorization_row(email):
 
 @app.route('/log-in', methods=['POST'])
 @csrf.exempt
+@audit_log
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
                   data=dict(assertion=request.form.get('assertion'),
@@ -293,7 +298,7 @@ def create_user(email, name):
     # Check whether a record already exists for this user.
     user = models.User.query.filter(models.User.email==email).first()
     if user:
-        return False
+        return user
 
     # If no record exists, create the user.
     user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
@@ -343,7 +348,6 @@ def deactivate_address(address):
 @audit_log
 def address(address):
     incidents = fetch_incidents_at_address(address)
-
     if len(incidents['fire']) == 0 and len(incidents['police']) == 0:
         abort(404)
 
