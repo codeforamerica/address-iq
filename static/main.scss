@@ -461,17 +461,19 @@ a.map-link {
     text-align: center;
     float: left;
     cursor: pointer;
-    .active {
+    &.active {
       background-color: white;
       border-width: 1px 1px 0px;
       border-color: #B3B3B3;
       border-style: solid;
       cursor: default;
     }
+
 }
 
 .department-tab-content {
     border: 1px solid $grey-medium;
+    background-color: white;
     padding: 30px;
     margin-bottom: 20px;
     min-height: 200px;
