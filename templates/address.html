@@ -67,12 +67,15 @@
             <div class="department-tab active" id="tab-fire">Fire</div>
             <div class="department-tab" id="tab-police">Police</div>
         </div>
-        <div class="department-tab-content active">
+        <div class="department-tab-content fire active{% if 'fire' not in top_call_types %} no-fire-data-access{% endif %}">
             <h3>Top 5 Call Types</h3>
+            
             <ol class="call-types">
-                {% for call_type in top_call_types['fire'][365] %}
-                <li class="{{ loop.cycle('odd', 'even') }}">{{ loop.index }}. {{ call_type[0]|trim }} - {{ call_type[1] }} calls</li>
-                {% endfor %}
+                {% if 'fire' in top_call_types %}
+                    {% for call_type in top_call_types['fire'][365] %}
+                    <li class="{{ loop.cycle('odd', 'even') }}">{{ loop.index }}. {{ call_type[0]|trim }} - {{ call_type[1] }} calls</li>
+                    {% endfor %}
+                {% endif %}
             </ol>
             <div class="no-calls-of-this-type">There were no calls of this type during the given timeframe.</div>
         </div>
