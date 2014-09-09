@@ -164,7 +164,7 @@ class LoginTestCase(unittest.TestCase):
         response = self.app.get('/')
 
         response = self.app.post('/log-out')
-        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.status_code, 200)
 
         response = self.app.get('/')
         self.assertFalse('user@example.com' in response.data)
