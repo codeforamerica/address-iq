@@ -109,6 +109,15 @@ header {
 }
 
 body.home {
+  footer {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+  }
+}
+
+body.logged-out {
   .page-content {
     padding-top: 40px;
   }
@@ -123,12 +132,16 @@ body.home {
       margin-top: 50px;
     }
   }
+}
 
-  footer {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 100%;
+body.logged-in {
+  .page-content {
+    margin-left: 140px; /* @todo: unhack */
+    p {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 680px;
+    }
   }
 }
 
@@ -193,6 +206,7 @@ footer {
   margin-top: 20px;
   background-color: $grey-lighter;
   clear: both;
+  padding-bottom: 24px; /* @todo: unmagic */
   .container {
     padding: 12px 18px;
     font-size: 16px;

@@ -15,79 +15,77 @@
       var csrfToken = "{{ csrf_token() }}";
     </script>
   </head>
-  <body>
     {% if current_user.is_authenticated() %}
-      <header>
-        <div class="container">
-          <div>
-            {% set navigation_bar = [
-                ('/watchlist', 'watchlist', 'My Watchlist'),
-                ('/active', 'active', 'Active Cases'),
-                ('/browse', 'browse', 'Browse All')
-            ] -%}
-            {% set active_page = active_page|default('') -%}
-            <a href="/" id="logo"><span>AddressIQ</span></a>
-            <ul id="navigation">
-              {% for href, id, caption in navigation_bar %}
-              <li{% if id == active_page %} class="active"{% endif %}>
-                  <a href="{{ href|e }}">{{ caption|e }}</a>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-          <div id="user-nav">
-            {% if current_user.is_authenticated() %}
-              <div class="user-pic">
-              </div>
-              <div class="username">
-                {{ current_user.name }}
-              </div>
-            {% endif %}
-            <div class="signon">
-              <form>
-                {% if current_user.is_authenticated() %}
-                  <a href="#" id="logout">Log out</a>
-                {% else %}
-                  <a href="#" id="login">Log in</a>
-                {% endif %}
-              </form>
-            </div>
-          </div>
-        </div>
-      </header>
-      <div class="container">
-        <div class="search-area">
-          <form>
-          <input type="text" id="address-search-box" placeholder="Search for address..."></input>
-          </form>
-        </div>
-        <div class="page-content">
-          {% block body %}
+  <body class="home logged-in">
+	      <header>
+	        <div class="container">
+	          <div>
+	            {% set navigation_bar = [
+	                ('/watchlist', 'watchlist', 'My Watchlist'),
+	                ('/active', 'active', 'Active Cases'),
+	                ('/browse', 'browse', 'Browse All')
+	            ] -%}
+	            {% set active_page = active_page|default('') -%}
+	            <a href="/" id="logo"><span>AddressIQ</span></a>
+	            <ul id="navigation">
+	              {% for href, id, caption in navigation_bar %}
+	              <li{% if id == active_page %} class="active"{% endif %}>
+	                  <a href="{{ href|e }}">{{ caption|e }}</a>
+	              </li>
+	              {% endfor %}
+	            </ul>
+	          </div>
+	          <div id="user-nav">
+	            {% if current_user.is_authenticated() %}
+	              <div class="user-pic">
+	              </div>
+	              <div class="username">
+	                {{ current_user.name }}
+	              </div>
+	            {% endif %}
+	            <div class="signon">
+	              <form>
+	                {% if current_user.is_authenticated() %}
+	                  <a href="#" id="logout">Log out</a>
+	                {% else %}
+	                  <a href="#" id="login">Log in</a>
+	                {% endif %}
+	              </form>
+	            </div>
+	          </div>
+	        </div>
+	      </header>
+	      <div class="container">
+	        <div class="search-area">
+	          <form>
+	          <input type="text" id="address-search-box" placeholder="Search for address..."></input>
+	          </form>
+	        </div>
+	      </div>
+	  {% else %}
+		<body class="home logged-out">
+      {% endif %}
+		<div class="page-content">
+			<div id="home">
+				<div class="logo">
+					<img src="static/logo-landing.png" alt="AddressIQ beta" />
+					<p id="slogan">Reducing 911 calls, one address at a time.</p>
+				</div>
 
-          {% endblock %}
-        </div>
-      </div>
-      {% else %}
-		  <body class="home">
-		  	<div class="page-content">
-				<div id="home">
-					<div class="logo">
-						<img src="static/logo-landing.png" alt="AddressIQ beta" />
-						<p id="slogan">Reducing 911 calls, one address at a time.</p>
-					</div>
+				<div class="container">
+					<p>AddressIQ helps the City of Long Beach reduce super-utilization of emergency resources and connect residents with resources better suited to their needs.</p>
 
-					<div class="container">
-						<p>AddressIQ helps the City of Long Beach reduce super-utilization of emergency resources and connect residents with resources better suited to their needs.</p>
-
+				    {% if current_user.is_authenticated() %}
+				    {% else %}
 						<div class="signon">
 						  <form>
 						      <a href="#" id="login" class="button">Log in</a>
 						  </form>
 						</div>
-					</div>
+			        {% endif %}
 				</div>
 			</div>
-      {% endif %}
+		</div>
       <footer>
         <div class="container">
           <div class="copyright">
