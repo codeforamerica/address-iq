@@ -25,7 +25,7 @@
                 ('/browse', 'browse', 'Browse All')
             ] -%}
             {% set active_page = active_page|default('') -%}
-            <a href="/" id="logo">AddressIQ</a>
+            <a href="/" id="logo"><span>AddressIQ</span></a>
             <ul id="navigation">
               {% for href, id, caption in navigation_bar %}
               <li{% if id == active_page %} class="active"{% endif %}>
@@ -70,6 +70,9 @@
         <div class="container">
           <div class="copyright">
             <a href="http://www.codeforamerica.org/governments/longbeach/#2014">&copy; 2014 Code for America</a>
+          </div>
+          <div class="contact">
+            <span>Questions?</span> Contact <a href="mailto:longbeach@codeforamerica.org">longbeach@codeforamerica.org</a>
           </div>
         </div>
       </footer>
