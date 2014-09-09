@@ -10,6 +10,10 @@
     <link href='//fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge"><!-- suppress IE compatibility mode so Persona doesn't break -->
     <script src="https://login.persona.org/include.js" type="text/javascript"></script>
+    <!-- Pulled from http://code.google.com/p/html5shiv/ -->
+    <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
     <script type="text/javascript">
       var currentUser = {{email|tojson|safe}};
       var csrfToken = "{{ csrf_token() }}";

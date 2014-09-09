@@ -272,7 +272,8 @@ footer {
   float: left;
 
   span {
-    display: inline-block;
+    display: block;
+    float: left;
 
     font-size: 14px;
     font-weight: bold;
@@ -289,7 +290,7 @@ footer {
   }
 
   .not-active-text {
-    color: $grey-darker;;
+    color: $grey-darker;
   }
 
   .toggle {
@@ -297,7 +298,6 @@ footer {
     height: 25px;
     margin: 0 10px;
     line-height: 30px;
-    display: inline-block;
     cursor: pointer;
     background-image: url('/static/toggle-on.png');
   }
@@ -520,7 +520,7 @@ ul.browse-date-ranges {
     li {
         background-color: $grey-lighter;
         float: left;
-        width: 90px;
+        width: 110px;
         line-height: 40px;
 
         border: 1px solid $grey-darker;
