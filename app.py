@@ -292,7 +292,7 @@ def browse():
 def log_out():
     logout_user()
 
-    return redirect(url_for('home'))
+    return "OK"
 
 def create_user(email, name):
     # Check whether a record already exists for this user.
