@@ -613,7 +613,10 @@ class CountCallsTestCase(unittest.TestCase):
                              alarm_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
 
-        counts = count_calls(incidents, 'alarm_datetime', 'fire_counts', [7, 14])
+        incident_tuples = [(incident.incident_address, incident.alarm_datetime)
+                            for incident in incidents]
+
+        counts = count_calls(incident_tuples, 'alarm_datetime', 'fire_counts', [7, 14])
 
         assert '123 MAIN ST' in counts
         assert 'fire_counts' in counts['123 MAIN ST']
@@ -629,7 +632,9 @@ class CountCallsTestCase(unittest.TestCase):
                              call_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
 
-        counts = count_calls(incidents, 'call_datetime', 'police_counts', [7, 14])
+        incident_tuples = [(incident.incident_address, incident.call_datetime)
+                            for incident in incidents]
+        counts = count_calls(incident_tuples, 'call_datetime', 'police_counts', [7, 14])
 
         assert '123 MAIN ST' in counts
         assert 'police_counts' in counts['123 MAIN ST']
