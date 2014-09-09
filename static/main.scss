@@ -98,18 +98,62 @@ header {
     float: left;
     display: block;
     padding: 10px 15px 13px;
-    color: $grey-darker;
-    text-decoration: none;
-    font-size: 24px;
-    line-height: 28px;
+    height: 28px;
     width: 150px;
     margin-left: 40px;
+    background-image: url('/static/logo-landing.png')
 }
+
+#logo span {
+  display: none;
+}
+
+body.home {
+  .page-content {
+    padding-top: 40px;
+  }
+
+  .container {
+    text-align: left;
+    max-width: 680px;
+    margin-bottom: 220px;
+
+    .signon {
+      text-align: center;
+      margin-top: 50px;
+    }
+  }
+
+  footer {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+  }
+}
+
+p#slogan {
+  color: $red-darker;
+  margin-left: 35px;
+  margin-bottom: 40px;
+}
+
+a.button {
+    background-color: $blue-darker;
+    color: white;
+    margin-left: 25px;
+    margin-top: 5px;
+    font-size: 18px;
+    line-height: 16px;
+    padding: 10px;
+    border: 0;
+  }
 
 #navigation {
     display: block;
     height: 50px;
     float: left;
+    margin-left: 50px;
 
     li {
       display: block;
@@ -151,12 +195,21 @@ footer {
   clear: both;
   .container {
     padding: 12px 18px;
-    a {
-      padding: 15px 30px 15px 0px;
-      font-size: 16px;
-      color: #6D6E71;
-      &:hover {
-        color: #0071BC;
+    font-size: 16px;
+    color: #6D6E71;
+    .copyright {
+      float: left;
+      a {
+        padding: 15px 30px 15px 0px;
+        &:hover {
+          color: #0071BC;
+        }
+      }
+    }
+    .contact {
+      float: right;
+      span {
+        font-weight: bold;
       }
     }
   }
