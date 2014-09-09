@@ -75,7 +75,7 @@ $(document).ready(function() {
     var $toggle = $(this);
     var activated = $toggle.hasClass('activated');
 
-    var action = activated ? '//deactivate' : '//activate';
+    var action = activated ? '/deactivate' : '/activate';
     var url = window.location.pathname + action;
 
     $.ajax({
@@ -101,7 +101,7 @@ $(document).ready(function() {
   $('.search-area form').submit(function() {
     var address = $(this).find('input').val();
 
-    window.location.pathname = '//address/' + address;
+    window.location.pathname = '/address/' + address;
     return false;
   });
 
@@ -135,7 +135,7 @@ $(document).ready(function() {
       // verification of user's email address and it must arrange for the binding
       // of currentUser to said address when the page is reloaded
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "//log-in", true);
+      xhr.open("POST", "/log-in", true);
       // see http://www.openjs.com/articles/ajax_xmlhttp_using_post.php
       var param = "assertion="+assertion;
       xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -151,7 +151,7 @@ $(document).ready(function() {
       // it must arrange for the binding of currentUser to 'null' when the page
       // is reloaded
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "//log-out", true);
+      xhr.open("POST", "/log-out", true);
       xhr.send(null);
       xhr.onreadystatechange = simpleXhrSentinel(xhr); }
 
