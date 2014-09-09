@@ -4,7 +4,7 @@ import pytz
 
 import datetime
 
-DEFAULT_TIMEFRAMES = [7, 14, 30, 60, 90, 180, 365, 730]
+DEFAULT_TIMEFRAMES = [7, 14, 30, 60, 90, 180, 365]
 
 def count_calls(incidents, time_field, output_header, timeframes):
     start_dates = {}
@@ -16,15 +16,18 @@ def count_calls(incidents, time_field, output_header, timeframes):
     addresses = {}
 
     for incident in incidents:
-        if incident.incident_address.strip() not in addresses:
-            addresses[incident.incident_address.strip()] = {}
-            empty_counts = dict([(num_days, 0) for num_days in timeframes])
-            addresses[incident.incident_address.strip()][output_header] = empty_counts
+        address = incident[0].strip()
+        incident_date = incident[1]
 
-        address_counts = addresses[incident.incident_address.strip()][output_header]
+        if address not in addresses:
+            addresses[address] = {}
+            empty_counts = dict([(num_days, 0) for num_days in timeframes])
+            addresses[address][output_header] = empty_counts
+
+        address_counts = addresses[address][output_header]
 
         for num_days in timeframes:
-            if getattr(incident, time_field) > start_dates[num_days]:
+            if incident_date > start_dates[num_days]:
                 address_counts[num_days] = address_counts[num_days] + 1
 
     return addresses
@@ -59,17 +62,27 @@ def address_counts_dict_to_call_summary(address, counts):
     return AddressSummary(**row)
 
 if __name__ == '__main__':
-    two_years_ago = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=730)
+    two_years_ago = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=370)
 
-    fire_incidents_query = db.session.query(FireIncident)
+    print "Loading Fire Data..."
+    fire_incidents_query = db.session.query(db.func.max(FireIncident.incident_address), 
+                                            db.func.max(FireIncident.alarm_datetime))
     fire_incidents_query = fire_incidents_query.filter(FireIncident.alarm_datetime >= two_years_ago)
+    fire_incidents_query = fire_incidents_query.group_by(FireIncident.cad_call_number)
     fire_incidents = fire_incidents_query.all()
+    print "Fire Data Loaded..."
     addresses = count_fire_calls(fire_incidents)
+    print "Fire Data Counted..."
 
-    police_incidents_query = db.session.query(PoliceIncident)
+    print "Loading Police Data..."
+    police_incidents_query = db.session.query(db.func.max(PoliceIncident.incident_address), 
+                                              db.func.max(PoliceIncident.call_datetime))
     police_incidents_query = police_incidents_query.filter(PoliceIncident.call_datetime >= two_years_ago)
+    police_incidents_query = police_incidents_query.group_by(PoliceIncident.cad_call_number)
     police_incidents = police_incidents_query.all()
+    print "Police Data Loaded..."
     police_addresses = count_police_calls(police_incidents)
+    print "Police Data Counted..."
 
     for address in police_addresses:
         if address.strip() not in addresses:
@@ -77,7 +90,8 @@ if __name__ == '__main__':
         else:
             addresses[address.strip()].update(police_addresses[address.strip()])
 
-    summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems()]
+    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems() if len(address) > 0 and address[0] in numbers]
     db.session.query(AddressSummary).delete()
     [db.session.add(summary) for summary in summaries]
     db.session.commit()
