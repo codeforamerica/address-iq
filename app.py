@@ -288,11 +288,11 @@ def log_out():
 
     return redirect(url_for('home'))
 
-def create_user(name, email):
+def create_user(email, name):
     # Check whether a record already exists for this user.
     user = models.User.query.filter(models.User.email==email).first()
     if user:
-        return False
+        return user
 
     # If no record exists, create the user.
     user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
