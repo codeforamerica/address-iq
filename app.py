@@ -228,7 +228,6 @@ def fetch_authorization_row(email):
     return user_auth_row
 
 @app.route('/log-in', methods=['POST'])
-@csrf.exempt
 @audit_log
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
