@@ -18,7 +18,7 @@ def count_calls(incidents, time_field, output_header, timeframes):
     for incident in incidents:
         address = incident[0].strip()
         if ', CLB' == address[-5:]:
-            address = address[:-5]
+            address = address[:-5].strip()
 
         incident_date = incident[1]
 
