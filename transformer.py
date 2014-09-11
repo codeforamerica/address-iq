@@ -16,8 +16,12 @@ def transform(host_engine, dest_engine, table_name, transformations):
 
     results = host_engine.execute(select([host_table]))
 
+    print "Beginning transformation..."
     transformed_rows = []
     for row in results:
+        if len(transformed_rows) % 10000 == 0:
+            print "Row #: ", len(transformed_rows)
+
         new_row = row
         
         # Run all transformations, stopping if one returns None
@@ -30,6 +34,5 @@ def transform(host_engine, dest_engine, table_name, transformations):
             transformed_rows.append(new_row)
 
     dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)
-    dest_engine.execute(dest_table.delete())
     dest_engine.execute(dest_table.insert(), transformed_rows)
 
