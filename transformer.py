@@ -23,7 +23,7 @@ def transform(host_engine, dest_engine, table_name, transformations):
         if len(transformed_rows) % 10000 == 0:
             print "Row #: ", len(transformed_rows)
 
-        if len(transformed_rows) % 100000 == 0:
+        if len(transformed_rows) % 50000 == 0:
             print "Getting ready to insert..."
             dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)  
             dest_engine.execute(dest_table.insert(), transformed_rows)
