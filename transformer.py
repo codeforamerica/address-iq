@@ -23,6 +23,11 @@ def transform(host_engine, dest_engine, table_name, transformations):
         if len(transformed_rows) % 10000 == 0:
             print "Row #: ", len(transformed_rows)
 
+        if len(transformed_rows) % 100000 == 0:
+            print "Getting ready to insert..."
+            dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)  
+            dest_engine.execute(dest_table.insert(), transformed_rows)
+
         new_row = row
         
         # Run all transformations, stopping if one returns None
@@ -34,7 +39,5 @@ def transform(host_engine, dest_engine, table_name, transformations):
         if new_row != None:
             transformed_rows.append(new_row)
 
-    print "Getting ready to insert..."
-    dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)  
-    dest_engine.execute(dest_table.insert(), transformed_rows)
+
 
