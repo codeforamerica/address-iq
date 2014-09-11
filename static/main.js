@@ -145,6 +145,7 @@ $(document).ready(function() {
       xhr.open("POST", "/log-in", true);
       // see http://www.openjs.com/articles/ajax_xmlhttp_using_post.php
       var param = "assertion="+assertion;
+      param += "&_csrf_token=" + csrfToken;
       xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhr.setRequestHeader("Content-length", param.length);
       xhr.setRequestHeader("Connection", "close");
