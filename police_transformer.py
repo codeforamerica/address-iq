@@ -8,8 +8,8 @@ transformations = []
 def remove_clb_ending(row):
     address = row.incident_address
 
-    if ', CLB' == row[5][-5:]:
-        row[5] = row[5][:-5]
+    if ', CLB' == address[-5:]:
+        row.incident_address = address[:-5]
 
     return row
 
