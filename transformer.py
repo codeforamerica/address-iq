@@ -1,21 +1,6 @@
-# Goal: take rows in one database, perform a transformation, dump them into another
-
-# steps:
-# connect to database
-# load rows
-# for each:
-#     run transformation function
-#     queue insert into destination table
-# connect to destination database
-# execute inserts
-
 # interface: 
 # `transformer --hostdb=dbstring1 --destinationdb=dbstring2 transformation.py`
 # `python fire_transformation.py --hostdb=dbstring1 --destinationdb=dbstring2`
-
-# transformations desired:
-# text transforms on row/col (done, though ideally by name)
-# remove duplicates based on key
 
 import argparse
 from sqlalchemy import create_engine, MetaData, Table
