@@ -7,8 +7,12 @@
     <div id="button-row">
             <div id="activated-toggle" class="{% if activated %}activated{% else %}deactivated{% endif %}">
                 <span class="not-active-text">Not Active</span><span class="toggle"></span><span class="active-text">Active</span>
-            </div>  
+            </div>
+            {% if ', Clb' == address[-5:] %}
+            <a href="https://www.google.com/maps/place/{{ address[:-5] | title}},+long+beach,+ca" target="_blank" class="map-link">
+            {% else %}
             <a href="https://www.google.com/maps/place/{{ address | title}},+long+beach,+ca" target="_blank" class="map-link">
+            {% endif %}
                 View Map
             </a>
     </div>
@@ -69,7 +73,7 @@
         </div>
         <div class="department-tab-content fire active{% if 'fire' not in top_call_types %} no-fire-data-access{% endif %}">
             <h3>Top 5 Call Types</h3>
-            
+
             <ol class="call-types">
                 {% if 'fire' in top_call_types %}
                     {% for call_type in top_call_types['fire'][365] %}
