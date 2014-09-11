@@ -14,6 +14,7 @@ meta = MetaData()
 def transform(host_engine, dest_engine, table_name, transformations):
     host_table = Table(table_name, meta, autoload=True, autoload_with=host_engine)
 
+    print "Fetching rows..."
     results = host_engine.execute(select([host_table]))
 
     print "Beginning transformation..."
@@ -33,6 +34,7 @@ def transform(host_engine, dest_engine, table_name, transformations):
         if new_row != None:
             transformed_rows.append(new_row)
 
-    dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)
+    print "Getting ready to insert..."
+    dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)  
     dest_engine.execute(dest_table.insert(), transformed_rows)
 
