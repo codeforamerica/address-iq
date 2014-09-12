@@ -361,7 +361,7 @@ def address(address):
         can_view_fire = True
 
     top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365], include_fire=can_view_fire)
-    actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
+    actions = models.Action.query.filter(models.Action.address==address.upper()).order_by(models.Action.created).all()
     activated = is_address_activated(address)
 
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
@@ -380,7 +380,7 @@ def post_comment(address):
     if not comment:
         return redirect(url_for("address", address=address))
 
-    comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address)
+    comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address.upper())
     db.session.add(comment)
     db.session.commit()
 
@@ -390,7 +390,7 @@ def post_comment(address):
 @login_required
 def activate(address):
     try: 
-        activate_address(address)
+        activate_address(address.upper())
         db.session.commit()
         return 'activated'
     except sqlalchemy.exc.IntegrityError:
@@ -399,7 +399,7 @@ def activate(address):
 @app.route("/address/<address>/deactivate", methods=["POST"])
 @login_required
 def deactivate(address):
-    deactivate_address(address)
+    deactivate_address(address.upper())
     db.session.commit()
     return 'deactivated'
 
