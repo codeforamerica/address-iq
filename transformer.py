@@ -27,7 +27,6 @@ def transform(host_engine, dest_engine, table_name, transformations):
             print "Getting ready to insert..."
             dest_table = Table(table_name, meta, autoload=True, autoload_with=dest_engine)  
             dest_engine.execute(dest_table.insert(), transformed_rows)
-            transformed_rows = []
 
         new_row = row
         
