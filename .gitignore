@@ -49,3 +49,6 @@ include/
 
 # SASS-generated CSS files
 static/*.css
+static/gen/
+static/.webassets-cache/
+
