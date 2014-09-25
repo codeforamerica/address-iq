@@ -193,7 +193,7 @@ class AddressUtilityTestCase(unittest.TestCase):
     def test_fetch_incident_at_address_returns_correct_number_of_items(self):
         [FireIncidentFactory(incident_address="123 MAIN ST")
          for i in range(5)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST")
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB")
          for i in range(3)]
         [BusinessLicenseFactory(business_address="123 MAIN ST")
          for i in range(1)]
@@ -208,7 +208,7 @@ class AddressUtilityTestCase(unittest.TestCase):
     def test_fetch_incident_at_address_works_if_lowercase_supplied(self):
         [FireIncidentFactory(incident_address="123 MAIN ST")
          for i in range(0, 5)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST")
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB")
          for i in range(0, 3)]
         [BusinessLicenseFactory(business_address="123 MAIN ST")
          for i in range(0, 1)]
@@ -234,16 +234,16 @@ class AddressUtilityTestCase(unittest.TestCase):
                              alarm_datetime=get_date_days_ago(200))
          for i in range(0, 10)]
 
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(5))
          for i in range(0, 3)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(20))
          for i in range(0, 8)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(40))
          for i in range(0, 9)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(200))
          for i in range(0, 6)]
 
@@ -294,19 +294,19 @@ class AddressUtilityTestCase(unittest.TestCase):
                              actual_nfirs_incident_type_description="Lung Fell Off")
          for i in range(0, 10)]
 
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(5),
                                final_cad_call_type_description="Stepped on a Crack")
          for i in range(0, 3)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(20),
                                final_cad_call_type_description="Whipped It")
          for i in range(0, 8)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(40),
                                final_cad_call_type_description="Safety Dance")
          for i in range(0, 9)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(200),
                                final_cad_call_type_description="Runnin' With The Devil")
          for i in range(0, 6)]
@@ -669,7 +669,7 @@ class CountCallsTestCase(unittest.TestCase):
         def get_date_days_ago(days):
             return datetime.datetime.now(pytz.utc) - datetime.timedelta(days=days)
 
-        incidents = [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        incidents = [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                              call_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
 
