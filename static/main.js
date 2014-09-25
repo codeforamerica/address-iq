@@ -1,7 +1,7 @@
 if(typeof String.prototype.trim !== 'function') {
   String.prototype.trim = function() {
     return this.replace(/^\s+|\s+$/g, ''); 
-  }
+  };
 }
 
 $(document).ready(function() {
@@ -28,7 +28,11 @@ $(document).ready(function() {
       return $el;
     }
 
-    callTypes = topCallTypes[department][timeframe]
+    if (typeof topCallTypes[department] == 'undefined') {
+      return;
+    }
+    
+    callTypes = topCallTypes[department][timeframe];
 
 
     $callTypesOl = $('.call-types');
@@ -49,6 +53,9 @@ $(document).ready(function() {
   var updateContentTab = function() {
     var department = $('.department-tab.active').attr('id').slice(4);
     var timeframe = $('#data-date-range').val();
+    $('.department-tab-content').removeClass('police');
+    $('.department-tab-content').removeClass('fire');
+    $('.department-tab-content').addClass(department);
     fillContentTab(department, timeframe);    
   }
 
@@ -124,7 +131,7 @@ $(document).ready(function() {
                 }
               else {
                   navigator.id.logout();
-                  alert("XMLHttpRequest error: " + xhr.status);
+                  alert("We weren't able to log you in. Please try again or contact the AddressIQ administrator to ensure you have permission to access the site.");
                 }
               }
             }
@@ -138,6 +145,7 @@ $(document).ready(function() {
       xhr.open("POST", "/log-in", true);
       // see http://www.openjs.com/articles/ajax_xmlhttp_using_post.php
       var param = "assertion="+assertion;
+      param += "&_csrf_token=" + csrfToken;
       xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhr.setRequestHeader("Content-length", param.length);
       xhr.setRequestHeader("Connection", "close");

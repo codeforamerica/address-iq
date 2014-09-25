@@ -4,15 +4,23 @@ import os
 import operator
 import pytz
 import logging
+import sqlalchemy.exc
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, abort, request, Response, session, redirect, url_for, make_response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_user, logout_user, current_user, login_required
 from flask.ext.seasurf import SeaSurf
+from flask_sslify import SSLify 
+import flask.ext.assets
+
 from functools import wraps
 
 from requests import post
+
+from gdata.spreadsheets.client import SpreadsheetsClient
+from oauth2client.client import SignedJwtAssertionCredentials
+from gdata.gauth import OAuth2TokenFromCredentials
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -32,6 +40,11 @@ import models
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
+
+assets = flask.ext.assets.Environment()
+assets.init_app(app)
+
+sslify = SSLify(app)
 
 @app.before_request
 def func():
@@ -79,7 +92,7 @@ def fetch_incidents_at_address(address):
     fire_query = fire_query.filter(models.FireIncident.incident_address == address.upper())
 
     police_query = db.session.query(models.PoliceIncident)
-    police_query = police_query.filter(models.PoliceIncident.incident_address == address.upper())
+    police_query = police_query.filter(models.PoliceIncident.incident_address == address.upper() + ', CLB')
 
     business_query = db.session.query(models.BusinessLicense)
     business_query = business_query.filter(models.BusinessLicense.business_address == address.upper())
@@ -120,7 +133,7 @@ def count_incidents_by_timeframes(incidents, timeframes):
 
     return counts
 
-def get_top_incident_reasons_by_timeframes(incidents, timeframes):
+def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=True):
     def start_date_for_days(days):
         return datetime.date.today() - datetime.timedelta(days=days)
 
@@ -167,6 +180,8 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes):
             top_call_types[incident_type][num_days].reverse()
             top_call_types[incident_type][num_days] = top_call_types[incident_type][num_days][:5]
 
+    if not include_fire:
+        del top_call_types['fire']
     return top_call_types
 
 @app.route('/')
@@ -178,9 +193,42 @@ def login_page():
     next = request.args.get('next')
     return render_template('login.html', next=next, email=get_email_of_current_user())
 
+def fetch_authorization_row(email):
+    CLIENT_EMAIL = app.config['GOOGLE_CLIENT_EMAIL']
+    PRIVATE_KEY = app.config['GOOGLE_PRIVATE_KEY']
+
+    SCOPE = "https://spreadsheets.google.com/feeds/"
+    
+    credentials = SignedJwtAssertionCredentials(CLIENT_EMAIL, PRIVATE_KEY, SCOPE)
+    token = OAuth2TokenFromCredentials(credentials)
+    client = SpreadsheetsClient()
+
+    token.authorize(client)
+
+    # Load worksheet with auth info
+    spreadsheet_id = app.config['GOOGLE_SPREADSHEET_ID']
+    worksheets = client.get_worksheets(spreadsheet_id)
+    worksheet = worksheets.entry[0]
+
+    # worksheet.id.text takes the form of a full url including the spreadsheet, while
+    # we only need the last part of that
+    id_parts = worksheet.id.text.split('/')
+    worksheet_id = id_parts[len(id_parts) - 1]
+
+    list_feed = client.get_list_feed(spreadsheet_id, worksheet_id)
+
+    rows = [row.to_dict() for row in list_feed.entry]
+
+    user_auth_row = None
+    for row in rows:
+        if row['email'] == email:
+            user_auth_row = row
+            break
+
+    return user_auth_row
 
 @app.route('/log-in', methods=['POST'])
-@csrf.exempt
+@audit_log
 def log_in():
     posted = post('https://verifier.login.persona.org/verify',
                   data=dict(assertion=request.form.get('assertion'),
@@ -189,10 +237,23 @@ def log_in():
     response = posted.json()
 
     if response.get('status', '') == 'okay':
-        user = load_user_by_email(response['email'])
-        if user:
-            login_user(user)
-            return 'OK'
+        email = response['email']
+        user_auth_row = fetch_authorization_row(email)
+
+        if not user_auth_row or user_auth_row['canviewsite'] != 'Y':
+            return 'Not authorized', 403
+
+        user = load_user_by_email(email)
+
+        if not user:
+            user = create_user(email, user_auth_row['name'])
+
+        user.name = user_auth_row['name']
+        user.can_view_fire_data = user_auth_row['canviewfiredata'] == 'Y'
+        db.session.commit()
+
+        login_user(user)
+        return 'OK'
 
     return Response('Failed', status=400)
 
@@ -232,13 +293,13 @@ def browse():
 def log_out():
     logout_user()
 
-    return redirect(url_for('home'))
+    return "OK"
 
-def create_user(name, email):
+def create_user(email, name):
     # Check whether a record already exists for this user.
     user = models.User.query.filter(models.User.email==email).first()
     if user:
-        return False
+        return user
 
     # If no record exists, create the user.
     user = models.User(name=name, email=email, date_created=datetime.datetime.now(pytz.utc))
@@ -248,12 +309,7 @@ def create_user(name, email):
     return user
 
 def load_user_by_email(email):
-    # @todo: When we incorporate LDAP, update this to pull real name.
-    name = 'Fireworks Joe'
-    user = models.User.query.filter(models.User.email==email).first()
-    if not user:
-        user = create_user(name, email)
-
+    user = db.session.query(models.User).filter(models.User.email==email).first()
     return user
 
 def get_email_of_current_user(user=current_user):
@@ -293,15 +349,21 @@ def deactivate_address(address):
 @audit_log
 def address(address):
     incidents = fetch_incidents_at_address(address)
-
     if len(incidents['fire']) == 0 and len(incidents['police']) == 0:
         abort(404)
 
     counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
     business_types = [biz.business_service_description.strip() for biz in incidents['businesses']]
     business_names = [biz.name.strip() for biz in incidents['businesses']]
-    top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365])
-    actions = models.Action.query.filter(models.Action.address==address).order_by(models.Action.created).all()
+
+    can_view_fire = False
+    if current_user.is_anonymous() and app.config['TESTING']:
+        can_view_fire = True
+    elif current_user.is_authenticated() and current_user.can_view_fire_data:
+        can_view_fire = True
+
+    top_call_types = get_top_incident_reasons_by_timeframes(incidents, [7, 30, 90, 365], include_fire=can_view_fire)
+    actions = models.Action.query.filter(models.Action.address==address.upper()).order_by(models.Action.created).all()
     activated = is_address_activated(address)
 
     kwargs = dict(email=get_email_of_current_user(), incidents=incidents, counts=counts,
@@ -320,7 +382,7 @@ def post_comment(address):
     if not comment:
         return redirect(url_for("address", address=address))
 
-    comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address)
+    comment = models.Action(user_id=current_user.id, type="comment", content=comment, address=address.upper())
     db.session.add(comment)
     db.session.commit()
 
@@ -329,14 +391,17 @@ def post_comment(address):
 @app.route("/address/<address>/activate", methods=["POST"])
 @login_required
 def activate(address):
-    activate_address(address)
-    db.session.commit()
-    return 'activated'
+    try: 
+        activate_address(address.upper())
+        db.session.commit()
+        return 'activated'
+    except sqlalchemy.exc.IntegrityError:
+        return 'already activated', 400
 
 @app.route("/address/<address>/deactivate", methods=["POST"])
 @login_required
 def deactivate(address):
-    deactivate_address(address)
+    deactivate_address(address.upper())
     db.session.commit()
     return 'deactivated'
 

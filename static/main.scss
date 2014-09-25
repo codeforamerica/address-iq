@@ -98,18 +98,76 @@ header {
     float: left;
     display: block;
     padding: 10px 15px 13px;
-    color: $grey-darker;
-    text-decoration: none;
-    font-size: 24px;
-    line-height: 28px;
+    height: 28px;
     width: 150px;
     margin-left: 40px;
+    background-image: url('/static/logo-landing.png')
 }
+
+#logo span {
+  display: none;
+}
+
+body.home {
+  footer {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 100%;
+    height: 24px;
+  }
+}
+
+body.logged-out {
+  .page-content {
+    padding-top: 40px;
+  }
+
+  .container {
+    text-align: left;
+    max-width: 680px;
+    margin-bottom: 220px;
+
+    .signon {
+      text-align: center;
+      margin-top: 50px;
+    }
+  }
+}
+
+body.logged-in {
+  .page-content {
+    margin-left: 140px; /* @todo: unhack */
+    p {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 680px;
+    }
+  }
+}
+
+p#slogan {
+  color: $red-darker;
+  margin-left: 35px;
+  margin-bottom: 40px;
+}
+
+a.button {
+    background-color: $blue-darker;
+    color: white;
+    margin-left: 25px;
+    margin-top: 5px;
+    font-size: 18px;
+    line-height: 16px;
+    padding: 10px;
+    border: 0;
+  }
 
 #navigation {
     display: block;
     height: 50px;
     float: left;
+    margin-left: 50px;
 
     li {
       display: block;
@@ -134,8 +192,8 @@ header {
 }
 
 #user-nav {
-  float: left;
-  margin-left: 170px;
+  float: right;
+  margin-right: 140px;
   padding-top: 6px;
 
   .username {
@@ -149,14 +207,24 @@ footer {
   margin-top: 20px;
   background-color: $grey-lighter;
   clear: both;
+  padding-bottom: 24px; /* @todo: unmagic */
   .container {
     padding: 12px 18px;
-    a {
-      padding: 15px 30px 15px 0px;
-      font-size: 16px;
-      color: #6D6E71;
-      &:hover {
-        color: #0071BC;
+    font-size: 16px;
+    color: #6D6E71;
+    .copyright {
+      float: left;
+      a {
+        padding: 15px 30px 15px 0px;
+        &:hover {
+          color: #0071BC;
+        }
+      }
+    }
+    .contact {
+      float: right;
+      span {
+        font-weight: bold;
       }
     }
   }
@@ -205,7 +273,8 @@ footer {
   float: left;
 
   span {
-    display: inline-block;
+    display: block;
+    float: left;
 
     font-size: 14px;
     font-weight: bold;
@@ -214,11 +283,15 @@ footer {
   }
 
   .active-text {
-    color: #2d8433;
+    color: $green-darker;
+  }
+
+  &.deactivated .active-text {
+    color: $grey-darker;
   }
 
   .not-active-text {
-    color: #6d6e71;
+    color: $grey-darker;
   }
 
   .toggle {
@@ -226,7 +299,6 @@ footer {
     height: 25px;
     margin: 0 10px;
     line-height: 30px;
-    display: inline-block;
     cursor: pointer;
     background-image: url('/static/toggle-on.png');
   }
@@ -390,23 +462,37 @@ a.map-link {
     text-align: center;
     float: left;
     cursor: pointer;
-    .active {
+    &.active {
       background-color: white;
       border-width: 1px 1px 0px;
       border-color: #B3B3B3;
       border-style: solid;
       cursor: default;
     }
+
 }
 
 .department-tab-content {
     border: 1px solid $grey-medium;
+    background-color: white;
     padding: 30px;
     margin-bottom: 20px;
     min-height: 200px;
     h3 {
       margin-left: 10px;
       margin-bottom: 20px;
+    }
+
+    &.fire.no-fire-data-access {
+      h3 {
+        display: none;
+      }
+      .call-types {
+        display: none;
+      }
+      .no-calls-of-this-type {
+        display: none;
+      }
     }
 }
 
@@ -437,7 +523,7 @@ ul.browse-date-ranges {
     li {
         background-color: $grey-lighter;
         float: left;
-        width: 90px;
+        width: 110px;
         line-height: 40px;
 
         border: 1px solid $grey-darker;

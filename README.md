@@ -1,9 +1,9 @@
-Spot It Like It's Hot
+AddressIQ
 =====================
 
 This dashboard analyzes data in order to help identify emergency resource super-utilizers and support finding cost-effective ways to give them better care.
 
-This app is being developed by Team Long Beach for Long Beach, California. It's in its initial stages.
+This app is being developed by Team Long Beach for Long Beach, California. It's a work in progress.
 
 What this data can and can't tell us
 ------------------------------------

@@ -1,4 +1,5 @@
 import unittest
+import mock
 import os
 import datetime
 import pytz
@@ -17,12 +18,40 @@ from factories import FireIncidentFactory, PoliceIncidentFactory, BusinessLicens
 
 from flask.ext.login import login_user
 
+def get_date_days_ago(days):
+    return datetime.datetime.now() - datetime.timedelta(days=days)
+
 def persona_verify(url, request):
     if url.geturl() == 'https://verifier.login.persona.org/verify':
         return response(200, '''{"status": "okay", "email": "user@example.com"}''')
 
     else:
         raise Exception('Asked for unknown URL ' + url.geturl())
+
+def setup_google_mock(can_view='Y', can_view_fire='Y', email='user@example.com'):
+    mock_client = mock.MagicMock()
+    instance = mock_client.return_value
+
+    worksheets_mock = mock.Mock()
+    worksheet_mock = mock.Mock()
+    worksheet_mock.id = mock.Mock()
+    worksheet_mock.id.text = 'foo/bar/abc'
+    worksheets_mock.entry = [worksheet_mock]
+    instance.get_worksheets.return_value = worksheets_mock
+
+    sample_row = {
+        'email': email,
+        'name': 'Joe Fireworks',
+        'canviewsite': can_view,
+        'canviewfiredata': can_view_fire
+    }
+    row_mock = mock.Mock()
+    row_mock.to_dict.return_value = sample_row
+    list_feed_mock = mock.Mock()
+    list_feed_mock.entry = [row_mock]
+    instance.get_list_feed.return_value = list_feed_mock
+
+    return mock_client
 
 class HomeTestCase(unittest.TestCase):
 
@@ -47,6 +76,7 @@ class LoginTestCase(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_login(self):
         ''' Check basic log in flow without talking to Persona.
         '''
@@ -60,6 +90,69 @@ class LoginTestCase(unittest.TestCase):
         response = self.app.get('/')
         self.assertTrue('user@example.com' in response.data)
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(email="notexample@example.com"))    
+    def test_login_fails_when_not_in_spreadsheet(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+        
+        self.assertEquals(response.status_code, 403)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view='N'))    
+    def test_login_fails_when_not_allowed_to_view(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+        
+        self.assertEquals(response.status_code, 403)
+
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())    
+    def test_login_successfully_pulls_in_name(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        response = self.app.get('/')
+        self.assertTrue('Joe Fireworks' in response.data)
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='Y'))    
+    def test_login_successfully_pulls_in_fire_viewable_true(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        user = db.session.query(models.User).filter(models.User.email=='user@example.com').first()
+        assert user.can_view_fire_data == True
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='N'))    
+    def test_login_successfully_pulls_in_fire_viewable_false(self):
+        response = self.app.get('/')
+        self.assertFalse('user@example.com' in response.data)
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+            self.assertEquals(response.status_code, 200)
+
+        user = db.session.query(models.User).filter(models.User.email=='user@example.com').first()
+        assert user.can_view_fire_data == False
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_logout(self):
         ''' Check basic log out flow without talking to Persona.
         '''
@@ -71,7 +164,7 @@ class LoginTestCase(unittest.TestCase):
         response = self.app.get('/')
 
         response = self.app.post('/log-out')
-        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.status_code, 200)
 
         response = self.app.get('/')
         self.assertFalse('user@example.com' in response.data)
@@ -100,7 +193,7 @@ class AddressUtilityTestCase(unittest.TestCase):
     def test_fetch_incident_at_address_returns_correct_number_of_items(self):
         [FireIncidentFactory(incident_address="123 MAIN ST")
          for i in range(5)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST")
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB")
          for i in range(3)]
         [BusinessLicenseFactory(business_address="123 MAIN ST")
          for i in range(1)]
@@ -115,7 +208,7 @@ class AddressUtilityTestCase(unittest.TestCase):
     def test_fetch_incident_at_address_works_if_lowercase_supplied(self):
         [FireIncidentFactory(incident_address="123 MAIN ST")
          for i in range(0, 5)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST")
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB")
          for i in range(0, 3)]
         [BusinessLicenseFactory(business_address="123 MAIN ST")
          for i in range(0, 1)]
@@ -128,9 +221,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert len(incidents['businesses']) == 1
 
     def test_count_incidents_returns_proper_counts_for_default_days(self):
-        def get_date_days_ago(days):
-            return datetime.datetime.now() - datetime.timedelta(days=days)
-
         [FireIncidentFactory(incident_address="123 MAIN ST",
                              alarm_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
@@ -144,16 +234,16 @@ class AddressUtilityTestCase(unittest.TestCase):
                              alarm_datetime=get_date_days_ago(200))
          for i in range(0, 10)]
 
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(5))
          for i in range(0, 3)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(20))
          for i in range(0, 8)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(40))
          for i in range(0, 9)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(200))
          for i in range(0, 6)]
 
@@ -173,11 +263,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert counts['police'][365] == 26
 
     def test_count_incidents_returns_zeros_when_no_incidents(self):
-        import datetime
-
-        def get_date_days_ago(days):
-            return datetime.datetime.now() - datetime.timedelta(days=days)
-
         incidents = fetch_incidents_at_address("123 main st")
         counts = count_incidents_by_timeframes(incidents, [7, 30, 90, 365])
 
@@ -192,11 +277,6 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert counts['police'][365] == 0
 
     def test_top_incident_reasons_by_timeframes_returns_proper_counts(self):
-        import datetime
-
-        def get_date_days_ago(days):
-            return datetime.datetime.now() - datetime.timedelta(days=days)
-
         [FireIncidentFactory(incident_address="123 MAIN ST",
                              alarm_datetime=get_date_days_ago(5),
                              actual_nfirs_incident_type_description="Broken Nose")
@@ -214,19 +294,19 @@ class AddressUtilityTestCase(unittest.TestCase):
                              actual_nfirs_incident_type_description="Lung Fell Off")
          for i in range(0, 10)]
 
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(5),
                                final_cad_call_type_description="Stepped on a Crack")
          for i in range(0, 3)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(20),
                                final_cad_call_type_description="Whipped It")
          for i in range(0, 8)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(40),
                                final_cad_call_type_description="Safety Dance")
          for i in range(0, 9)]
-        [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                                call_datetime=get_date_days_ago(200),
                                final_cad_call_type_description="Runnin' With The Devil")
          for i in range(0, 6)]
@@ -344,6 +424,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'no-action-found' in rv.data
         assert 'Nothing has been done yet with this address. Add a note below, or click the activate button!' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_loads_a_comment_into_database(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -361,6 +442,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         comments = models.Action.query.all()
         self.assertEquals(1, len(comments))
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_shows_it_on_the_page(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -378,6 +460,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         rv = self.app.get('/address/456 lala ln')
         assert 'This is a test comment' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_two_comments_shows_the_most_recent_last(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -399,6 +482,27 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 'Test 2' in rv.data
         assert rv.data.find('Test 1') < rv.data.find('Test 2')
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
+    def test_logging_in_creates_an_audit_log(self):
+        app.config['AUDIT_DISABLED'] = False
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        del app.config['AUDIT_DISABLED']
+
+        # Length should be 2: one log entry for login, one for accessing page.
+        assert len(models.AuditLogEntry.query.all()) == 1
+
+        first_entry = models.AuditLogEntry.query.first()
+        assert first_entry.user_id != None
+        assert first_entry.resource == '/log-in'
+        assert first_entry.method == 'POST'
+        assert first_entry.response_code == "200"
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_viewing_an_address_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
@@ -414,14 +518,16 @@ class AddressUtilityTestCase(unittest.TestCase):
 
         del app.config['AUDIT_DISABLED']
 
-        assert len(models.AuditLogEntry.query.all()) == 1
+        # Length should be 2: one log entry for login, one for accessing page.
+        assert len(models.AuditLogEntry.query.all()) == 2
 
-        first_entry = models.AuditLogEntry.query.first()
-        assert first_entry.user_id != None
-        assert first_entry.method == 'GET'
-        assert first_entry.resource == '/address/456 lala ln'
-        assert first_entry.response_code == "200"
+        second_entry = models.AuditLogEntry.query.all()[1]
+        assert second_entry.user_id != None
+        assert second_entry.method == 'GET'
+        assert second_entry.resource == '/address/456 lala ln'
+        assert second_entry.response_code == "200"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_posting_a_comment_creates_an_audit_log(self):
         app.config['AUDIT_DISABLED'] = False
 
@@ -439,14 +545,30 @@ class AddressUtilityTestCase(unittest.TestCase):
 
         del app.config['AUDIT_DISABLED']
 
-        assert len(models.AuditLogEntry.query.all()) == 1
+        # Length should be 2: one log entry for login, one for accessing page.
+        assert len(models.AuditLogEntry.query.all()) == 2
 
-        first_entry = models.AuditLogEntry.query.first()
-        assert first_entry.user_id != None
-        assert first_entry.method == 'POST'
-        assert first_entry.resource == '/address/456 lala ln/comments'
-        assert first_entry.response_code == "302"
+        second_entry = models.AuditLogEntry.query.all()[1]
+        assert second_entry.user_id != None
+        assert second_entry.method == 'POST'
+        assert second_entry.resource == '/address/456 lala ln/comments'
+        assert second_entry.response_code == "302"
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='N'))
+    def test_viewing_an_address_does_not_show_fire_data_if_not_allowed(self):
+        [FireIncidentFactory(incident_address="456 LALA LN", alarm_datetime=get_date_days_ago(5),
+                             actual_nfirs_incident_type_description="Broken Nose")
+         for i in range(0, 5)]
+
+        db.session.flush()
+
+        with HTTMock(persona_verify):
+            response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
+
+        rv = self.app.get('/address/456 lala ln')
+        assert 'Broken Nose' not in rv.data
+
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activation_endpoint_activates_address(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -461,6 +583,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 1 == len(models.ActivatedAddress.query.all())
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_deactivation_endpoint_deactivates_address(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -476,6 +599,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 0 == len(models.ActivatedAddress.query.all())
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_activating_address_adds_to_action_station(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -491,6 +615,7 @@ class AddressUtilityTestCase(unittest.TestCase):
         assert 200 == rv.status_code
         assert 'activated this address' in rv.data
 
+    @mock.patch('app.SpreadsheetsClient', setup_google_mock())
     def test_deactivating_address_adds_to_action_station(self):
         [FireIncidentFactory(incident_address="456 LALA LN")
          for i in range(0, 5)]
@@ -529,7 +654,10 @@ class CountCallsTestCase(unittest.TestCase):
                              alarm_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
 
-        counts = count_calls(incidents, 'alarm_datetime', 'fire_counts', [7, 14])
+        incident_tuples = [(incident.incident_address, incident.alarm_datetime)
+                            for incident in incidents]
+
+        counts = count_calls(incident_tuples, 'alarm_datetime', 'fire_counts', [7, 14])
 
         assert '123 MAIN ST' in counts
         assert 'fire_counts' in counts['123 MAIN ST']
@@ -541,11 +669,13 @@ class CountCallsTestCase(unittest.TestCase):
         def get_date_days_ago(days):
             return datetime.datetime.now(pytz.utc) - datetime.timedelta(days=days)
 
-        incidents = [PoliceIncidentFactory(incident_address="123 MAIN ST",
+        incidents = [PoliceIncidentFactory(incident_address="123 MAIN ST, CLB",
                              call_datetime=get_date_days_ago(5))
          for i in range(0, 5)]
 
-        counts = count_calls(incidents, 'call_datetime', 'police_counts', [7, 14])
+        incident_tuples = [(incident.incident_address, incident.call_datetime)
+                            for incident in incidents]
+        counts = count_calls(incident_tuples, 'call_datetime', 'police_counts', [7, 14])
 
         assert '123 MAIN ST' in counts
         assert 'police_counts' in counts['123 MAIN ST']
