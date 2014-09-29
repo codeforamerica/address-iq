@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>AddressIQ</title>
+    {% assets filters="pyscss", output="gen/main.css", "main.scss" %}
+      <link href="{{ ASSET_URL }}" rel='stylesheet' type='text/css'>
+    {% endassets %}
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+  </head>
+		<body class="home logged-out">
+		<div class="page-content">
+			<div id="home">
+				<div class="logo">
+					<img src="static/logo-landing.png" alt="AddressIQ beta" />
+					<p id="slogan">Reducing 911 calls, one address at a time.</p>
+				</div>
+
+				<div class="container">
+					<p>The site is currently offline for maintenance. Thanks for your patience.</p>
+				</div>
+			</div>
+		</div>
+      <footer>
+        <div class="container">
+          <div class="copyright">
+            <a href="http://www.codeforamerica.org/governments/longbeach/#2014">&copy; 2014 Code for America</a>
+          </div>
+          <div class="contact">
+            <span>Questions?</span> Contact <a href="mailto:longbeach@codeforamerica.org">longbeach@codeforamerica.org</a>
+          </div>
+        </div>
+      </footer>
+  </body>
+</html>
