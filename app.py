@@ -27,7 +27,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
-is_maintenance_mode = True
+is_maintenance_mode = False
 
 meta = db.MetaData()
 meta.bind = db.engine
