@@ -27,8 +27,6 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
-is_maintenance_mode = False
-
 meta = db.MetaData()
 meta.bind = db.engine
 
@@ -51,7 +49,9 @@ sslify = SSLify(app)
 @app.before_request
 def func():
     session.modified = True
-    if is_maintenance_mode and request.path != url_for('maintenance') and not 'static' in request.path:
+    maintenance_mode_enabled = app.config.get('MAINTENANCE', False)
+
+    if maintenance_mode_enabled and request.path != url_for('maintenance') and not 'static' in request.path:
         return redirect(url_for('maintenance'))
 
 @login_manager.user_loader

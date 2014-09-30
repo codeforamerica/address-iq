@@ -2,6 +2,7 @@ import os
 
 
 class Config(object):
+    MAINTENANCE = False
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
@@ -19,21 +20,25 @@ class Config(object):
     GOOGLE_SPREADSHEET_ID = os.environ.get('GOOGLE_SPREADSHEET_ID', '')
 
 class ProductionConfig(Config):
+    MAINTENANCE = False
     DEBUG = False
     SQLALCHEMY_BINDS = {
         'lbc_data': os.environ.get('DATA_DATABASE_URL')
     }
 
 class StagingConfig(Config):
+    MAINTENANCE = False
     DEVELOPMENT = True
     DEBUG = True
 
 class DevelopmentConfig(Config):
+    MAINTENANCE = False
     DEVELOPMENT = True
     DEBUG = True
     SQLALCHEMY_ECHO = True
 
 class TestingConfig(Config):
+    MAINTENANCE = False
     TESTING = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
@@ -41,3 +46,9 @@ class TestingConfig(Config):
         'lbc_data': 'sqlite:///:memory:'
     }
 
+class MaintenanceConfig(Config):
+    MAINTENANCE = True
+    DEBUG = True
+    SQLALCHEMY_BINDS = {
+        'lbc_data': os.environ.get('DATA_DATABASE_URL')
+    }
