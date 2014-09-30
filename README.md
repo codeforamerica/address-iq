@@ -27,7 +27,8 @@ Note that you'll need the following environment variables set:
 
 - APP_SETTINGS: you probably want this to equal `Config.DevelopmentConfig`
 - SECRET_KEY: Follow the instructions [here](http://flask.pocoo.org/docs/quickstart/) under "How to generate good secret keys"
-- DATABASE_URI: This is a string representing your database's URI. 
+- DATABASE_URI: This is a string representing your database's URI.
+- MAINTENANCE_MODE: Setting this to "on" will activate maintenance mode, directing all traffic to a "down for maintenance" page.
 
 To keep these set regularly, you might want to either create a shell script or use virtualenvwrapper and a postactivate script, as described [here](http://www.realpython.com/blog/python/flask-by-example-part-1-project-setup/).
 

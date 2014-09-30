@@ -49,7 +49,8 @@ sslify = SSLify(app)
 @app.before_request
 def func():
     session.modified = True
-    maintenance_mode_enabled = app.config.get('MAINTENANCE', False)
+    # Set in env or the postactivate file. Only "on" will activate maintenance mode.
+    maintenance_mode_enabled = app.config.get('MAINTENANCE_MODE', False) == "on"
 
     if maintenance_mode_enabled and request.path != url_for('maintenance') and not 'static' in request.path:
         return redirect(url_for('maintenance'))
