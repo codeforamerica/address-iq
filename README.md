@@ -3,7 +3,9 @@ AddressIQ
 
 This dashboard analyzes data in order to help identify emergency resource super-utilizers and support finding cost-effective ways to give them better care.
 
-This app is being developed by Team Long Beach for Long Beach, California. It's a work in progress.
+This app is being developed by Team Long Beach (@dget, @fureigh and @mollymcleod) for Long Beach, California.
+
+For more context, see this [five-minute video](https://www.youtube.com/watch?v=TxifmeeFT2s) from the 2014 Code for America Summit.
 
 What this data can and can't tell us
 ------------------------------------
