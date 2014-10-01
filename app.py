@@ -48,8 +48,12 @@ sslify = SSLify(app)
 
 @app.before_request
 def func():
-  session.modified = True
+    session.modified = True
+    # Set in env or the postactivate file. Only "on" will activate maintenance mode.
+    maintenance_mode_enabled = app.config.get('MAINTENANCE_MODE', False) == "on"
 
+    if maintenance_mode_enabled and request.path != url_for('maintenance') and not 'static' in request.path:
+        return redirect(url_for('maintenance'))
 
 @login_manager.user_loader
 def load_user(userid):
@@ -256,6 +260,10 @@ def log_in():
         return 'OK'
 
     return Response('Failed', status=400)
+
+@app.route('/maintenance')
+def maintenance():
+    return render_template('maintenance.html')
 
 @app.route("/browse")
 @login_required

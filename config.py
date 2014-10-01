@@ -2,6 +2,7 @@ import os
 
 
 class Config(object):
+    MAINTENANCE_MODE = os.environ.get('MAINTENANCE_MODE', False)
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
@@ -34,10 +35,10 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_ECHO = True
 
 class TestingConfig(Config):
+    MAINTENANCE_MODE = False
     TESTING = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SQLALCHEMY_BINDS = {
         'lbc_data': 'sqlite:///:memory:'
     }
-
