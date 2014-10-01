@@ -34,6 +34,8 @@ Note that you'll need the following environment variables set:
 
 To keep these set regularly, you might want to either create a shell script or use virtualenvwrapper and a postactivate script, as described [here](http://www.realpython.com/blog/python/flask-by-example-part-1-project-setup/).
 
+If using [Aptible](https://www.aptible.com), here's the command to run to activate maintenance mode: `aptible config:set MAINTENANCE_MODE=on`
+
 Testing
 ------
 To view on your local machine:
