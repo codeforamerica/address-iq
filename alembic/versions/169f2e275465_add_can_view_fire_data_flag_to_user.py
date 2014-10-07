@@ -1,7 +1,7 @@
 """add can_view_fire_data flag to user
 
 Revision ID: 169f2e275465
-Revises: 1ee76cf990d9
+Revises: 43c6e3f2548a
 Create Date: 2014-09-05 01:55:56.983731
 
 """

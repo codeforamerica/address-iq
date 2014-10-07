@@ -40,8 +40,10 @@
             <tr>
                 {% set headings = [
                     ('address', 'Address'),
+                    ('biz_type', 'Business License Type'),
                     ('fire', 'Fire Calls'),
-                    ('police', 'Police Calls')
+                    ('police', 'Police Calls'),
+                    ('status', 'Status')
                 ] %}
 
                 {% for heading in headings %}
@@ -62,8 +64,15 @@
             {% for address in summaries.items %}
             <tr class="{{ loop.cycle('odd', 'even') }}">
                 <td class="address">{{ address.address | title }}</td>
+                <td class="business-type">
+                    {% if address.business_count == 0 %}No registered business
+                    {% elif address.business_count == 1 %}{{ address.business_types }}
+                    {% elif address.business_count > 1 %}Multiple businesses
+                    {% endif %}
+                </td>
                 <td class="fire-calls">{{ address.counts_for_days_ago(date_range)['fire']['last'] }}</td>
                 <td class="police-calls">{{ address.counts_for_days_ago(date_range)['police']['last'] }}</td>
+                <td class="active-status">{% if address.active == True %}Active{% else %}Not active{% endif %}</td>
                 <td class="explore-link"><a href="/address/{{ address.address}}">Take a look</a></td>
             </tr>
             {% endfor %}

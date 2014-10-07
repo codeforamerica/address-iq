@@ -141,6 +141,12 @@ class AddressSummary(db.Model):
     police_incidents_last365 = db.Column(db.Integer)
     police_incidents_prev365 = db.Column(db.Integer)
 
+    business_count = db.Column(db.Integer, default=0)        
+    business_names = db.Column(db.Text, default="")        
+    business_types = db.Column(db.Text, default="")
+
+    active = db.Column(db.Boolean)
+
     def counts_for_days_ago(self, days):
         return {
             'fire': {

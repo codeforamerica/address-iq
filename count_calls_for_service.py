@@ -1,5 +1,5 @@
 from app import db
-from models import FireIncident, PoliceIncident, BusinessLicense, AddressSummary
+from models import FireIncident, PoliceIncident, BusinessLicense, AddressSummary, ActivatedAddress
 import pytz
 
 import datetime
@@ -43,9 +43,26 @@ def count_police_calls(incidents):
     return count_calls(incidents, 'call_datetime', 
                        'police_counts', DEFAULT_TIMEFRAMES)
 
+
+def fetch_business_summary_data():
+    query = db.session.query(BusinessLicense.business_address, 
+                             db.func.count(), 
+                             db.func.string_agg(BusinessLicense.business_service_description, ","),
+                             db.func.string_agg(BusinessLicense.name, ",")) \
+            .group_by(BusinessLicense.business_address)
+    return query.all()
+
+def fetch_active_addresses():
+    addresses = db.session.query(ActivatedAddress.address).all()
+    return addresses
+
 def address_counts_dict_to_call_summary(address, counts):
     row = {
-        'address': address.strip()
+        'address': address.strip(),
+        'business_count': counts.get('business_count', 0),
+        'business_types': counts.get('business_types', ''),
+        'business_names': counts.get('business_names', ''),
+        'active': counts.get('active', False)
     }
 
     model_timeframes = [7, 30, 90, 365]
@@ -93,8 +110,25 @@ if __name__ == '__main__':
         else:
             addresses[address.strip()].update(police_addresses[address.strip()])
 
-    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems() if len(address) > 0 and address[0] in numbers]
+    business_info = fetch_business_summary_data()
+    for row in business_info:
+        stripped_address = row[0].strip()
+        count = row[1]
+        types = row[2]
+        names = row[3]
+        if stripped_address in addresses:
+            addresses[stripped_address]['business_count'] = count
+            addresses[stripped_address]['business_types'] = types
+            addresses[stripped_address]['business_names'] = names
+
+    active_addresses = fetch_active_addresses()
+    for address_row in active_addresses:
+        stripped_address = address_row[0].strip()
+        if stripped_address in addresses:
+            addresses[stripped_address]['active'] = True
+
+    summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems()]
+
     db.session.query(AddressSummary).delete()
     [db.session.add(summary) for summary in summaries]
     db.session.commit()
