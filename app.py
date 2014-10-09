@@ -424,7 +424,7 @@ def view_audit_log():
     log_entries = models.AuditLogEntry.query
     log_entries = log_entries.order_by(models.AuditLogEntry.timestamp.desc())
 
-    return render_template("audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100))
+    return render_template("audit_log.html", email=current_user.email, entries=log_entries.paginate(page, per_page=100), page=page)
 
 if __name__ == "__main__":
     handler = RotatingFileHandler('errors.log', maxBytes=10000, backupCount=20)
