@@ -82,12 +82,12 @@ def address_counts_dict_to_call_summary(address, counts):
     return AddressSummary(**row)
 
 if __name__ == '__main__':
-    two_years_ago = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=370)
+    one_year_ago = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=370)
 
     print "Loading Fire Data..."
     fire_incidents_query = db.session.query(db.func.max(FireIncident.incident_address), 
                                             db.func.max(FireIncident.alarm_datetime))
-    fire_incidents_query = fire_incidents_query.filter(FireIncident.alarm_datetime >= two_years_ago)
+    fire_incidents_query = fire_incidents_query.filter(FireIncident.alarm_datetime >= one_year_ago)
     fire_incidents_query = fire_incidents_query.group_by(FireIncident.cad_call_number)
     fire_incidents = fire_incidents_query.all()
     print "Fire Data Loaded..."
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     print "Loading Police Data..."
     police_incidents_query = db.session.query(db.func.max(PoliceIncident.incident_address), 
                                               db.func.max(PoliceIncident.call_datetime))
-    police_incidents_query = police_incidents_query.filter(PoliceIncident.call_datetime >= two_years_ago)
+    police_incidents_query = police_incidents_query.filter(PoliceIncident.call_datetime >= one_year_ago)
     police_incidents_query = police_incidents_query.group_by(PoliceIncident.cad_call_number)
     police_incidents = police_incidents_query.all()
     print "Police Data Loaded..."
@@ -127,7 +127,9 @@ if __name__ == '__main__':
         if stripped_address in addresses:
             addresses[stripped_address]['active'] = True
 
-    summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems()]
+    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    summaries = [address_counts_dict_to_call_summary(address, counts) for address, counts in addresses.iteritems()
+                 if len(address) > 0 and address[0] in numbers]
 
     db.session.query(AddressSummary).delete()
     [db.session.add(summary) for summary in summaries]
