@@ -90,9 +90,9 @@ if __name__ == '__main__':
     fire_incidents_query = fire_incidents_query.filter(FireIncident.alarm_datetime >= one_year_ago)
     fire_incidents_query = fire_incidents_query.group_by(FireIncident.cad_call_number)
     fire_incidents = fire_incidents_query.all()
-    print "Fire Data Loaded..."
+    print "Fire Data Loaded."
     addresses = count_fire_calls(fire_incidents)
-    print "Fire Data Counted..."
+    print "Fire Data Counted."
 
     print "Loading Police Data..."
     police_incidents_query = db.session.query(db.func.max(PoliceIncident.incident_address), 
@@ -100,9 +100,9 @@ if __name__ == '__main__':
     police_incidents_query = police_incidents_query.filter(PoliceIncident.call_datetime >= one_year_ago)
     police_incidents_query = police_incidents_query.group_by(PoliceIncident.cad_call_number)
     police_incidents = police_incidents_query.all()
-    print "Police Data Loaded..."
+    print "Police Data Loaded."
     police_addresses = count_police_calls(police_incidents)
-    print "Police Data Counted..."
+    print "Police Data Counted."
 
     for address in police_addresses:
         if address.strip() not in addresses:
