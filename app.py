@@ -93,10 +93,10 @@ def audit_log(f):
 
 def fetch_incidents_at_address(address):
     fire_query = db.session.query(models.FireIncident)
-    fire_query = fire_query.filter(models.FireIncident.incident_address == address.upper())
+    fire_query = fire_query.filter(models.FireIncident.standardized_address == address.upper())
 
     police_query = db.session.query(models.PoliceIncident)
-    police_query = police_query.filter(models.PoliceIncident.incident_address == address.upper() + ', CLB')
+    police_query = police_query.filter(models.PoliceIncident.standardized_address == address.upper() + ', CLB')
 
     business_query = db.session.query(models.BusinessLicense)
     business_query = business_query.filter(models.BusinessLicense.business_address == address.upper())

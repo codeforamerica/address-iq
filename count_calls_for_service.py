@@ -86,7 +86,7 @@ if __name__ == '__main__':
     one_year_ago = datetime.datetime.now(pytz.utc) - datetime.timedelta(days=370)
 
     print "Loading Fire Data..."
-    fire_incidents_query = db.session.query(db.func.max(FireIncident.incident_address), 
+    fire_incidents_query = db.session.query(db.func.max(FireIncident.standardized_address), 
                                             db.func.max(FireIncident.alarm_datetime))
     fire_incidents_query = fire_incidents_query.filter(FireIncident.alarm_datetime >= one_year_ago)
     fire_incidents_query = fire_incidents_query.group_by(FireIncident.cad_call_number)
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     print "Fire Data Counted."
 
     print "Loading Police Data..."
-    police_incidents_query = db.session.query(db.func.max(PoliceIncident.incident_address), 
+    police_incidents_query = db.session.query(db.func.max(PoliceIncident.standardized_address), 
                                               db.func.max(PoliceIncident.call_datetime))
     police_incidents_query = police_incidents_query.filter(PoliceIncident.call_datetime >= one_year_ago)
     police_incidents_query = police_incidents_query.group_by(PoliceIncident.cad_call_number)

@@ -33,9 +33,6 @@ ADDRESSES = [
 ]
 
 STREET_NUMBERS = [
-    '123',
-    '444',
-    '155',
     '1',
     '2121',
     '654',
@@ -48,6 +45,7 @@ STREET_NAMES = [
     'LONG BEACH',
     'VALENCIA',
     'PORTOLA AV #8',
+    'PORTOLA',
     'MARINA BL #222'
 ]
 

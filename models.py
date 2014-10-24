@@ -6,7 +6,7 @@ from app import db
 class FireIncident(db.Model):
     __bind_key__ = 'lbc_data'
 
-    __tablename__ = 'fire_incidents'
+    __tablename__ = 'standardized_fire_incidents'
     cad_call_number = db.Column(db.Integer, primary_key=True)
     incident_number = db.Column(db.Integer)
     alarm_datetime = db.Column(db.DateTime(timezone=True))
@@ -43,6 +43,7 @@ class FireIncident(db.Model):
     actual_nfirs_incident_type_description = db.Column(db.String(100))
 
     intersection = db.Column(db.String(6))
+    standardized_address = db.Column(db.String)
 
 
 class FireDispatch(db.Model):
@@ -91,7 +92,7 @@ class BusinessLicense(db.Model):
 
 class PoliceIncident(db.Model):
     __bind_key__ = 'lbc_data'
-    __tablename__ = 'police_incidents'
+    __tablename__ = 'standardized_police_incidents'
 
     cad_call_number = db.Column(db.String(25), primary_key=True)
     incident_number = db.Column(db.String(25))
@@ -114,6 +115,8 @@ class PoliceIncident(db.Model):
 
     final_cad_call_type = db.Column(db.String(20))
     final_cad_call_type_description = db.Column(db.String(100))
+
+    standardized_address = db.Column(db.String)
 
 
 class AddressSummary(db.Model):
