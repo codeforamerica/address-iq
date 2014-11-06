@@ -191,33 +191,17 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
         del top_call_types['fire']
     return top_call_types
 
-def search_for_addresses(query):
+
+def search_for_address_summaries(query):
 
     # TODO: create extension if using trigram
     # TODO: add set_limit if using trigram
     db.engine.execute(db.select([db.func.set_limit(0.4)]))
 
-    search_query = db.select([address_table.c.standardized_address, 
-                              db.func.similarity(address_table.c.standardized_address, query).label('rank')]). \
-        where(address_table.c.standardized_address.op('%%')(query)).\
-        order_by(db.asc('rank'))
+    summary_query = models.AddressSummary.query.filter(models.AddressSummary.address.op('%%')(query))
+    summary_query = summary_query.order_by(db.desc(db.func.similarity(models.AddressSummary.address, query)))
 
-    results = db.engine.execute(search_query)
-    return [row[0] for row in results]
-
-def search_for_address_summaries(query):
-    db.engine.execute(db.select([db.func.set_limit(0.4)]))
-
-    search_query = db.select([address_table.c.standardized_address, 
-                              db.func.similarity(address_table.c.standardized_address, query).label('rank')]). \
-        where(address_table.c.standardized_address.op('%%')(query))
-
-    search_alias = db.alias(search_query)
-    summary_query = models.AddressSummary.query.join(search_alias, models.AddressSummary.address == search_alias.c.standardized_address).order_by('rank')
-
-    print summary_query
-
-    return summary_query.all()
+    return summary_query
 
 @app.route('/')
 def home():
@@ -330,14 +314,14 @@ def browse():
 @login_required
 @audit_log
 def search():
-    # TODO: add code to create standardized_addresses view/indexes
+    # TODO: handle no results
     # TODO: handle missing/empty query
     query = request.args.get('q', '')
 
-    addresses = search_for_address_summaries(query)
+    summaries = search_for_address_summaries(query).all()
 
-    import json
-    return json.dumps(addresses)
+    return render_template("search.html", summaries=summaries, email=get_email_of_current_user(),
+                           search_query=query)
 
 
 @csrf.exempt
