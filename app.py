@@ -33,6 +33,9 @@ meta.bind = db.engine
 activated_table = db.Table('activated_addresses', meta,
                             db.Column('address', db.String, primary_key=True))
 
+address_table = db.Table('standardized_addresses', meta, 
+    db.Column('standardized_address', db.String))
+
 csrf = SeaSurf(app)
 
 import models
@@ -186,7 +189,24 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
 
     if not include_fire:
         del top_call_types['fire']
-    return top_call_types
+    return top_call_typeso
+
+def search_for_addresses(query):
+
+    # TODO: create extension if using trigram
+    # TODO: add set_limit if using trigram
+    formatted_query = ' | '.join(query.split(' '))
+
+    db.engine.execute(db.select([db.func.set_limit(0.4)]))
+
+    search_query = db.select([address_table.c.standardized_address, 
+                              db.func.similarity(address_table.c.standardized_address, query).label('rank')]). \
+        where(address_table.c.standardized_address.op('%%')(query)).\
+        order_by(db.desc('rank'))
+    print search_query
+
+    results = db.engine.execute(search_query)
+    return [row[0] + " - " + str(row[1]) for row in results]
 
 @app.route('/')
 def home():
@@ -294,6 +314,18 @@ def browse():
 
     return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
+
+@app.route("/search")
+@login_required
+@audit_log
+def search():
+    # TODO: add code to create standardized_addresses view/indexes
+    # TODO: handle missing/empty query
+    query = request.args.get('q', '')
+
+    results = search_for_addresses(query)
+    import json
+    return json.dumps(results)
 
 
 @csrf.exempt
