@@ -189,24 +189,35 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
 
     if not include_fire:
         del top_call_types['fire']
-    return top_call_typeso
+    return top_call_types
 
 def search_for_addresses(query):
 
     # TODO: create extension if using trigram
     # TODO: add set_limit if using trigram
-    formatted_query = ' | '.join(query.split(' '))
-
     db.engine.execute(db.select([db.func.set_limit(0.4)]))
 
     search_query = db.select([address_table.c.standardized_address, 
                               db.func.similarity(address_table.c.standardized_address, query).label('rank')]). \
         where(address_table.c.standardized_address.op('%%')(query)).\
-        order_by(db.desc('rank'))
-    print search_query
+        order_by(db.asc('rank'))
 
     results = db.engine.execute(search_query)
-    return [row[0] + " - " + str(row[1]) for row in results]
+    return [row[0] for row in results]
+
+def search_for_address_summaries(query):
+    db.engine.execute(db.select([db.func.set_limit(0.4)]))
+
+    search_query = db.select([address_table.c.standardized_address, 
+                              db.func.similarity(address_table.c.standardized_address, query).label('rank')]). \
+        where(address_table.c.standardized_address.op('%%')(query))
+
+    search_alias = db.alias(search_query)
+    summary_query = models.AddressSummary.query.join(search_alias, models.AddressSummary.address == search_alias.c.standardized_address).order_by('rank')
+
+    print summary_query
+
+    return summary_query.all()
 
 @app.route('/')
 def home():
@@ -323,9 +334,10 @@ def search():
     # TODO: handle missing/empty query
     query = request.args.get('q', '')
 
-    results = search_for_addresses(query)
+    addresses = search_for_address_summaries(query)
+
     import json
-    return json.dumps(results)
+    return json.dumps(addresses)
 
 
 @csrf.exempt
