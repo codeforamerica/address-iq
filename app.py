@@ -195,7 +195,6 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
 def search_for_address_summaries(query):
 
     # TODO: create extension if using trigram
-    # TODO: add set_limit if using trigram
     db.engine.execute(db.select([db.func.set_limit(0.4)]))
 
     summary_query = models.AddressSummary.query.filter(models.AddressSummary.address.op('%%')(query))
@@ -205,6 +204,9 @@ def search_for_address_summaries(query):
 
 @app.route('/')
 def home():
+    if not current_user.is_anonymous():
+        return redirect('/browse')
+
     return render_template('home.html', email=get_email_of_current_user())
 
 @app.route('/log-in', methods=['GET'])
