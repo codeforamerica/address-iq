@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div id="browse-page">
+    <h1>Search Results</h1>
+    {% if summaries|length > 0 %}
+    <table class="browse-results">
+        <p>Note: Call counts below are for the last 365 days.</p>
+        <thead>
+            <tr>
+                {% set headings = [
+                    ('address', 'Address'),
+                    ('biz_type', 'Business License Type'),
+                    ('fire', 'Fire Calls'),
+                    ('police', 'Police Calls'),
+                    ('status', 'Status')
+                ] %}
+
+                {% for heading in headings %}
+                <th>{{ heading[1] }}</th>
+                {% endfor %}
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for address in summaries %}
+            <tr class="{{ loop.cycle('odd', 'even') }}">
+                <td class="address">{{ address.address | title }}</td>
+                <td class="business-type">
+                    {% if address.business_count == 0 %}No registered business
+                    {% elif address.business_count == 1 %}{{ address.business_types }}
+                    {% elif address.business_count > 1 %}Multiple businesses
+                    {% endif %}
+                </td>
+                <td class="fire-calls">{{ address.counts_for_days_ago(365)['fire']['last'] }}</td>
+                <td class="police-calls">{{ address.counts_for_days_ago(365)['police']['last'] }}</td>
+                <td class="active-status">{% if address.active == True %}Active{% else %}Not active{% endif %}</td>
+                <td class="explore-link"><a href="/address/{{ address.address}}">Take a look</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <br />
+    <p>There are no results matching "{{ search_query }}". The address may have no Fire or Police incidents. Try another address above.</p>
+    {% endif %}
+</div>
+{% endblock %}
