@@ -633,6 +633,16 @@ ul.browse-date-ranges {
     }
 }
 
+/* 404 page */
+.error-page {
+  p {
+    margin-top: 16px;
+  }
+  a {
+    color: $grey-darker;
+  }
+}
+
 /* Audit Logs */
 #audit-logs {
     background-color: #d8d8d8;
