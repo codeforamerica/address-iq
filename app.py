@@ -33,9 +33,6 @@ meta.bind = db.engine
 activated_table = db.Table('activated_addresses', meta,
                             db.Column('address', db.String, primary_key=True))
 
-address_table = db.Table('standardized_addresses', meta, 
-    db.Column('standardized_address', db.String))
-
 csrf = SeaSurf(app)
 
 import models
