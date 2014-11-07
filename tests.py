@@ -87,7 +87,7 @@ class LoginTestCase(unittest.TestCase):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
             self.assertEquals(response.status_code, 200)
 
-        response = self.app.get('/')
+        response = self.app.get('/browse')
         self.assertTrue('user@example.com' in response.data)
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock(email="notexample@example.com"))    
@@ -125,7 +125,7 @@ class LoginTestCase(unittest.TestCase):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
             self.assertEquals(response.status_code, 200)
 
-        response = self.app.get('/')
+        response = self.app.get('/browse')
         self.assertTrue('Joe Fireworks' in response.data)
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='Y'))    

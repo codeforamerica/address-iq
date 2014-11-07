@@ -194,7 +194,6 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
 
 def search_for_address_summaries(query):
 
-    # TODO: create extension if using trigram
     db.engine.execute(db.select([db.func.set_limit(0.4)]))
 
     summary_query = models.AddressSummary.query.filter(models.AddressSummary.address.op('%%')(query))
@@ -316,8 +315,6 @@ def browse():
 @login_required
 @audit_log
 def search():
-    # TODO: handle no results
-    # TODO: handle missing/empty query
     query = request.args.get('q', '')
 
     summaries = search_for_address_summaries(query).all()
