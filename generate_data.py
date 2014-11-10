@@ -32,6 +32,30 @@ ADDRESSES = [
     '87111 JUNIPERO SERRA'
 ]
 
+STREET_NUMBERS = [
+    '1',
+    '2121',
+    '654',
+    '13'
+]
+
+STREET_NAMES = [
+    'MARKET',
+    'UNION',
+    'LONG BEACH',
+    'VALENCIA',
+    'PORTOLA AV #8',
+    'PORTOLA',
+    'MARINA BL #222'
+]
+
+STREET_TYPES = [
+    'AVE',
+    'BLVD',
+    'ST',
+    'WAY'
+]
+
 FIRE_TYPES = [
     'Difficulty Breathing',
     'EMS call, excluding vehicle accident with injury',
@@ -59,6 +83,14 @@ BUSINESS_TYPES = [
     'Bar'
 ]
 
+def generate_street_type(obj):
+    # TODO: choose from street_types if address has no '#'
+    import random
+    return random.choice(STREET_TYPES) if '#' not in obj.street_name else ''
+
+def generate_address(obj):
+    return ' '.join([obj.street_number, obj.street_name, obj.street_type])
+
 AVG_RECORDS_PER_ADDRESS = 60
 
 START_DATE = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=365*2)
@@ -66,7 +98,10 @@ START_DATE = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=365*2)
 def generate_fire_data():
     num_records = AVG_RECORDS_PER_ADDRESS * len(ADDRESSES)
 
-    incidents = [FireIncidentFactory(incident_address=factory.fuzzy.FuzzyChoice(ADDRESSES),
+    incidents = [FireIncidentFactory(street_number=factory.fuzzy.FuzzyChoice(STREET_NUMBERS),
+                                     street_name=factory.fuzzy.FuzzyChoice(STREET_NAMES),
+                                     street_type=factory.LazyAttribute(generate_street_type),
+                                     incident_address=factory.LazyAttribute(generate_address),
                                      alarm_datetime=factory.fuzzy.FuzzyDateTime(START_DATE),
                                      actual_nfirs_incident_type_description=factory.fuzzy.FuzzyChoice(FIRE_TYPES))
      for i in range(num_records)]
@@ -74,7 +109,10 @@ def generate_fire_data():
 def generate_police_data():
     num_records = AVG_RECORDS_PER_ADDRESS * len(ADDRESSES)
 
-    incidents = [PoliceIncidentFactory(incident_address=factory.fuzzy.FuzzyChoice(ADDRESSES),
+    incidents = [PoliceIncidentFactory(street_number=factory.fuzzy.FuzzyChoice(STREET_NUMBERS),
+                                       street_name=factory.fuzzy.FuzzyChoice(STREET_NAMES),
+                                     street_type=factory.LazyAttribute(generate_street_type),
+                                       incident_address=factory.LazyAttribute(generate_address),
                                        call_datetime=factory.fuzzy.FuzzyDateTime(START_DATE),
                                        final_cad_call_type_description=factory.fuzzy.FuzzyChoice(POLICE_TYPES))
      for i in range(num_records)]
