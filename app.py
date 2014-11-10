@@ -191,7 +191,9 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
 
 def search_for_address_summaries(query):
 
-    db.engine.execute(db.select([db.func.set_limit(0.4)]))
+    # Similarity threshold determined by trial and error
+    threshold = 0.4
+    db.engine.execute(db.select([db.func.set_limit(threshold)]))
 
     summary_query = models.AddressSummary.query.filter(models.AddressSummary.address.op('%%')(query))
     summary_query = summary_query.order_by(db.desc(db.func.similarity(models.AddressSummary.address, query)))
