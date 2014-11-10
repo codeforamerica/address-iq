@@ -28,7 +28,7 @@
                 <td class="address">{{ address.address | title }}</td>
                 <td class="business-type">
                     {% if address.business_count == 0 %}No registered business
-                    {% elif address.business_count == 1 %}{{ address.business_types }}
+                    {% elif address.business_count == 1 %}{{ address.business_types | truncate(25) }}
                     {% elif address.business_count > 1 %}Multiple businesses
                     {% endif %}
                 </td>
