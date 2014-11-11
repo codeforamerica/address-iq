@@ -63,7 +63,7 @@ def address_counts_dict_to_call_summary(address, counts):
         'active': counts.get('active', False)
     }
 
-    model_timeframes = [7, 30, 90, 365]
+    model_timeframes = [7, 30, 90, 180, 365]
 
     for department in ['fire', 'police']:
         count_field = department + '_counts'

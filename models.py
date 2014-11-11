@@ -139,6 +139,13 @@ class AddressSummary(db.Model):
     police_incidents_last90 = db.Column(db.Integer)
     police_incidents_prev90 = db.Column(db.Integer)
 
+    # For reporting page. Six months (~30 days each)
+    # We don't use prev, but without it here, count_calls will fail.
+    fire_incidents_last180 = db.Column(db.Integer)
+    fire_incidents_prev180 = db.Column(db.Integer)
+    police_incidents_last180 = db.Column(db.Integer)
+    police_incidents_prev180 = db.Column(db.Integer)
+
     fire_incidents_last365 = db.Column(db.Integer)
     fire_incidents_prev365 = db.Column(db.Integer)
     police_incidents_last365 = db.Column(db.Integer)
