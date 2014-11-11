@@ -15,8 +15,17 @@ import sqlalchemy as sa
 
 
 def upgrade():
+	# @todo: Determine how to make these columns get added after the _prev90 ones.
+    op.add_column('address_summaries', sa.Column('fire_incidents_last180', sa.Integer))
+    op.add_column('address_summaries', sa.Column('fire_incidents_prev180', sa.Integer))
+    op.add_column('address_summaries', sa.Column('police_incidents_last180', sa.Integer))
+    op.add_column('address_summaries', sa.Column('police_incidents_prev180', sa.Integer))
     pass
 
 
 def downgrade():
+    op.drop_column('address_summaries', 'fire_incidents_last180')
+    op.drop_column('address_summaries', 'fire_incidents_prev180')
+    op.drop_column('address_summaries', 'police_incidents_last180')
+    op.drop_column('address_summaries', 'police_incidents_prev180')
     pass
