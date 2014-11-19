@@ -66,7 +66,7 @@
     {{ render_pagination(summaries, search_query) }}
     {% else %}
     <br />
-    <p>There are no results matching "{{ search_query }}". The address may have no Fire or Police incidents. If you think an address has had incidents, but isn't showing, try a more specific address (i.e., "1234 Long Beach Blvd").</p>
+    <p>There are no results matching "{{ search_query }}". The address may have no recorded Fire or Police incidents. If an address isn't showing up but you think it has had incidents, try a more specific version of the address (e.g., "1234 Long Beach Blvd").</p>
     {% endif %}
 </div>
 {% endblock %}
