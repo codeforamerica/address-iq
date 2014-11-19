@@ -1,9 +1,32 @@
 {% extends "layout.html" %}
 
+{% macro render_pagination(pagination, query) %}
+  <div class=pagination>
+    {% if pagination.has_prev %}
+      <a class="prev" href="{{ url_for('search', q=query, page=pagination.prev_num)}}">Prev</a>
+    {% endif %}
+  {%- for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+        <a class="page" href="{{ url_for('search', q=query, page=page) }}">{{ page }}</a>
+      {% else %}
+        <strong class="active-page">{{ page }}</strong>
+      {% endif %}
+    {% else %}
+      <span class=ellipsis>…</span>
+    {% endif %}
+  {%- endfor %}
+  {% if pagination.has_next %}
+    <a class="next" href="{{ url_for('search', q=query, page=pagination.next_num) }}">Next</a>
+  {% endif %}
+
+  </div>
+{% endmacro %}
+
 {% block body %}
 <div id="search-page">
     <h1>Search Results</h1>
-    {% if summaries|length > 0 %}
+    {% if summaries.items|length > 0 %}
     <table class="search-results">
         <p>Note: Call counts below are for the last 365 days.</p>
         <thead>
@@ -23,7 +46,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for address in summaries %}
+            {% for address in summaries.items %}
             <tr class="{{ loop.cycle('odd', 'even') }}">
                 <td class="address">{{ address.address | title }}</td>
                 <td class="business-type">
@@ -40,6 +63,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {{ render_pagination(summaries, search_query) }}
     {% else %}
     <br />
     <p>There are no results matching "{{ search_query }}". The address may have no Fire or Police incidents. If you think an address has had incidents, but isn't showing, try a more specific address (i.e., "1234 Long Beach Blvd").</p>

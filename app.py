@@ -316,7 +316,8 @@ def browse():
 def search():
     query = request.args.get('q', '')
 
-    summaries = search_for_address_summaries(query).all()
+    page = int(request.args.get('page', 1))
+    summaries = search_for_address_summaries(query).paginate(page, per_page=25)
 
     return render_template("search.html", summaries=summaries, email=get_email_of_current_user(),
                            search_query=query)
