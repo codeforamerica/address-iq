@@ -192,6 +192,10 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
 def home():
     return render_template('home.html', email=get_email_of_current_user())
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', email=get_email_of_current_user())
+
 @app.route('/log-in', methods=['GET'])
 def login_page():
     next = request.args.get('next')

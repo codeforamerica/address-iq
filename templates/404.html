@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}Page not found{% endblock %}
+{% block body %}
+<div class="error-page">
+  <h1>Page not found</h1>
+  <p>
+  	That page doesn&rsquo;t seem to exist. Try the <a href="{{ url_for('browse') }}">browse page</a> or the search box above.
+  </p>
+</div>
+{% endblock %}

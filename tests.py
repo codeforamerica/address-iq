@@ -367,7 +367,7 @@ class AddressUtilityTestCase(unittest.TestCase):
 
     def test_address_page_with_no_incidents_returns_404(self):
         rv = self.app.get('/address/123 main st')
-        assert rv.status_code == 404
+        assert "Page not found" in rv.data
 
     def test_address_page_shows_correct_address(self):
         [FireIncidentFactory(standardized_address="456 LALA LN")
