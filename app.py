@@ -23,7 +23,13 @@ from oauth2client.client import SignedJwtAssertionCredentials
 from gdata.gauth import OAuth2TokenFromCredentials
 
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
+
+try:
+    import clb_config
+    app.config.from_object('clb_config.Config')
+except:
+    app.config.from_object(os.environ['APP_SETTINGS'])
+
 app.permanent_session_lifetime = timedelta(minutes=15)
 db = SQLAlchemy(app)
 
