@@ -87,7 +87,7 @@ class LoginTestCase(unittest.TestCase):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
             self.assertEquals(response.status_code, 200)
 
-        response = self.app.get('/')
+        response = self.app.get('/browse')
         self.assertTrue('user@example.com' in response.data)
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock(email="notexample@example.com"))    
@@ -125,7 +125,7 @@ class LoginTestCase(unittest.TestCase):
             response = self.app.post('/log-in', data={'assertion': 'sampletoken'})
             self.assertEquals(response.status_code, 200)
 
-        response = self.app.get('/')
+        response = self.app.get('/browse')
         self.assertTrue('Joe Fireworks' in response.data)
 
     @mock.patch('app.SpreadsheetsClient', setup_google_mock(can_view_fire='Y'))    
@@ -367,7 +367,7 @@ class AddressUtilityTestCase(unittest.TestCase):
 
     def test_address_page_with_no_incidents_returns_404(self):
         rv = self.app.get('/address/123 main st')
-        assert rv.status_code == 404
+        assert "Page not found" in rv.data
 
     def test_address_page_shows_correct_address(self):
         [FireIncidentFactory(standardized_address="456 LALA LN")

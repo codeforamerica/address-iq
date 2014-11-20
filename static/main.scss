@@ -511,7 +511,7 @@ ol.call-types li {
 
 /* Browse page */
 
-#browse-page {
+#browse-page, #search-page {
     background-color: white;
     border-radius: 10px;
     padding: 20px 60px;
@@ -555,7 +555,7 @@ ul.browse-date-ranges {
     }
 }
 
-.browse-results {
+.browse-results, .search-results {
     clear: both;
     width: 820px;
     margin: 0 auto;
@@ -631,6 +631,16 @@ ul.browse-date-ranges {
         background-color: $grey-darker;
         display: inline-block;
     }
+}
+
+/* 404 page */
+.error-page {
+  p {
+    margin-top: 16px;
+  }
+  a {
+    color: $grey-darker;
+  }
 }
 
 /* Audit Logs */

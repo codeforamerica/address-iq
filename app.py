@@ -194,9 +194,28 @@ def get_top_incident_reasons_by_timeframes(incidents, timeframes, include_fire=T
         del top_call_types['fire']
     return top_call_types
 
+
+def search_for_address_summaries(query):
+
+    # Similarity threshold determined by trial and error
+    threshold = 0.4
+    db.engine.execute(db.select([db.func.set_limit(threshold)]))
+
+    summary_query = models.AddressSummary.query.filter(models.AddressSummary.address.op('%%')(query))
+    summary_query = summary_query.order_by(db.desc(db.func.similarity(models.AddressSummary.address, query)))
+
+    return summary_query
+
 @app.route('/')
 def home():
+    if not current_user.is_anonymous():
+        return redirect('/browse')
+
     return render_template('home.html', email=get_email_of_current_user())
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', email=get_email_of_current_user())
 
 @app.route('/log-in', methods=['GET'])
 def login_page():
@@ -300,6 +319,18 @@ def browse():
 
     return render_template("browse.html", summaries=summaries, date_range=date_range,
         sort_by=sort_by, sort_order=sort_order, email=get_email_of_current_user())
+
+@app.route("/search")
+@login_required
+@audit_log
+def search():
+    query = request.args.get('q', '')
+
+    page = int(request.args.get('page', 1))
+    summaries = search_for_address_summaries(query).paginate(page, per_page=25)
+
+    return render_template("search.html", summaries=summaries, email=get_email_of_current_user(),
+                           search_query=query)
 
 
 @csrf.exempt
