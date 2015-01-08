@@ -1,17 +1,21 @@
 AddressIQ
 =====================
 
-This dashboard analyzes data in order to help identify emergency resource super-utilizers and support finding cost-effective ways to give them better care.
+AddressIQ is a web application that analyzes city data to help identify addresses with a high number of 911 calls and support finding cost-effective ways to provide those addresses with better care and resources.
 
-This app is being developed by Team Long Beach (@dget, @fureigh and @mollymcleod) for Long Beach, California.
+View the [AddressIQ User Manual](https://docs.google.com/a/codeforamerica.org/presentation/d/1gSuvhTcUj2y-2w-lBtxw6iCQXXlI2RY5x4C461OhgMs/edit#slide=id.p) for a walkthrough of how the app works and what it looks like.
 
-For more context, see this [five-minute video](https://www.youtube.com/watch?v=TxifmeeFT2s) from the 2014 Code for America Summit.
+Read [AddressIQ 101 Documentation](https://docs.google.com/a/codeforamerica.org/document/d/1sC7tCxGHRgozcPbNPNoY56ggey4JkxJOQqx8acHQOMs/edit) for more in-depth background of the problem AddressIQ is trying to solve and information about health hot spotting.
+
+Read [our End of Year Report](https://docs.google.com/document/d/1gVUR94EG5LQx_zzjhNUrOtGssinEd8iqPpOczmksiO4/edit?usp=sharing) for the most in-depth coverage of our fellowship journey and how we came to develop AddressIQ.
+
+This project was developed by Code for America fellows (@dget, @fureigh, and @mollymcleod) for Long Beach, California.
+
+For more context, watch our [five-minute talk](https://www.youtube.com/watch?v=TxifmeeFT2s) from the 2014 Code for America Summit.
 
 What this data can and can't tell us
 ------------------------------------
-The actual data we've been analyzing is not included in this repo. Still, it's worth noting what it can and can't tell us.
-
-This data can't tell us about individuals, it can only tell us about addresses. The development and any findings must be framed accordingly.
+The actual data we analyzed is not included in this repo. This data can't tell us about individuals, it can only tell us about addresses. The development and any findings must be framed accordingly.
 
 Installation
 ------------
